@@ -1,16 +1,16 @@
 #PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-CXX = g++ -Wall -Ilibsmf
+CXX = /usr/bin/g++ -Wall -Ilibsmf
 
 OBJS = main.o
 
 CFLAGS += -g
 
-EXECUTABLES = demo.exe
+EXECUTABLE = demo.exe
 
-all:	$(EXECUTABLES)
+all:	$(EXECUTABLE)
 
-SMFReader.exe:	$(OBJS)
+$(EXECUTABLE):	$(OBJS)
 	$(CXX) -o $@ $^
 
 #%.o:	$(PROJECT_ROOT)%.cpp
@@ -22,4 +22,5 @@ SMFReader.exe:	$(OBJS)
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 clean:
-	rm -fr $(EXECUTABLES) $(OBJS)
+	rm -fr $(EXECUTABLE) $(OBJS)
+	rm -f *~
