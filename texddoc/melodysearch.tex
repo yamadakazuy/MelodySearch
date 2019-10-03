@@ -1,0 +1,41 @@
+\documentclass[11pt]{jreport}
+\usepackage{latexsym}
+\usepackage{mathrsfs}
+\usepackage{amssymb}
+%\usepackage{url}
+%\usepackage{lscape}
+\usepackage{graphics}
+\usepackage{theorem}
+
+\input{A4}
+\usepackage{theorem}
+\renewcommand{\baselinestretch}{1.25}
+\setlength{\parskip}{0.25ex}
+\renewcommand{\arraystretch}{0.85}
+\begin{document}
+
+
+\subsection*{定義}
+musical note-on sequence $\mathit{\mu} = \langle e_1, \ldots, e_n \rangle$ は組 $e_i = (t_i, p_i, \nu_i) \in \mathbb{Z}^+ \times \{1, \ldots, 15\} \times \{0, \ldots, 127\}$ の列である．
+$t_i$ を発音時刻，$p_i$ をプログラム，$\nu_i$ をノートナンバー（音番号）という．
+デジタル楽譜または SMF ファイルは，musical note-on sequence ひとつ，またはそれらいくつかの組とみなす．
+
+musical note-on sequence の subsequence で，
+あるプログラム $p$ を持つ組すべてを持つもの $t_{\pi(1)}, \ldots, t_{\pi(m)}$ （$1 \leq \pi(1) < \cdots< \pi(m) \leq n$）を単一プログラム列という．
+
+（要改良）
+単一プログラム列から，
+各発音時刻について（発音時刻が同じ組の）ノートナンバーのうち最も大きい組（１つしかないばあいはその組）を取り出した列の，
+連続する（隣り合う）ノートナンバーの差 $\Delta_{p,i} = \nu_{\pi(i+1)} - \nu_{\pi(i)}$ の列を，音程列 interval sequence という．
+音程列は，有限アルファベット $I = \{-127, \ldots, 0, \ldots, 127\}$ 上の文字列である．
+
+\begin{defn}[音程マッチング, メロディーコンター?マッチング]
+音程列マッチングは，与えられた長さが異なる音程列 $s, t \in I^*$ ただし $|s| \leq |t|$ に対して，$s$ が $t$ 中で最初に出現する位置，すなわち
+$0 \leq i < |s|$ のとき $t[l+i] = s[i]$ となる（最小の）$l$ を見つける（またはみつからないことを確認する）問題である．
+
+（最初の基本形）
+Melodic contour とは，音程列のすべての文字を， $-127$ から $-1$ は $\mathtt{-}$に, $0$ は $\mathtt{=}$に, $1$ から $127$ は $\mathtt{+}$ に置き換えた文字列のことである．
+Melodic contour matching は，与えられた melodic contour $s, t \in \{\mathtt{-}, \mathtt{=}, \mathtt{+}\}$ に対して，$s$ が $t$ 中に最初に出現する位置をみつける問題である．
+\end{defn}
+
+\end{document}
