@@ -1,0 +1,83 @@
+\documentclass[11pt]{jreport}
+\usepackage{latexsym}
+\usepackage{mathrsfs}
+\usepackage{amssymb}
+%\usepackage{url}
+%\usepackage{lscape}
+\usepackage{graphics}
+\usepackage{theorem}
+
+\input{A4}
+\usepackage{theorem}
+\renewcommand{\baselinestretch}{1.25}
+\setlength{\parskip}{0.25ex}
+\renewcommand{\arraystretch}{0.85}
+\begin{document}
+
+\section{libsmf ドキュメント （20191004版）}
+
+libsmf は，標準MIDIフォーマットファイルを扱うためのライブラリで，
+インクルードファイル SMFEvent.h と SMFStream.h のみからり，
+使用するプログラムファイルで上記をインクルードすれば使用できる．
+
+\subsection*{SMFEvent.h}
+SMF の内容としてあらわれる各 MIDI イベントおよびトラックの先頭マークを表現するデータ構造 SMFEvent と，
+その手続き群を定義する．
+イベントは，ユーザーが作成することはなく，生成は SMFStream に対する getNextEvent 手続きで取得する際に行われるのみである．
+
+イベントのタイプは 1) システム・エクスクルーシブ，エスケープ形式のシステムエクスクルーシブ，2) メタ，3) MIDI，および 4) ファイルヘッダ，6) トラックヘッダ である．
+ノートオンまたはオフ，プログラムチェンジなどのイベントを固定サイズのデータとして扱うことを目的としているため，可変長のテキストデータを持つイベントの場合，そのテキストの先頭8文字分だけを保持する．
+
+構造体として，以下のような直接アクセスできるメンバーを持つ：
+\verb+.delta+ デルタタイム．
+ノートイベントについては，\verb+.number+ ノートナンバー，
+\verb+.velocity+ ベロシティ（0 でノートオフ）．
+イベントの宛先チャンネルは，\verb+channel()+ で取得する．
+
+個々のイベントに対して，以下の手続きが用意されている．
+
+\subsubsection*{\tt bool isMIDI() const}
+MIDI イベントであれば \verb+true+ を返す．
+
+\subsubsection*{\tt bool isNote() const}
+ノートオンまたはノートオフイベントであれば \verb+true+ を返す．
+
+\subsubsection*{\tt bool isNoteOff() const}
+ノートオフであれば \verb+true+ を返す．
+
+\subsubsection*{\tt bool isNoteOn() const}
+ノートオンであれば \verb+true+ を返す．
+
+\subsubsection*{\tt bool isSys() const}
+システムエクスクルーシブまたはエスケープ形式のシステムエクスクルーシブイベントであれば \verb+true+ を返す．
+
+\subsubsection*{\tt bool isMeta() const}
+メタイベントであれば \verb+true+ を返す．
+
+\subsubsection*{\tt bool isMT() const}
+ファイルまたはトラックヘッダであれば \verb+true+ を返す．
+
+\subsubsection*{\tt bool isMTRK() const}
+トラックヘッダであれば \verb+true+ を返す．
+
+\subsubsection*{\tt uint8 channel() const}
+イベントの宛先チャネルを返す。
+
+\subsubsection*{\tt outstream << オブジェクト}
+out stream に SMFEvent オブジェクトを印字出力する．
+
+
+\subsection*{SMFStream.h}
+オープンした SMF バイナリーファイルを SMF イベントのストリームとして扱うための
+ラッパー（包みデータ型）．
+
+オープンしたバイナリーファイルを引数として宣言し生成する．
+メンバー \verb+.smfstream+ が包んでいるバイナリーファイルストリーム．
+
+\subsubsection*{\tt .getNextEvent()}
+現在ファイルを読んでいる位置から，イベントを一つ読み取って返す．
+読み取り位置は次のイベントの先頭にすすむ．
+
+
+
+\end{document}
