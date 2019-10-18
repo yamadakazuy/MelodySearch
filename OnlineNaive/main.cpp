@@ -29,6 +29,7 @@ void kmp::init_failure() {
 	int skip, i;
 	for(skip = 1; skip < patlen; ++skip) {
 		for(i = 0; && pattern[skip+i] == pattern[i]; ++i);
+
 	}
 }
 
