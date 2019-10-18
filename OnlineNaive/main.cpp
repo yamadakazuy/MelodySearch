@@ -2,41 +2,35 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct naive {
+struct kmp {
 	const char * pattern;
 	const int patlen;
-	int matchpos;
-	char * ring;
-	int ringpos;
+	int * failure;
 
-	naive(const char * patt) : pattern(patt), patlen(strlen(patt)) {
-		matchpos = 0;
-		ring = new char[patlen];
-		ringpos = 0;
+	kmp(const char * pat) : pattern(pat), patlen(strlen(pat)) {
+		failure = new int[patlen];
+		for(int i=0; i < patlen; ++i)
+			failure[i] = 0;
+		init_failure();
 	}
 
-	~naive() {
-		delete [] ring;
+	~kmp() {
+		delete [] failure;
 	}
+
+	void init_failure();
 
 	bool match(const char c) {
-		if ( c == '\0' )
-			return false;
-		ring[ringpos] = c;
-		ringpos += 1;
-		ringpos %= patlen;
-		int pos, rpos;
-		for(pos = 0, rpos = (ringpos+1)% patlen;
-				pos < patlen;
-				++pos, rpos = (rpos+1)% patlen) {
-			if (pattern[pos] != ring[rpos])
-				break;
-		}
-		if (pos == patlen)
-			return true;
 		return false;
 	}
 };
+
+void kmp::init_failure() {
+	int skip, i;
+	for(skip = 1; skip < patlen; ++skip) {
+		for(i = 0; && pattern[skip+i] == pattern[i]; ++i);
+	}
+}
 
 int main(int argc, char * argv[]) {
 	char t[] = "mississippi river";
