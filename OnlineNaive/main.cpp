@@ -2,45 +2,47 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct kmp {
+struct naive {
 	const char * pattern;
 	const int patlen;
-	int * failure;
+	char * ring;
+	int ringtail;
 
-	kmp(const char * pat) : pattern(pat), patlen(strlen(pat)) {
-		failure = new int[patlen];
-		for(int i=0; i < patlen; ++i)
-			failure[i] = 0;
-		init_failure();
+	naive(const char * pat) : pattern(pat), patlen(strlen(pat)) {
+		ring = new char[patlen];
+		ringtail = 0;
+		ring[ringtail] = '\0';
 	}
 
-	~kmp() {
-		delete [] failure;
+	~naive() {
+		delete [] ring;
 	}
 
-	void init_failure();
+	int length() { return patlen; }
 
 	bool match(const char c) {
-		return false;
+		int pos;
+		ring[++ringtail] = c;
+		printf("pos = ");
+		for(pos = 0; pos < patlen; ++pos) {
+			printf("%c %d-%d, ", pattern[pos], pos, (ringtail+1+pos) % patlen);
+			if (pattern[pos] != ring[(ringtail+1+pos) % patlen])
+				break;
+		}
+		printf("\n");
+		return pos == patlen;
 	}
 };
 
-void kmp::init_failure() {
-	int skip, i;
-	for(skip = 1; skip < patlen; ++skip) {
-		for(i = 0; && pattern[skip+i] == pattern[i]; ++i);
-
-	}
-}
-
 int main(int argc, char * argv[]) {
 	char t[] = "mississippi river";
-	char p[] = "ssissi";
+	char p[] = "issi";
 
 	printf("text = %s,\npattern = %s\n", t, p);
 
 	naive pmm(p);
 
+	printf("patlen = %d\n", pmm.length());
 	for(int i = 0; i < strlen(t); ++i) {
 		if (pmm.match(t[i])) {
 			printf("matched at %d to %d\n", i-pmm.patlen+1, i);
