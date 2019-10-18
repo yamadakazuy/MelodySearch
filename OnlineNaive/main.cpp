@@ -10,8 +10,8 @@ struct naive {
 
 	naive(const char * pat) : pattern(pat), patlen(strlen(pat)) {
 		ring = new char[patlen];
+		ring[patlen-1] = '\0';
 		ringtail = 0;
-		ring[ringtail] = '\0';
 	}
 
 	~naive() {
@@ -20,13 +20,21 @@ struct naive {
 
 	int length() { return patlen; }
 
+	void append_to_ring(const char c) {
+		ring[ringtail] = c;
+		ringtail = (ringtail+1)%patlen;
+		for(int i = 0; i< patlen; ++i) {
+			printf("%c", ring[(ringtail+i)%patlen]);
+		}
+	}
+
 	bool match(const char c) {
 		int pos;
-		ring[++ringtail] = c;
-		printf("pos = ");
+		append_to_ring(c);
 		for(pos = 0; pos < patlen; ++pos) {
-			printf("%c %d-%d, ", pattern[pos], pos, (ringtail+1+pos) % patlen);
-			if (pattern[pos] != ring[(ringtail+1+pos) % patlen])
+			printf(": ");
+			printf("%c %d-%d %c, ", pattern[pos], pos, (ringtail+pos) % patlen, ring[(ringtail+pos) % patlen]);
+			if (pattern[pos] != ring[(ringtail+pos) % patlen])
 				break;
 		}
 		printf("\n");
@@ -45,7 +53,7 @@ int main(int argc, char * argv[]) {
 	printf("patlen = %d\n", pmm.length());
 	for(int i = 0; i < strlen(t); ++i) {
 		if (pmm.match(t[i])) {
-			printf("matched at %d to %d\n", i-pmm.patlen+1, i);
+			printf("matched at [%d,%d]\n", i-pmm.patlen+1, i);
 		}
 	}
 	printf("finished.\n");

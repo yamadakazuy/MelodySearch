@@ -1,6 +1,6 @@
 #PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-CXX = /usr/bin/g++ -Wall -Ilibsmf
+CXX = g++ -Wall -Ilibsmf
 
 OBJS = main.o
 

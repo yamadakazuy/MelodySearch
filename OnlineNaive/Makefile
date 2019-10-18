@@ -1,4 +1,5 @@
-PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+#PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+PROJECT_ROOT = ../../
 
 OBJS = main.o
 
@@ -10,16 +11,16 @@ else
 	$(error Build mode $(BUILD_MODE) not supported by this Makefile)
 endif
 
-all:	OnlinePatternMatching
+all:	olnaive
 
-OnlinePatternMatching:	$(OBJS)
+olnaive:	$(OBJS)
 	$(CXX) -o $@ $^
 
 %.o:	$(PROJECT_ROOT)%.cpp
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
-%.o:	$(PROJECT_ROOT)%.c
+%.o:	%.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 clean:
-	rm -fr OnlinePatternMatching $(OBJS)
+	rm -fr olnaive $(OBJS)
