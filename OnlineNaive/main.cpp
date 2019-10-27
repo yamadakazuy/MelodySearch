@@ -23,21 +23,21 @@ struct naive {
 	void append_to_ring(const char c) {
 		ring[ringtail] = c;
 		ringtail = (ringtail+1)%patlen;
-		for(int i = 0; i< patlen; ++i) {
-			printf("%c", ring[(ringtail+i)%patlen]);
-		}
+		//for(int i = 0; i< patlen; ++i) {
+		//	printf("%c", ring[(ringtail+i)%patlen]);
+		//}
 	}
 
 	bool match(const char c) {
 		int pos;
 		append_to_ring(c);
 		for(pos = 0; pos < patlen; ++pos) {
-			printf(": ");
-			printf("%c %d-%d %c, ", pattern[pos], pos, (ringtail+pos) % patlen, ring[(ringtail+pos) % patlen]);
+			//printf(": ");
+			//printf("%c %d-%d %c, ", pattern[pos], pos, (ringtail+pos) % patlen, ring[(ringtail+pos) % patlen]);
 			if (pattern[pos] != ring[(ringtail+pos) % patlen])
 				break;
 		}
-		printf("\n");
+		//printf("\n");
 		return pos == patlen;
 	}
 };
