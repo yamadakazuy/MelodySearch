@@ -37,11 +37,10 @@ int main(int argc, char **argv) {
 		}
 		if ( evt.isNoteOn() ) {
 			if ( last_total != delta_total ) {
-				std::cout << std::endl << std::dec << delta_total << " ";
 				last_total = delta_total;
 			}
-			std::cout << evt << " ";
 		}
+		std::cout << std::dec << delta_total << " " << evt << std::endl;
 	}
 	/*
 	 * binary file dump

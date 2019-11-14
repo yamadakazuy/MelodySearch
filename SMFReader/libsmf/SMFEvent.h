@@ -13,13 +13,15 @@
 #include <fstream>
 
 typedef uint8_t  uint8;
+typedef int16_t  int16;
 typedef uint16_t uint16;
+typedef int32_t  int32;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
 typedef unsigned int  uint;
 
 struct SMFEvent {
-	uint32 delta;
+	int32 delta;
 	uint8  type;
 	union {
 		uint32 length;
@@ -32,7 +34,7 @@ struct SMFEvent {
 		};
 		struct {
 			uint8 number, velocity;
-			uint16 pitchbend;
+			int16 pitchbend;
 		};
 		struct {
 			uint8 meta;
@@ -116,7 +118,7 @@ struct SMFEvent {
 				ost << "(ESCSYSEX) ";
 			}
 		} else if ( evt.isMeta() ) {
-			ost << "(M ";
+			ost << "(Meta ";
 			if ( evt.meta == 0x01 ) {
 				ost << "TEXT" << ") ";
 				for(uint i = 0; i < evt.length; ++i) {
@@ -184,26 +186,33 @@ struct SMFEvent {
 		} else if ( evt.isMIDI() ) {
 			switch ( evt.type & 0xf0 ) {
 			case 0xb0:
-				ost << "(ctrl ch) " << std::hex << (uint) evt.channel()
-					<< " " << std::hex << (uint) evt.number
-					<< " " << std::hex << (uint) evt.velocity;
+				ost << "(ctrl ch: " << std::hex << (uint) evt.channel()
+					<< ") " << std::dec << (uint) evt.number
+					<< " " << std::dec << (uint) evt.velocity;
 				break;
 			case 0xc0:
-				ost << "(prog ch) " << std::hex << (uint) evt.channel()
-					<< " " << std::hex << (uint) evt.number;
+				ost << "(prog ch: " << std::dec << (uint) evt.channel()
+					<< ") " << std::dec << (uint) evt.number;
 				break;
 			case 0x80:
 			case 0x90:
 				if ( (evt.type & 0xf0) == 0x80 || evt.velocity == 0 ) {
-					ost << "(off) ";
-					ost << (unsigned int) evt.channel()
-						<< " " << (unsigned int) evt.number;
+					ost << "(off: ";
+					ost << std::dec << (uint) evt.channel()
+						<< ") " << std::dec << (uint) evt.number;
 				} else {
-					ost << "(on)  ";
-					ost << (unsigned int) evt.channel()
-						<< " " << (unsigned int) evt.number << ", " << (unsigned int) evt.velocity;
+					ost << "(on:  ";
+					ost << std::dec << (uint) evt.channel()
+						<< ") " << std::dec << (uint) evt.number << ", " << (unsigned int) evt.velocity;
 				}
 				break;
+			case 0xe0:
+				ost << "(pitchbend ch: " << std::dec << (uint) evt.channel()
+					<< ") " << std::dec << evt.pitchbend;
+				break;
+			default:
+				ost << "(?? " << std::dec << (uint)(evt.type)
+					<< ": " << std::dec << evt.channel() << ") ";
 			}
 		} else if ( evt.isMT() ) {
 			if ( evt.type == MTRK ) {

@@ -110,9 +110,9 @@ struct SMFStream {
 			event.number = nextByte;
 			break;
 		case 0xe0: // pitch bend
-			read_byte();
-			event.pitchbend = ((uint16) read_byte() & 0x7f)<<7;
-			event.pitchbend |= nextByte & 0x7f;
+			event.pitchbend = nextByte & 0x7f;
+			event.pitchbend |= ((uint16) read_byte() & 0x7f)<<7;
+			event.pitchbend -= 8192;
 			break;
 		}
 		return event;
@@ -178,6 +178,7 @@ struct SMFStream {
 			complete_read_MIDIEvent(event, *tbuf);
 			last_status = event.type;
 		} else if ( (last_status & 0xf0) >= 0x80 && (last_status & 0xf0) < 0xf0) {
+			std::cout << "running " << std::flush;
 			// assumes in the running status mode, since no event type byte matches
 			*tbuf = event.type; // extract as the byte next to event type
 			event.type = last_status;
