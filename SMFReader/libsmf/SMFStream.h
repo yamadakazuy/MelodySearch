@@ -128,6 +128,16 @@ struct SMFStream {
 		std::cerr << "an SMFStream closed." << std::endl;
 	}
 
+	void reset() {
+		 last_status = 0;
+		 stream_status = 0;
+		 current_track = 0;
+		 midistatus.omni = true;
+		 midistatus.poly = false;
+		 smfstream.clear();
+		 smfstream.seekg(0);
+	}
+
 	SMFEvent getNextEvent() {
 		SMFEvent event;
 		uint8 tbuf[16];
@@ -178,7 +188,7 @@ struct SMFStream {
 			complete_read_MIDIEvent(event, *tbuf);
 			last_status = event.type;
 		} else if ( (last_status & 0xf0) >= 0x80 && (last_status & 0xf0) < 0xf0) {
-			std::cout << "running " << std::flush;
+			//std::cout << "running " << std::flush;
 			// assumes in the running status mode, since no event type byte matches
 			*tbuf = event.type; // extract as the byte next to event type
 			event.type = last_status;
