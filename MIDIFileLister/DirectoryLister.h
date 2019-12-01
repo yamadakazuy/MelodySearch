@@ -12,7 +12,6 @@ struct DirectoryLister {
 	std::deque<pathdir> pathdirs;
 	dirent * lastentry;
 
-#define A_SUBDIR _A_SUBDIR
 /*
 #define DT_UNKNOWN       0
 #define DT_FIFO          1
@@ -23,6 +22,8 @@ struct DirectoryLister {
 #define DT_LNK          10
 #define DT_SOCK         12
 #define DT_WHT          14
+
+* windows では _A_SUBDIR ?
 */
 
 	DirectoryLister(const char *path) : pathdirs(), lastentry(NULL) {

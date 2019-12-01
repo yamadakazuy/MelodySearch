@@ -1,0 +1,83 @@
+Here is "Bethena, A Concert Waltz" by Scott Joplin published in 1905.
+
+ABOUT THE MIDI FILES:
+There are 2 MIDI files in this archive:
+
+BTHENA_S.MID is a stereo midi which uses pan controller instructions to
+place each note in a stereo spectrum.  Lowest note at the far left and
+the highest note far right.  All the rest somewhere in between depending
+on their pitch.  It sounds just like you were sitting in front of a
+player piano.
+
+BTHENA_M.MID is the same performance with all the pan controller in- 
+structions removed.  I discovered that some FM synthesis sound cards
+(such as the ProAudio Spectrum and SoundBlaster)
+cannot handle pan controller calls correctly.  Most of the notes play
+in the center of the two channels with an occasional high note playing
+far right and a few low notes playing far left.  This is very unnatural
+sounding and if your sound card is this type, use this file which will
+play OK.
+
+This MIDI was sequenced with Cakewalk Pro on a SB AWE 32
+sound card.  Your sound card may not reproduce bass notes with the
+same intensity as the AWE.  If this is the case, the balance between
+the Right Hand part (Track 1) and the Left Hand part (track 2) will
+need to be adjusted.  Load the file into a sequencer and edit the 
+track volumes according to your taste and sound card.
+
+ABOUT THE COMPOSER AND THE COMPOSITION:
+Scott Joplin, the "King of Ragtime Composers", in 1904 was near the peak 
+of his career when his young bride, Freddie Alexander of Little Rock, Arkansas
+died just 2 months after their marriage.  The existance of Freddie was almost
+forgotten.  None of Joplin's acquaintances who had been interviewed for
+eariler biographies had ever referred to her.  Edward A. Berlin in his 
+recently published Joplin biography, "King of Ragtime" devotes an entire 
+chapter to Freddie.  His meticulous research proves her existence and brings 
+to light several facts about her. I quote: "It is strange that none of Joplin's
+associates who were interviewed in later years, including his widow Lottie and
+his friends Arthur Marshall and Sam Patterson, mentioned Freddie.  Perhaps the
+brevity of the marriage made it insignificant in the minds of his friends.
+But Freddie was not insignificant to Joplin, for some years later he was
+to memorialize her in his most ambitious work [his opera "Treemonisha"]".
+
+"Bethena" was the first Joplin work published after the death of Freddie.
+The piece was dedicated to Mr. & Mrs. Dan Davenport.  I again quote Berlin;
+"This is an unusual dedication.  Davenport was not a prominent performer
+who could showcase Joplin's music.  Nor was he a person of influence or
+wealth, one who could have helped Joplin's career or commissioned music.
+So why should Joplin dedicate this piece to Davenport or his wife?"
+
+"The dedication may have had personal significance.  Since this is Joplin's
+first copyrighted work (March 6, 1905) since Freddie's death.  I think the
+Davenports might have helped Joplin through some difficult times, and the
+dedication was his way of showing appreciation.  Supporting the idea that
+"Bethena" is connected with Freddie, or at least reflects Joplin's mood at
+the time, is that the music is sadly poignant.  It is decidedly not a
+cheerful, merry waltz, and in this respect contrasts with all of Joplin's
+other waltzes."
+
+"But then, what is the significance of the title?  "Bethena" is an unusual
+name.  Was there a Bethena?  If so, is she the beautiful woman pictured on
+the cover?  Or (and this is highly speculative) is this a picture of
+Freddie."  Since Freddie was her given name, could Bethena be her nickname?
+All speculation aside, Bethena is an enchanting piece and is amoung the
+greatest of ragtime waltzes.
+
+=========================================================================
+ABOUT THE PERFORMER:
+My name is John Roache.  I am an amateur ragtime enthusiast living 
+in Torrance California.  I have been playing piano and keyboards for 
+almost 50 years.  I began creating ragtime computer music in the mid-
+'80s on the Commodore-64 using the SIDPLAYER music composition
+program.  In 1994, I discovered the power of MIDI and have been
+sequencing ragtime, stride and swing music since then.
+
+I would be pleased to hear any of your comments about this midi.  
+Address e-mail to JohnRoache@aol.com.  
+
+Also visit my WWW home page to download more of my MIDI sequences:
+      http://members.aol.com/ragtimers
+
+This MIDI performance is copyright 1997 and may be distributed only
+in ZIP archive form with all files intact and included.  Any commercial
+use is strictly prohibited.
