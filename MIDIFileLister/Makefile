@@ -1,4 +1,4 @@
-PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+#PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 OBJS = MIDIFileLister.o
 
@@ -9,7 +9,7 @@ else ifeq ($(BUILD_MODE),run)
 	CFLAGS += -O2
 	CXXFLAGS += -std=c++11
 else
-	$(error Build mode $(BUILD_MODE) not supported by this Makefile)
+#	$(error Build mode $(BUILD_MODE) not supported by this Makefile)
 endif
 
 all:	MIDIFileLister
