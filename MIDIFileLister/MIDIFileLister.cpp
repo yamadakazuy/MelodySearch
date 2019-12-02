@@ -7,7 +7,7 @@ int main(const int argc, const char *argv[]) {
 		std::cerr << "error: give a base directory name." << std::endl;
 		exit(1);
 	}
-	const char *basepath = argv[1];
+	const char *path = argv[1];
 	const char dontcare[] = ".*";
 	const char * p;
 	if ( argc == 3 ) {
@@ -16,16 +16,17 @@ int main(const int argc, const char *argv[]) {
 		p = dontcare;
 	}
 
-	DirectoryLister dlister(basepath);
+	DirectoryLister dlister(path);
 
 	int counter = 0;
 	if ( ! dlister() ) {
-		std::cerr << "error: opendir returned a NULL pointer." << std::endl;
+		std::cerr << "error: opendir returned a NULL pointer for the base path." << std::endl;
 		exit(1);
 	}
 	while (dlister.get_next_file(p) != NULL) {
 		++counter;
-		std::cout << counter << ": " << dlister.rootpath() << dlister.entry_path() << "/" << dlister.entry_name() << std::endl;
+		std::cout << counter << ": " << dlister.entry_path().c_str() << std::endl;
 	}
+	std::cout << std::endl << "finished." << std::endl << std::endl;
 	return 0;
 }

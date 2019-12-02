@@ -11,8 +11,7 @@ struct DirectoryLister {
 	typedef std::pair<std::string,DIR*> pathdir;
 	std::deque<pathdir> pathdirs;
 	dirent * lastentry;
-
-/*
+/* dirent.h で定義される
 #define DT_UNKNOWN       0
 #define DT_FIFO          1
 #define DT_CHR           2
@@ -22,8 +21,6 @@ struct DirectoryLister {
 #define DT_LNK          10
 #define DT_SOCK         12
 #define DT_WHT          14
-
-* windows では _A_SUBDIR ?
 */
 
 	DirectoryLister(const char *path) : pathdirs(), lastentry(NULL) {
@@ -31,20 +28,14 @@ struct DirectoryLister {
 		if ( rootpath.size() != 0 and rootpath[rootpath.size()-1] == '/' )
 			rootpath.pop_back();
 		DIR *dp = opendir(rootpath.c_str());
-		if (dp == NULL) {
-			std::cerr << "error: opendir returned a NULL pointer for the path "
-					<< path << std::endl;
-			return;
+		if (dp != NULL) {
+			// if dp == NULL then an error has occurred.
+			pathdirs.push_back(pathdir(rootpath, dp));
 		}
-		pathdirs.push_back(pathdir(rootpath, dp));
 	}
 
 	bool operator()() const {
 		return !pathdirs.empty();
-	}
-
-	const std::string & rootpath() const {
-		return pathdirs.front().first;
 	}
 
 	dirent * get_next_file(const char * regpat = ".*") {
@@ -58,21 +49,17 @@ struct DirectoryLister {
 					break;
 				continue;
 			} else if ( entry_isdir() ) {
-				//std::cout << pathdirs.top().first << " " << lastentry->d_name << std::endl;
-				if ( strcmp(entry_name(), ".") == 0 )
+				if ( strcmp(entry_name(),".") == 0 or strcmp(entry_name(),"..") == 0 )
 					continue;
-				if ( strcmp(entry_name(), "..") == 0 )
-					continue;
-				subdir = "/";
+				subdir.clear();
+				subdir += entry_basepath();
+				subdir += '/';
 				subdir += entry_name();
-				if ( pathdirs.back() != pathdirs.front() )
-					subdir = pathdirs.back().first + subdir;
-				DIR * dp = opendir((rootpath()+subdir).c_str());
-				//std::cerr << (rootpath()+subdir) << std::endl;
+				DIR * dp = opendir(subdir.c_str());
+				//std::cout << " subdir = '" << subdir.c_str() << "'" << std::endl;
 				if ( dp == NULL ) {
-					std::cerr << "error: opendir returned a NULL pointer for the path "
-							<< subdir << std::endl;
-					break;
+					std::cerr << "error: directory '" << subdir.c_str() << "' open failed." << std::endl;
+					continue; //return NULL;
 				} else {
 					pathdirs.push_back(pathdir(subdir, dp));
 					continue;
@@ -105,23 +92,19 @@ struct DirectoryLister {
 	}
 
 	const char * entry_name() const {
-		if ( lastentry == NULL )
-			return (const char * ) NULL;
 		return lastentry->d_name;
 	}
 
-	const char * entry_path() const {
-		if ( lastentry == NULL )
-			return (const char * ) NULL;
-		if (pathdirs.front() == pathdirs.back())
-			return "";
+	const char * entry_basepath() const {
 		return pathdirs.back().first.c_str();
 	}
 
-	const char * entry_fullpath() const {
-		if ( lastentry == NULL )
-			return (const char * ) NULL;
-		return (pathdirs.front().first + pathdirs.back().first).c_str();
+	const std::string entry_path() const {
+		std::string t;
+		t += entry_basepath();
+		t += "/";
+		t += entry_name();
+		return t;
 	}
 };
 
