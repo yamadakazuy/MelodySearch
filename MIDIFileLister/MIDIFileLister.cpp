@@ -25,7 +25,7 @@ int main(const int argc, const char *argv[]) {
 	}
 	while (dlister.get_next_file(p) != NULL) {
 		++counter;
-		std::cout << counter << ": " << dlister.entry_path() << "/" << dlister.entry_name() << std::endl;
+		std::cout << counter << ": " << dlister.rootpath() << dlister.entry_path() << "/" << dlister.entry_name() << std::endl;
 	}
 	return 0;
 }
