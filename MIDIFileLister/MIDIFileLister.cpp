@@ -18,14 +18,12 @@ int main(const int argc, const char *argv[]) {
 
 	DirectoryLister dlister(path);
 
-	int counter = 0;
 	if ( ! dlister() ) {
 		std::cerr << "error: opendir returned a NULL pointer for the base path." << std::endl;
 		exit(1);
 	}
-	while (dlister.get_next_file(p) != NULL) {
-		++counter;
-		std::cout << counter << ": " << dlister.entry_path().c_str() << std::endl;
+	for(int i = 1; dlister.get_next_file(p) != NULL; ++i) {
+		std::cout << i << ": " << dlister.entry_path().c_str() << std::endl;
 	}
 	std::cout << std::endl << "finished." << std::endl << std::endl;
 	return 0;
