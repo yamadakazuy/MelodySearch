@@ -29,3 +29,7 @@ MIDIFileLister.exe:	$(OBJS)
 
 clean:
 	rm -fr MIDIFileLister.exe build $(OBJS)
+
+demo: MIDIFileLister.exe
+	./MIDIFileLister.exe ../smf ".*\\.mid"
+	
