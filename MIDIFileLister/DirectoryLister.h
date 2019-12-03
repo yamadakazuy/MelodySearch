@@ -59,7 +59,7 @@ struct DirectoryLister {
 				//std::cout << " subdir = '" << subdir.c_str() << "'" << std::endl;
 				if ( dp == NULL ) {
 					std::cerr << "error: directory '" << subdir.c_str() << "' open failed." << std::endl;
-					continue; //return NULL;
+					return NULL;
 				} else {
 					pathdirs.push_back(pathdir(subdir, dp));
 					continue;
