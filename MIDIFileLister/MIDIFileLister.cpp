@@ -1,7 +1,7 @@
 #include <iostream>
 #include "DirectoryLister.h"
 
-int main(const int argc, const char *argv[]) {
+int main(const int argc, const char * argv[]) {
 	if (argc <= 1) {
 		std::cerr << "error: give a base directory name." << std::endl;
 		exit(1);
@@ -14,6 +14,7 @@ int main(const int argc, const char *argv[]) {
 	} else {
 		p = dontcare;
 	}
+	const std::regex filename(p);
 
 	DirectoryLister dlister(path);
 
@@ -21,7 +22,7 @@ int main(const int argc, const char *argv[]) {
 		std::cerr << "error: opendir returned a NULL pointer for the base path." << std::endl;
 		exit(1);
 	}
-	for(int i = 1; dlister.get_next_file(p) != NULL; ++i) {
+	for(int i = 1; dlister.get_next_file(filename) != NULL; ++i) {
 		std::cout << i << ": " << dlister.entry_path().c_str() << std::endl;
 	}
 	std::cout << std::endl << "finished." << std::endl << std::endl;
