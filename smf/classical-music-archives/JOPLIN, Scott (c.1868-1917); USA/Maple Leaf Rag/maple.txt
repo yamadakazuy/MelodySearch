@@ -1,0 +1,79 @@
+==================================================================
+About the music:  Here is the Maple Leaf Rag by Scott Joplin.  Published
+in 1899, It was Joplin's second published ragtime piece.  It became the
+first great instrumental sheet music hit in America.  Supposedly, it 
+sold 75,000 copies in the first 6 months of publication and eventually
+topped the million mark.  Maple Leaf established Scott Joplin as the 
+"King of the Ragtime Composers" and is unquestionably THE most popular
+ragtime piece ever written.
+This is my arrangement of Maple Leaf Rag.  Being the first ragtime
+piece I learned to play, over the years my playing of it has evolved
+from the original Joplin to include influences by James P. Johnson,
+Jelly Roll Morton, Joe Turner and Claude Bolling.  I hope you enjoy
+listening to it as much as I enjoy playing it.
+==================================================================
+
+About the Composer:  Scott Joplin (1868-1917)
+
+Scott Joplin, once lost to obscurity, has finally found his place in
+the sun and been accorded his rightful position as one of the first
+truly American composers.  He was one of the nation's music pioneers,
+for he was the first to develop fully that pianistic form which could
+be considered the initial American art form, the piano rag.  On the
+one hand, it is amazing that it took such a long time for the genius
+of this black composer to be recognized; on the other, his recent rise
+from obscurity symbolizes the prevailing attitudes of our past and
+present society.  Although Joplin was respected by his peers as "The
+King of Ragtime Writers," the musical establishment refused to
+acknowledge his work as a bona fide means of musical expression.  Now,
+however, we have his collected works in print, as well as significant
+articles and books about him written by some of the foremost music
+authorities and critics in the nation.  The continuing interest in
+Joplin is clearly based on the fact that the musical world has finally
+come to realize the uniqueness of his contributions to music. 
+
+(Excerpt taken from Ragtime, Its History, Composers, and
+Music by John Edward Haase and courtesy of the RAGTIME 
+HOME PAGE - http://ragtimers.org/) 
+==================================================================
+About the MIDI sequence:
+There are 2 MIDI files in this archive:
+mapleaf.MID is a stereo midi which uses pan controller instructions to
+place each note in a stereo spectrum.  Lowest note at the far left and
+the highest note far right.  All the rest somewhere in between depending
+on their pitch.  It sounds just like you were sitting in front of a
+player piano.
+
+maple_m.MID is the same performance with all the pan controller in- 
+structions removed.  I discovered that some FM synthesis sound cards
+cannot handle pan controller calls correctly.  Most of the notes play
+in the center of the two channels with an occasional high note playing
+far right and a few low notes playing far left.  This is very unnatural
+sounding and if your sound card is this type, use this file which will
+play OK.
+
+This MIDI was sequenced with Cakewalk Pro on a SoundBlaster AWE 32
+sound card.  Your sound card may not reproduce bass notes with the
+same intensity as the AWE.  If this is the case, the balance between
+the Right Hand part (Track 1) and the Left Hand part (track 2) will
+need to be adjusted.  Load the file into a sequencer and edit the 
+track volumes according to your taste and sound card.
+
+=========================================================================
+ABOUT THE PERFORMER:
+My name is John Roache.  I am an amateur ragtime enthusiast living 
+in Torrance California.  I have been playing piano and keyboards for 
+almost 50 years.  I began creating ragtime computer music in the mid-
+'80s on the Commodore-64 using the SIDPLAYER music composition
+program.  In 1994, I discovered the power of MIDI and have been
+sequencing ragtime, stride and swing music since then.
+
+I would be pleased to hear any of your comments about this midi.  
+Address e-mail to JohnRoache@aol.com.  
+
+Also visit my WWW home page to download more of my MIDI sequences:
+      http://members.aol.com/ragtimers
+
+This MIDI performance is copyright 1997 and may be distributed only
+in ZIP archive form with all files intact and included.  Any commercial
+use is strictly prohibited.
