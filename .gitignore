@@ -1,6 +1,7 @@
 .metadata/
 language.settings.xml
 .DS_Store
+._*
 a.out
 *.o
 *.exe

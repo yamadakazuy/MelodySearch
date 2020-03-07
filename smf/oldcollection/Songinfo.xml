@@ -1,0 +1,49 @@
+<song>
+	<title> Oneway Generation </title>
+	<player> 本田美奈子 </player>
+	<composer> 筒美京平 </composer>
+	<lyrics> 秋元康 </lyrics>
+	<filename>GMK-2060.MID</filename>
+	<programming> KORG </programming>
+</song>
+<song>
+	<title> ラヴ イズ Cash </title>
+	<player> レベッカ </player>
+	<composer> 土橋安騎夫 </composer>
+	<lyrics> 沢ちひろ/NOKKO <lyrics>
+	<filename>SC05557.MID</filename>
+	<programming> usen </programming>
+</song>
+<song>
+	<title> Motor Drive </title>
+	<player> レベッカ </player>
+	<composer> 土橋安騎夫 </composer>
+	<lyrics> NOKKO <lyrics>
+	<filename>GMK-2339.MID</filename>
+	<programming> KORG </programming>
+</song>
+<song>
+	<title> Material Girl </title>
+	<player> Madonna <player>    
+	<composer> Peter Brown/Robert Rans </composer>
+	<lyrics> Peter Brown/Robert Rans <lyrics>
+	<filename>GMK-3173.MID</filename>
+	<programming> KORG </programming>
+</song>
+<song>
+	<title>亜麻色の髪の乙女</title>
+	<player>ザ・ヴィレッジ・シンガーズ</player>
+	<composer>すぎやまこういち</composer>
+	<lyrics>橋本淳</lyrics>
+	<filename>XG5165G1.MID</filename>
+	<programming>YAMAHA</programming>
+</song>
+<song>
+	<title>Don't Get Me Wrong</title>
+	<player>The Pretenders</player>
+	<file>
+	<name>DONTGETM.MID</name>
+		<source>http://ourworld.compuserve.com/homepages/edgephone/midi.htm</source>
+		<comment> no vocal lines </comment>
+	</file>
+</song>
