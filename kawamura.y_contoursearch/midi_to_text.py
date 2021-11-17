@@ -1,8 +1,13 @@
+import sys
 import pretty_midi
 import csv
 
+if len(sys.argv) < 2:
+    print("No argument")
+    sys.exit()
+
 # MIDIファイルのロード
-midi_data = pretty_midi.PrettyMIDI('alice.mid')
+midi_data = pretty_midi.PrettyMIDI(sys.argv[1])
 
 # トラック別で取得
 midi_tracks = midi_data.instruments
@@ -13,14 +18,13 @@ notes = midi_tracks[0].notes
 for note in notes:
     # Note(noteon_time, noteoff_time, note_number, velocity)
     print(note) 
-print(len(notes))
+
 #　ノートナンバーのリストを作成
 note_number_list = []
 for note in notes:
     note_number_list.append(note.pitch)
 
-print(note_number_list)
-print(len(note_number_list))
+##print(note_number_list)
 
 # 辞書の作成
 pitch = [127, 126, 125, 124, 123, 122, 121, 120, 119, 
@@ -56,22 +60,55 @@ scale = ['G9', 'F#9', 'F9', 'E9', 'D#9', 'D9', 'C#9',
          'N', 'N', 'N', 'N', 'N']
 
 d = dict(zip(pitch, scale))
-print(d)
-
-# for key in note_number_list:
-#     if key in d:
-#         value = d.pop(key)
-#         print(value)
-
-for key in note_number_list:
-    value = d[key] #value = d.get(key, None)
-    print(value)
-
 
 #新規ファイル作成
-##with open("midi_text.txt","w", newline = "") as f:
-##    w = csv.writer(f)
+with open("midi_text.txt","w", newline = "") as f:
+    w = csv.writer(f)
+    for key in note_number_list:
+        value = d[key]
+        w.writerow([value])
     #1行ずつ書き込み
-##    for note in notes:
-##        w.writerow([note.start, note.end, note.pitch])
+    ##for note in notes:
+    #    w.writerow(note_number_list)
+    #    w.writerow([note.pitch])
 
+def create_table(pattern):
+    table = [0 for _ in range(len(pattern))]
+    j = 0
+    for i in range(1, len(pattern)):
+        if pattern[i] == pattern[j]:
+            j += 1
+            table[i] = j
+        else:
+            table[i] = j
+            j = 0
+    return table
+
+def kmp_search(string, pattern):
+    table = create_table(pattern)
+    i = j = 0
+    while i < len(string) and j < len(pattern):
+        if string[i] == pattern[j]:
+            i += 1
+            j += 1
+        elif j == 0:
+            i += 1
+        else:
+            j = table[j]
+ 
+    if j == len(pattern):
+        return i - j
+    else:
+        return None
+ 
+with open("midi_text.txt", "r") as f:
+    string = f.read()
+
+#pattern = sys.argv[2]
+pattern = "B4\nA4\nG4\nE4\nG4\nB4\nA4"
+
+index = kmp_search(string, pattern)
+if index:
+    print("Pattern match Suceed.")
+else:
+    print("No pattern matched.")
