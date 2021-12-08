@@ -5,6 +5,7 @@ import csv
 import os
 import glob
 
+#..\smf B4A4G4E4G4B4A4 slow
 
 if len(sys.argv) < 2:
     print("No argument")
@@ -109,6 +110,7 @@ if __name__ == '__main__':
 
     for filename in os.listdir(target_dir):
         path_in = os.path.join(target_dir, filename)
+        print(path_in)
         path_out = midi_to_abs(path_in)
 
         with open(path_out, "r") as f:
