@@ -5,7 +5,7 @@ import csv
 import os
 import glob
 
-#..\smf B4A4G4E4G4B4A4 slow
+#../smf B4A4G4E4G4B4A4 slow
 
 if len(sys.argv) < 2:
     print("No argument")
@@ -14,8 +14,11 @@ if len(sys.argv) < 2:
 
 # MIDIファイルを概形ファイルへ変換
 def midi_to_abs(file_name):
-    # MIDIファイルのロード
-    midi_data = pretty_midi.PrettyMIDI(file_name)
+    try:
+        # MIDIファイルのロード
+        midi_data = pretty_midi.PrettyMIDI(file_name)
+    except IOError as ex:
+        print(ex, filename)
     # トラック別で取得
     midi_tracks = midi_data.instruments
     # トラック1のノートを取得
@@ -47,7 +50,8 @@ def midi_to_abs(file_name):
     with open(file_name + "_abs.txt", "w", newline = "") as f:
         w = csv.writer(f)
         w.writerow(note_number_fluc)
-
+    
+    return file_name + "_abs.txt"
 
 #ペース（速い・中間・遅い）の取得
 def get_tempo(file_name):
@@ -55,7 +59,7 @@ def get_tempo(file_name):
     midi_data = pretty_midi.PrettyMIDI(file_name)
     # テンポの取得
     tempo = midi_data.get_tempo_changes()
-
+    print(tempo[1])
     if tempo[1] < 90:
         pace = 'slow'
     elif tempo[1] >= 90 and tempo[1] < 140:
@@ -109,10 +113,11 @@ if __name__ == '__main__':
     file_list = []
 
     for filename in os.listdir(target_dir):
+        if not filename.endswith('.mid'):
+            continue
         path_in = os.path.join(target_dir, filename)
-        print(path_in)
         path_out = midi_to_abs(path_in)
-
+        print(path_out)
         with open(path_out, "r") as f:
             string = f.read()
         
@@ -122,5 +127,6 @@ if __name__ == '__main__':
 
         if index and path_pace == user_pace:
             file_list.append(filename)
-    
+    else:
+        print("No files.")
     print(file_list)
