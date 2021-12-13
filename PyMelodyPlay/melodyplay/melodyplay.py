@@ -20,7 +20,7 @@ def play(s: pyaudio.Stream, freq: float, duration: float):
     # 指定周波数のサイン波を指定秒数分生成
     samples = np.sin(np.arange(int(duration * SAMPLE_RATE)) * freq * np.pi * 2 / SAMPLE_RATE)
     # ストリームに渡して再生
-    s.write(samples.astype(np.float32).tostring())
+    s.write(samples.astype(np.float32).tobytes())
 
 
 # PyAudio開始
