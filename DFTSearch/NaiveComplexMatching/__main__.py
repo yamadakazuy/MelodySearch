@@ -4,10 +4,10 @@ Created on 2021/12/21
 @author: sin
 '''
 import sys
-import math, cmath
+from cmath import exp, pi
 
 def cord(t):
-    return cmath.exp(cmath.pi*2j*ord(t)/128)
+    return exp(pi*2j*ord(t)/128)
 
 if __name__ == '__main__':
     textstr = sys.argv[1]
