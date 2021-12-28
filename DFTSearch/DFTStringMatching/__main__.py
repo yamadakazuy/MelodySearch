@@ -3,6 +3,13 @@ Created on 2021/12/23
 
 @author: sin
 '''
+# 1. テキスト、パターンを単位複素数の列に変換。
+#    パターンは逆順でかつ複素共役にしておく
+# 2. それぞれフーリエ変換
+# 3. 変換された列の要素ごとの積をとる
+# 4. 積の列をフーリエ逆変換
+# 5. 要素が実部のみで == パターン長となっているところが出現位置-1
+
 from cmath import exp, pi
 import numpy
 import sys
@@ -11,7 +18,9 @@ def cxarray(s, n = None, conjrev = 1):
     #assumes s is a str or byte seq.
     if n == None :
         n = 0
-    #n = 1<<ceil(log2(max(len(s),n)))
+    # 長さが n 以上の最小の 2 のべきとなる単位ベクトルの列に変換
+    # FFT では必要
+    # n = 1<<ceil(log2(max(len(s),n)))
     n = max(len(s),n)
     res = numpy.array([0] * n, dtype=numpy.complex64)
     coeff = pi * 2j
@@ -48,7 +57,6 @@ if __name__ == '__main__':
     patt = sys.argv[2]
     n = max(len(text), len(patt))
     print(text, patt, n)
-    # 長さが n 以上の最小の 2 のべきとなる単位ベクトルの列に変換
     textvec = cxarray(text,n)
     print('vector length = ',n)
     # パターンは前後が逆順でベクトルは共役なものに変換
