@@ -72,7 +72,9 @@ if __name__ == '__main__':
     print()
     
     # 完全一致（絶対値＝パターン長）と判断する誤差の幅
-    epsilon = 1/1024.0
+    x = cxarray('ab')
+    epsilon = 1 - (x[0].real * x[1].real + x[0].imag * x[1].imag)
+    print('epsilon =',epsilon)
     for i in range(len(textvec)):
         if abs(textvec[i].real - len(patt)) < epsilon :
             # パターンは見つかった位置の次から出現している
