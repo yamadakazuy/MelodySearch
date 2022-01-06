@@ -90,3 +90,5 @@ if __name__ == '__main__':
             # パターンは見つかった位置の次から出現している
             print((i+1) % len(textvec))
     print('occurrences by re.find: ', [m.span()[0] for m in re.finditer(patt,text)])
+
+# python3 DFTStringMatching textstring patternstring
