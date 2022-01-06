@@ -12,7 +12,7 @@ Created on 2021/12/23
 
 from cmath import exp, pi
 import numpy
-import sys
+import sys, re
 
 def cxarray(s, n = None, conjrev = 1):
     #assumes s is a str or byte seq.
@@ -56,20 +56,21 @@ if __name__ == '__main__':
     text = sys.argv[1]
     patt = sys.argv[2]
     n = max(len(text), len(patt))
-    print(text, patt, n)
+    print("{}\n{}\n{}\n".format(text, patt, n) )
+    # そのまま複素アルファベットのベクトルに変換
     textvec = cxarray(text,n)
-    print('vector length = ',n)
-    # パターンは前後が逆順でベクトルは共役なものに変換
+#    print('vector length = ',n)
+    # 前後が逆で共役なベクトルに変換
     pattvec = cxarray(patt,n,-1)
-    print(cxstr(textvec))
-    print(cxstr(pattvec))
-    print()
+#    print(cxstr(textvec))
+#    print(cxstr(pattvec))
+#    print()
     
     dfttext = dft(textvec)
     dftpatt = dft(pattvec)
-    print(cxstr(dfttext))
-    print(cxstr(dftpatt))
-    print()
+#    print(cxstr(dfttext))
+#    print(cxstr(dftpatt))
+#    print()
 
     # 二つの列の要素毎の積を持つ列を求める    
     dfttext *= dftpatt
@@ -81,10 +82,11 @@ if __name__ == '__main__':
     
     # 完全一致（絶対値＝パターン長）と判断する誤差の幅
     x = cxarray('ab')
+    # アスキーコードがとなりあう文字の場合に生じる差を完全一致の閾値につかう
     epsilon = 1 - (x[0].real * x[1].real + x[0].imag * x[1].imag)
     print('epsilon =',epsilon)
     for i in range(len(textvec)):
         if abs(textvec[i].real - len(patt)) < epsilon :
             # パターンは見つかった位置の次から出現している
             print((i+1) % len(textvec))
-    
+    print('occurrences by re.find: ', [m.span()[0] for m in re.finditer(patt,text)])
