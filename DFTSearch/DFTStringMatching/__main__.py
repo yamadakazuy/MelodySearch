@@ -14,7 +14,7 @@ from cmath import exp, pi
 import numpy
 import sys, re
 
-def cxarray(s, n = None, conjrev = 1):
+def cxarray(s, n = None, conjugate = None, reverse = None):
     #assumes s is a str or byte seq.
     if n == None :
         n = 0
@@ -25,10 +25,16 @@ def cxarray(s, n = None, conjrev = 1):
     res = numpy.array([0] * n, dtype=numpy.complex64)
     coeff = pi * 2j
     for i in range(len(s)) :
-        if conjrev >= 0 :
-            res[i] = exp(coeff * ord(s[i])/128.00)
+        if conjugate == None :
+            if reverse == None :
+                res[i] = exp(coeff * ord(s[i])/128.00)
+            else:
+                res[-i-1] = exp(coeff * ord(s[i])/128.00)
         else:
-            res[-i-1] = exp(-coeff * ord(s[i])/128.00)
+            if reverse == None :
+                res[i] = exp(-coeff * ord(s[i])/128.00)
+            else:
+                res[-i-1] = exp(-coeff * ord(s[i])/128.00)
     return res
     
 def cxstr(a):
@@ -50,6 +56,7 @@ def idft(f):
         for x in range(len(f)):
             tot += f[x].conjugate() * exp(-2j * pi / len(f) * y * x)
         t[y] = tot.conjugate()/len(t)
+#        t[y] = tot/len(t)
     return t
     
 if __name__ == '__main__':
@@ -58,10 +65,10 @@ if __name__ == '__main__':
     n = max(len(text), len(patt))
     print("{}\n{}\n{}\n".format(text, patt, n) )
     # そのまま複素アルファベットのベクトルに変換
-    textvec = cxarray(text,n)
+    textvec = cxarray(text, n, conjugate = -1)
 #    print('vector length = ',n)
     # 前後が逆で共役なベクトルに変換
-    pattvec = cxarray(patt,n,-1)
+    pattvec = cxarray(patt, n, reverse = -1)
 #    print(cxstr(textvec))
 #    print(cxstr(pattvec))
 #    print()
