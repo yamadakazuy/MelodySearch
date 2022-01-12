@@ -1,0 +1,107 @@
+\documentclass[11pt]{jarticle}
+\input{A4}
+\usepackage{graphics}
+%\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{marvosym}
+
+\usepackage{theorem}
+\newtheorem{assumption}{Assumption}
+
+\renewcommand{\baselinestretch}{1.15}
+\setlength{\parskip}{0.5ex}
+\renewcommand{\arraystretch}{0.8}
+
+\newcommand{\napier}{%
+%    \mathrm{e}    % 
+\mathnormal{\mbox{\large{$\mathrm{e}$}}}    % 
+}
+
+\begin{document}
+
+\section{多項式の評価}
+
+$A(x)$ を $n-1$ 次の多項式 $A(x) = a_0 + a_1 x^1 + a_2 x^2 + \cdots + a_{n-1} x^{n-1}$ とする. 
+$A(x)$ の係数の列を $a_A = (a_0, \ldots, a_{n-1})$ で表す. 
+ここで一般性を失うことなく $n$ は偶数であると仮定してよい； 
+そうでないなら $n' = n + 1$ 次の $A'(x)$ ただし $a_{A'} = (a_0, a_1, \ldots, a_{n-1}, 0)$, つまり $n$ 次の係数は 0, を考える. 
+すると, 
+\begin{eqnarray*}
+A(x) &=& a_0 + a_2 x^2 + \cdots + a_{n-2} x^{n-2}
++ a_1 x^1 + a_3 x^3 + \cdots +a_{n-1} x^{x-1} \\
+&=& \sum_{i=0}^{n/2 - 1} a_{2i} x^{2i} + x \cdot\sum_{i=0}^{n/2 - 1} a_{2i+1} x^{2i} \,
+\end{eqnarray*}
+と書ける. 
+ここで係数列 $(a_0, a_2, \ldots, a_{n-2})$ を持つ $\frac{n}{2}$ 次の多項式 $A_0$ と $(a_1, a_3, \ldots, a_{n-1})$ の $A_1$ を導入すれば, 上式は 
+\begin{eqnarray*}
+A(x) = A_0(x^2) + x \cdot A_1(x^2) \,
+\end{eqnarray*}
+と書き換えられる．
+$n = 2^k$ であれば, 深さ $k=\log n$ 段の再帰的な評価をおこなえば $A(x)$ が求まることになる. 
+ 
+\section{多項式の評価による文字列パタン照合}
+
+$\Sigma = \{\sigma_0, \ldots, \sigma_{N-1}\}$ を有限アルファベット, 
+それぞれ文字 $\sigma_i \in \Sigma$ は数値 $(\sigma_i) = \napier^{\iota\frac{2\pi}{N}i}$ で表すとする. 
+ただし $\iota$ は虚数単位 $\iota^2 = -1$.
+このとき, 同じ文字どうしのノルム積（内積）は，$(\sigma_i)^\dagger \cdot (\sigma_i) = 1$ となる．
+
+$t, p \in \Sigma^*$ はそれぞれ長さ $n, m$ で, かつ $n \geq m$ を満たすとする. 
+また $t^\dagger$ で $t$ の文字ごとの複素共役をとったものを表すとする．
+%$\omega^i = \napier^{-\boldsymbol\iota\frac{2\pi}{N}}$ をもちいて
+この $t, p$ それぞれの多項式による表現を 
+\[
+T(x) = \sum_{i=0}^{n-1} (t_i)^\dagger \cdot x^i, P(x) = \sum_{i=0}^{n-1}(p_i) \cdot w_p(i) \cdot x^{n-1-i}, 
+\]
+ただし
+\begin{eqnarray*}
+w_p(i) = \left\{\begin{array}{ll}
+1 & 0 \leq i < m \,,\\
+0 & \mbox{それ以外}
+\end{array}\right.
+\end{eqnarray*}
+と定義する．
+
+たとえばパタン $p = p_0 \cdot p_1 \cdot p_2$ がテキスト $t = t_0 \cdots t_4 \cdot t_5 \cdot t_6 \cdots t_{n-1}$ の位置 $4$ に出現する, すなわち $0 \leq i < m$ について $p_i = t_{4+i}$ であるかどうかは, 多項式
+\begin{eqnarray*}
+ (t_4)^\dagger x^{4} (p_0) x^{n-1} + (t_5)^\dagger x^{5} (p_1) x^{n-2} + (t_6)^\dagger x^{6} (p_2) x^{n-3}\\
+= x^{n+3}\sum_{i=0}^{2} (t_{i+4})^\dagger\cdot (p_{i}) 
+= x^{n+3} \sum_{i=0}^{n-1}(t_{(i+4) \bmod n})^\dagger \cdot (p_i) \cdot w_p(i)
+\end{eqnarray*}
+が $|p|\cdot x^{n+3}$ に等しいかどうかで調べることができる. 
+すなわち，
+\begin{eqnarray*}
+M(x) = T(x)\cdot P(x) = 
+%\sum_{i = 0}^{n-1} T(x, j) \cdot P(x) = x^{n-1+j} \sum_{i = 0}^{m}  (t_{i+j}) \cdot (p_i) = 
+x^{n} \sum_{j=0}^{n-1}  x^{j-1} \cdot \sum_{i = 0}^{n-1} (t_{i+j})^\dagger  \cdot w_p(i) \cdot (p_i)
+\end{eqnarray*}
+の $x^{n-1+j}$ の項の係数をすべて求めれば, $p$ が位置 $j$ に出現しているかどうか判定できることになる. 
+
+\section{FFT による文字列検索}
+
+$x = \napier^{-\iota\frac{2\pi}{n}y}$ とおくと，$T(x)$ は
+\[
+\tilde{T}(y) = \sum_{i=0}^{n-1} t^\dagger_i \cdot \napier^{-\iota\frac{2\pi}{n}yi}
+\]
+と書ける. 
+この右辺は $t^\dagger_i$ の離散フーリエ変換であり, $n$ を $0$ 埋めで $2$ のべきにすれば, FFT が使用できる. 
+$p_i w_p(i)$ についても同様に $\tilde{P}(y)$ が得られる. 
+これらの $y$ の次数ごとの積を,
+$y$ の関数 から $x$ の関数に戻すために逆フーリエ変換を行えば, ここでは $x$ のノルムは $1$ であるので, 各 $x$ についての $M(x)$ のノルムを取ることで各次数の係数を求めることができる. 
+
+したがって, 全体のアルゴリズムは以下のようになる. 
+
+\begin{enumerate}
+\item[入力:]有限アルファベット $\Sigma = \{\sigma_0, \ldots, \sigma_{N-1}\}$ 上のテキスト $t \in \Sigma^*$ と パターン $p \in \Sigma^*$. 
+\item $n = 2^{\lceil{\log {\max\{|t|, |p|\}}}\rceil}$ とする. 
+\item $t$ の各文字 $\sigma_i$ を $\napier^{-\boldsymbol\iota\frac{2\pi}{N}i}$ で置き換え, 長さ $n$ に不足する部分は $0$ で埋めた列 $t^\dagger$ と, 
+$p$ の各文字を $\napier^{\boldsymbol\iota\frac{2\pi}{N}i}$ で置き換え， 長さ $n$ に不足する部分は $0$ で埋めた列を逆順にした列 $p^R$ を作る. 
+\item $t^\dagger$ と $p^R$ それぞれを高速フーリエ変換して列 $\tilde{T}, \tilde{P}$ を得る.
+\item $\tilde{T}$ と $\tilde{P}$ の要素ごとの積からなる列 $\tilde{M}$ を求める. ($\tilde{M}(i) = \tilde{T}(i)\cdot \tilde{P}(i)$)
+\item $\tilde{M}$ を逆高速フーリエ変換し列 $M$ を得る.  
+\item $|M(i)| = |p|$ となる位置 $i$ を枚挙する. 
+出現位置は $i+1$ である. 
+\end{enumerate}
+以上により $O(n \log n)$ 時間で終了する. 
+
+\end{document}
