@@ -14,20 +14,27 @@ def smf2mct(targert_dir, mid_file):
     try:   
         midi = pretty_midi.PrettyMIDI(os.path.join(target_dir, mid_file))
     except IOError:
+        print('something is wrong with ' + mid_file)
+        return False
+    
+    try:
+        # ヘッダ記載のテンポの取得
+        estempo = midi.estimate_tempo()
+        # print(tempo_changes)
+    except ValueError:
+        print('failed estimating tempo with ' + mid_file)
         return False
 
-    # ヘッダ記載のテンポの取得
-    # tempo_changes = midi.get_tempo_changes()
-    # print(tempo_changes)
-
     # トラック別で取得
-    tracks = midi.instruments
-    if len(tracks) == 0 :
+    instruments = midi.instruments
+    if len(instruments) == 0 :
         return False
     
     # トラック1のノートを取得
     score = []
-    for track in tracks:
+    for track in instruments:
+        # if track.is_drum() :
+        #     continue
         part = []
         for note in track.notes:
             part.append((note.start, note.pitch))
@@ -50,8 +57,10 @@ def smf2mct(targert_dir, mid_file):
     
     #MIDI概形のテキストファイルを作成
     mct_file = '.'.join(mid_file.split('.')[:-1]) + '.mct'
-    print(os.path.join(target_dir, mct_file))
+    #print(os.path.join(target_dir, mct_file))
     with open(os.path.join(target_dir, mct_file), "w") as f:
+        f.write(str(estempo))
+        f.write('\n')
         # f.write(','.join([str(t) for t in tempo_changes]))
         # f.write('\n')
         for part in score:

@@ -94,8 +94,8 @@ def create_table(pattern):
     return table
 
 #KMP法の実装
-def kmp_search(text, pattern):
-    table = create_table(pattern)
+def kmp_search(table, text, pattern):
+#    table = create_table(pattern)
     i = j = 0
     while i < len(text) and j < len(pattern):
         if text[i] == pattern[j]:
@@ -123,6 +123,7 @@ if __name__ == '__main__':
     target_dir = sys.argv[1]
     # 探すメロディパタンの読み込み
     pattern = sys.argv[2]
+    failure = create_table(pattern)
     # 探すメロディパタンのテンポの読み込み
     user_pace = sys.argv[3]
     
@@ -147,7 +148,7 @@ if __name__ == '__main__':
         path_pace = get_tempo(path_in)
         #print(path_pace)
 
-        index = kmp_search(text, pattern)
+        index = kmp_search(failure, text, pattern)
         #index = Horspool_search(text, pattern)
 
         if index != None and path_pace == user_pace:
