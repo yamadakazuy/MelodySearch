@@ -60,11 +60,11 @@ def get_tempo(file_name):
     # テンポの取得
     tempo = midi_data.get_tempo_changes()
     print(tempo[1])
-    if tempo[1] < 90:
+    if min(tempo[1]) < 90:
         pace = 'slow'
-    elif tempo[1] >= 90 and tempo[1] < 140:
+    elif max(tempo[1]) >= 90 and min(tempo[1]) < 140:
         pace = 'middle'
-    elif tempo[1] >= 140:
+    elif max(tempo[1]) >= 140:
         pace = 'fast'   
 
     return pace
