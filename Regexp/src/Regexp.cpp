@@ -16,22 +16,24 @@
 using std::cout;
 using std::endl;
 using std::string;
-namespace stdfs = std::filesystem;
+namespace fsys = std::filesystem;
 
 int main(const int argc, const char * argv[]) {
-	std::string path;
-	if (argc > 1)
+	string path, regexpstr;
+	if (argc >= 3) {
 		path = argv[1];
-	else
+		regexpstr = argv[2];
+	} else {
+		cout << "requires path regexp " << endl;
 		exit(1);
-
+	}
 	cout << "search for .txt in " << path << endl;
 
-	std::regex rpatt(R"(Alice was)");
+	std::regex rpatt(regexpstr); //rpatt(R"(Alice was)");
 	std::match_results<string::const_iterator> res;
 
 	unsigned int counter = 0;
-	for (const stdfs::directory_entry & entry : stdfs::recursive_directory_iterator(path)) {
+	for (const fsys::directory_entry & entry : fsys::recursive_directory_iterator(path)) {
 		if (entry.is_directory())
 			continue;
 		if ( entry.path().string().ends_with(".txt") ) {
