@@ -27,7 +27,7 @@ int main(const int argc, const char * argv[]) {
 		cout << "requires path regexp " << endl;
 		exit(1);
 	}
-	cout << "search for .txt in " << path << endl;
+	cout << "search " << regexpstr << " for .txt in " << path << endl;
 
 	std::regex rpatt(regexpstr); //rpatt(R"(Alice was)");
 	std::match_results<string::const_iterator> res;
