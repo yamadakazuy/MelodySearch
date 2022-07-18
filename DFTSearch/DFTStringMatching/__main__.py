@@ -55,8 +55,7 @@ def idft(f):
         tot = 0
         for x in range(len(f)):
             tot += f[x].conjugate() * exp(-2j * pi / len(f) * y * x)
-        t[y] = tot.conjugate()/len(t)
-#        t[y] = tot/len(t)
+        t[y] = tot/len(t)
     return t
     
 if __name__ == '__main__':
@@ -69,9 +68,9 @@ if __name__ == '__main__':
 #    print('vector length = ',n)
     # 前後が逆で共役なベクトルに変換
     pattvec = cxarray(patt, n, reverse = -1)
-#    print(cxstr(textvec))
-#    print(cxstr(pattvec))
-#    print()
+    print(cxstr(textvec))
+    print(cxstr(pattvec))
+    print()
     
     dfttext = dft(textvec)
     dftpatt = dft(pattvec)
