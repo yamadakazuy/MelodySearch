@@ -11,30 +11,26 @@ Created on 2021/12/23
 # 5. 要素が実部のみで == パターン長となっているところが出現位置-1
 
 from cmath import exp, pi
+from math import ceil, log2
 import numpy
 import sys, re
 
-def cxarray(s, n = None, conjugate = None, reverse = None):
+def cxarray(alphabet : dict, text : str, n = None, conjugate = None, reverse = None):
     #assumes s is a str or byte seq.
     if n == None :
-        n = 0
+        n = len(text)
     # 長さが n 以上の最小の 2 のべきとなる単位ベクトルの列に変換
     # FFT では必要
-    # n = 1<<ceil(log2(max(len(s),n)))
-    n = max(len(s),n)
+    n = 1 << ceil(log2(max(len(text),n)))
     res = numpy.array([0] * n, dtype=numpy.complex64)
     coeff = pi * 2j
-    for i in range(len(s)) :
-        if conjugate == None :
-            if reverse == None :
-                res[i] = exp(coeff * ord(s[i])/128.00)
-            else:
-                res[-i-1] = exp(coeff * ord(s[i])/128.00)
+    if conjugate != None:
+        coeff = -coeff
+    for i in range(len(text)) :
+        if reverse == None :
+            res[i] = exp(coeff * alphabet[text[i]]/len(alphabet))
         else:
-            if reverse == None :
-                res[i] = exp(-coeff * ord(s[i])/128.00)
-            else:
-                res[-i-1] = exp(-coeff * ord(s[i])/128.00)
+            res[-i-1] = exp(coeff * alphabet[text[i]]/len(alphabet))
     return res
     
 def cxstr(a):
@@ -59,15 +55,16 @@ def idft(f):
     return t
     
 if __name__ == '__main__':
+    alph = { 'a': 0, 'b': 1, 'c': 2, 'd': 3 }
     text = sys.argv[1]
     patt = sys.argv[2]
     n = max(len(text), len(patt))
     print("{}\n{}\n{}\n".format(text, patt, n) )
     # そのまま複素アルファベットのベクトルに変換
-    textvec = cxarray(text, n, conjugate = -1)
+    textvec = cxarray(alph, text, n, conjugate = -1)
 #    print('vector length = ',n)
     # 前後が逆で共役なベクトルに変換
-    pattvec = cxarray(patt, n, reverse = -1)
+    pattvec = cxarray(alph, patt, n, reverse = -1)
     print(cxstr(textvec))
     print(cxstr(pattvec))
     print()
@@ -87,7 +84,7 @@ if __name__ == '__main__':
     print()
     
     # 完全一致（絶対値＝パターン長）と判断する誤差の幅
-    x = cxarray('ab')
+    x = cxarray(alph, 'ab')
     # アスキーコードがとなりあう文字の場合に生じる差を完全一致の閾値につかう
     epsilon = 1 - (x[0].real * x[1].real + x[0].imag * x[1].imag)
     print('epsilon =',epsilon)
@@ -98,3 +95,15 @@ if __name__ == '__main__':
     print('occurrences by re.find: ', [m.span()[0] for m in re.finditer(patt,text)])
 
 # python3 DFTStringMatching textstring patternstring
+# acbbacdb
+# bacd
+# 8
+#
+# ['(1.000 -0.000i)', '(-1.000 -0.000i)', '(0.000 -1.000i)', '(0.000 -1.000i)', '(1.000 -0.000i)', '(-1.000 -0.000i)', '(-0.000 +1.000i)', '(0.000 -1.000i)']
+# ['(0.000 +0.000i)', '(0.000 +0.000i)', '(0.000 +0.000i)', '(0.000 +0.000i)', '(-0.000 -1.000i)', '(-1.000 +0.000i)', '(1.000 +0.000i)', '(0.000 +1.000i)']
+#
+# ['(0.000 +2.000i)', '(-0.000 +0.000i)', '(4.000 -0.000i)', '(-2.000 -0.000i)', '(-0.000 +0.000i)', '(-2.000 -0.000i)', '(2.000 +0.000i)', '(-2.000 -2.000i)']
+#
+# epsilon = 0.9999999999999999
+# 3
+# occurrences by re.find:  [3]
