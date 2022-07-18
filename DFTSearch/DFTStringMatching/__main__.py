@@ -55,7 +55,7 @@ def idft(f):
     return t
     
 if __name__ == '__main__':
-    alph = { 'a': 0, 'b': 1, 'c': 2, 'd': 3 }
+    alph = { 'a': 0, 'b': 1 }
     text = sys.argv[1]
     patt = sys.argv[2]
     n = max(len(text), len(patt))
@@ -87,23 +87,14 @@ if __name__ == '__main__':
     x = cxarray(alph, 'ab')
     # アスキーコードがとなりあう文字の場合に生じる差を完全一致の閾値につかう
     epsilon = 1 - (x[0].real * x[1].real + x[0].imag * x[1].imag)
+    absvec = []
     print('epsilon =',epsilon)
     for i in range(len(textvec)):
+        absvec.append(abs(textvec[i]))
         if abs(textvec[i].real - len(patt)) < epsilon :
             # パターンは見つかった位置の次から出現している
             print((i+1) % len(textvec))
     print('occurrences by re.find: ', [m.span()[0] for m in re.finditer(patt,text)])
-
+    print(['{:.2f}'.format(val) for val in absvec])
 # python3 DFTStringMatching textstring patternstring
-# acbbacdb
-# bacd
-# 8
-#
-# ['(1.000 -0.000i)', '(-1.000 -0.000i)', '(0.000 -1.000i)', '(0.000 -1.000i)', '(1.000 -0.000i)', '(-1.000 -0.000i)', '(-0.000 +1.000i)', '(0.000 -1.000i)']
-# ['(0.000 +0.000i)', '(0.000 +0.000i)', '(0.000 +0.000i)', '(0.000 +0.000i)', '(-0.000 -1.000i)', '(-1.000 +0.000i)', '(1.000 +0.000i)', '(0.000 +1.000i)']
-#
-# ['(0.000 +2.000i)', '(-0.000 +0.000i)', '(4.000 -0.000i)', '(-2.000 -0.000i)', '(-0.000 +0.000i)', '(-2.000 -0.000i)', '(2.000 +0.000i)', '(-2.000 -2.000i)']
-#
-# epsilon = 0.9999999999999999
-# 3
-# occurrences by re.find:  [3]
+# abadabda abd
