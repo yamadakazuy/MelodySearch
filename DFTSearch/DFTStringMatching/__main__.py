@@ -55,7 +55,7 @@ def idft(f):
     return t
     
 if __name__ == '__main__':
-    alph = { 'a': 0, 'b': 1 }
+    alph = { 'a': 0, 'b': 1, 'c': 2, 'd': 3}
     text = sys.argv[1]
     patt = sys.argv[2]
     n = max(len(text), len(patt))
