@@ -1,0 +1,8 @@
+\msys64\usr\bin\make.exe --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/c/Users/Sin Shimozono/Documents/Projects/MelodySearch/SMFScoreReader'
+g++ -Wall  -c -O2 -g -std=c++2x -Ilibsmf  -o main.o main.cpp
+g++ -Wall  -c -O2 -g -std=c++2x -Ilibsmf  -o smf.o smf.cpp
+ 
+g++ -Wall  -o demo.exe main.o smf.o
+make: Leaving directory '/c/Users/Sin Shimozono/Documents/Projects/MelodySearch/SMFScoreReader'
+ 

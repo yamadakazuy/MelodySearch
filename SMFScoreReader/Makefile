@@ -1,8 +1,10 @@
 #PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+CXX = g++ -std=c++17 -Wall 
 
-CXX = g++ -Wall -Ilibsmf
+CFLAGS += -O0
+CXXFLAGS +=  -Ilibsmf
 
-OBJS = main.o
+OBJS = main.o smf.o
 
 CFLAGS += -g
 
@@ -14,7 +16,7 @@ $(EXECUTABLE):	$(OBJS)
 	$(CXX) -o $@ $^
 
 #%.o:	$(PROJECT_ROOT)%.cpp
-%.o:	%.cpp libsmf/SMFEvent.h libsmf/SMFStream.h
+%.o:	%.cpp 
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
 #%.o:	$(PROJECT_ROOT)%.c

@@ -1,0 +1,6 @@
+\msys64\usr\bin\make.exe --dry-run --keep-going --print-directory
+make: Entering directory '/c/Users/Sin Shimozono/Documents/Projects/MelodySearch'
+make: Leaving directory '/c/Users/Sin Shimozono/Documents/Projects/MelodySearch'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+

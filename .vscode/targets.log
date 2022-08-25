@@ -1,0 +1,286 @@
+\msys64\usr\bin\make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
+# GNU Make 4.3
+# Built for x86_64-pc-msys
+# Copyright (C) 1988-2020 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+ 
+
+# Make data base, printed on Thu Aug 25 08:50:18 2022
+
+# Variables
+
+# environment
+SYSTEMDRIVE = C:
+# environment
+LC_ALL = C
+# environment
+ACSVCPORT = 17532
+# environment
+USERPROFILE = C:\Users\Sin Shimozono
+# environment
+LOCALAPPDATA = C:\Users\Sin Shimozono\AppData\Local
+# environment
+VSCODE_CWD = C:\Users\Sin Shimozono\AppData\Local\Programs\Microsoft VS Code
+# environment
+SYSTEMROOT = C:\WINDOWS
+# environment
+PROCESSOR_LEVEL = 6
+# environment
+PSMODULEPATH = C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules\;C:\Program Files (x86)\Windows Kits\10\Microsoft Application Virtualization\Sequencer\AppvPkgConverter;C:\Program Files (x86)\Windows Kits\10\Microsoft Application Virtualization\Sequencer\AppvSequencer;C:\Program Files (x86)\Windows Kits\10\Microsoft Application Virtualization\
+# default
+MAKE_COMMAND := /c/msys64/usr/bin/make
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# environment
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_22488_NGTMBIIGMSTHFQJO
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# default
+.VARIABLES := 
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# automatic
+%F = $(notdir $%)
+# environment
+VSCODE_CODE_CACHE_PATH = C:\Users\Sin Shimozono\AppData\Roaming\Code\CachedData\e4503b30fc78200f846c62cf8091b76ff5547662
+# environment
+LANG = C
+# default
+.LOADED := 
+# environment
+TMP = /c/Users/SINSHI~1/AppData/Local/Temp
+# default
+.INCLUDE_DIRS = /usr/include /usr/include
+# makefile
+MAKEFLAGS = pqrR
+# environment
+ONEDRIVE = C:\Users\Sin Shimozono\OneDrive
+# environment
+POWERSHELL_DISTRIBUTION_CHANNEL = MSI:Windows 10 Enterprise
+# makefile
+CURDIR := /c/Users/Sin Shimozono/Documents/Projects/MelodySearch
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# environment
+PROGRAMFILES = C:\Program Files
+# environment
+MFLAGS = -pqrR
+# default
+.SHELLFLAGS := -c
+# environment
+!C: = c:\Users\Sin Shimozono\Documents\Projects\MelodySearch
+# environment
+COMMONPROGRAMW6432 = C:\Program Files\Common Files
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# makefile
+MAKEFILE_LIST := 
+# automatic
+@F = $(notdir $@)
+# environment
+VSCODE_PID = 22488
+# environment
+CUDA_PATH = C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# automatic
+*F = $(notdir $*)
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# environment
+VSCODE_NLS_CONFIG = {"locale":"ja","availableLanguages":{"*":"ja"},"_languagePackId":"0eea3b1222777374459e015adf6fd29b.ja","_translationsConfigFile":"C:\\Users\\Sin Shimozono\\AppData\\Roaming\\Code\\clp\\0eea3b1222777374459e015adf6fd29b.ja\\tcf.json","_cacheRoot":"C:\\Users\\Sin Shimozono\\AppData\\Roaming\\Code\\clp\\0eea3b1222777374459e015adf6fd29b.ja","_resolvedLanguagePackCoreLocation":"C:\\Users\\Sin Shimozono\\AppData\\Roaming\\Code\\clp\\0eea3b1222777374459e015adf6fd29b.ja\\e4503b30fc78200f846c62cf8091b76ff5547662","_corruptedFile":"C:\\Users\\Sin Shimozono\\AppData\\Roaming\\Code\\clp\\0eea3b1222777374459e015adf6fd29b.ja\\corrupted.info","_languagePackSupport":true}
+# environment
+ONEDRIVECONSUMER = C:\Users\Sin Shimozono\OneDrive
+# default
+MAKE_HOST := x86_64-pc-msys
+# environment
+PROGRAMDATA = C:\ProgramData
+# default
+SHELL := /bin/sh
+# environment
+HOMEPATH = \Users\Sin Shimozono
+# default
+MAKECMDGOALS := all
+# environment
+DRIVERDATA = C:\Windows\System32\Drivers\DriverData
+# environment
+COMSPEC = C:\WINDOWS\system32\cmd.exe
+# environment
+WINDIR = C:\WINDOWS
+# environment
+MAKELEVEL := 0
+# default
+MAKE = $(MAKE_COMMAND)
+# environment
+PATH = /c/Program Files (x86)/Common Files/Oracle/Java/javapath:/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.4/bin:/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.4/libnvvp:/c/Program Files/Python39/Scripts:/c/Program Files/Python39:/c/WINDOWS/system32:/c/WINDOWS:/c/WINDOWS/System32/Wbem:/c/WINDOWS/System32/WindowsPowerShell/v1.0:/c/WINDOWS/System32/OpenSSH:/c/Program Files/PowerShell/7:/c/Program Files/NVIDIA Corporation/Nsight Compute 2021.2.1:/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/c/Program Files/dotnet:/c/Program Files/Microsoft SQL Server/130/Tools/Binn:/c/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn:/c/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit:/c/Program Files (x86)/Windows Kits/10/Microsoft Application Virtualization/Sequencer:/c/Program Files (x86)/dotnet:/c/Program Files/Git/cmd:/c/Users/Sin Shimozono/AppData/Local/Programs/Python/Python310/Scripts:/c/Users/Sin Shimozono/AppData/Local/Programs/Python/Python310:/c/Users/Sin Shimozono/AppData/Local/Microsoft/WindowsApps:/c/Users/Sin Shimozono/AppData/Local/Programs/Python/Python38/scripts:/c/Users/Sin Shimozono/AppData/Local/Programs/Python/Python38:/c/Users/Sin Shimozono/AppData/Local/Programs/Microsoft VS Code/bin:/c/Users/Sin Shimozono/AppData/Local/GitHubDesktop/bin:/c/texlive/2021/bin/win32:/c/Users/Sin Shimozono/.dotnet/tools
+# environment
+ZES_ENABLE_SYSMAN = 1
+# environment
+COMPUTERNAME = MIZAR
+# default
+MAKEFILES := 
+# automatic
+^F = $(notdir $^)
+# environment
+PROMPT = $P$G
+# environment
+NVTOOLSEXT_PATH = C:\Program Files\NVIDIA Corporation\NvToolsExt\
+# environment
+CUDA_PATH_V11_4 = C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4
+# environment
+LOGONSERVER = \\MIZAR
+# environment
+USERNAME = Sin Shimozono
+# environment
+COMMONPROGRAMFILES = C:\Program Files\Common Files
+# automatic
+?F = $(notdir $?)
+# environment
+PROGRAMW6432 = C:\Program Files
+# environment
+PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
+# automatic
++F = $(notdir $+)
+# environment
+NVCUDASAMPLES11_4_ROOT = C:\ProgramData\NVIDIA Corporation\CUDA Samples\v11.4
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+ 
+# environment
+USERDOMAIN = MIZAR
+# 'override' directive
+GNUMAKEFLAGS := 
+# environment
+OS = Windows_NT
+# environment
+__COMPAT_LAYER = DetectorsAppHealth
+# makefile
+.DEFAULT_GOAL := 
+# default
+MAKE_VERSION := 4.3
+# environment
+RLSSVCPORT = 22112
+# environment
+PROGRAMFILES(X86) = C:\Program Files (x86)
+# environment
+NVCUDASAMPLES_ROOT = C:\ProgramData\NVIDIA Corporation\CUDA Samples\v11.4
+# environment
+USERDOMAIN_ROAMINGPROFILE = MIZAR
+# environment
+NUMBER_OF_PROCESSORS = 16
+# environment
+PUBLIC = C:\Users\Public
+# environment
+APPDATA = C:\Users\Sin Shimozono\AppData\Roaming
+# environment
+HOMEDRIVE = C:
+# environment
+PROCESSOR_ARCHITECTURE = AMD64
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+HOME = /home/Sin Shimozono
+# environment
+COMMONPROGRAMFILES(X86) = C:\Program Files (x86)\Common Files
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# environment
+TEMP = /c/Users/SINSHI~1/AppData/Local/Temp
+# environment
+VSCODE_IPC_HOOK = \\.\pipe\c0de3b967ba4c1dde48e969a97dd9242-1.70.2-main-sock
+# environment
+TERM = xterm-256color
+# default
+.RECIPEPREFIX := 
+# automatic
+<F = $(notdir $<)
+# default
+SUFFIXES := 
+# environment
+ALLUSERSPROFILE = C:\ProgramData
+# environment
+SESSIONNAME = Console
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
+# environment
+PROCESSOR_REVISION = a505
+# environment
+PROCESSOR_IDENTIFIER = Intel64 Family 6 Model 165 Stepping 5, GenuineIntel
+# variable set hash-table stats:
+# Load=100/1024=10%, Rehash=0, Collisions=12/124=10%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# . (device 639573827, inode 12666373952027106): 23 files, no impossibilities.
+
+# 23 files, no impossibilities in 1 directories.
+
+# Implicit Rules
+
+# No implicit rules.
+
+# Files
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+all:
+#  Command line target.
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has not been updated.
+
+# Not a target:
+makefile:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# Not a target:
+GNUmakefile:
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+
+# files hash-table stats:
+# Load=6/1024=1%, Rehash=0, Collisions=0/15=0%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 1 (0) / strings = 30 / storage = 318 B / avg = 10 B
+# current buf: size = 8162 B / used = 318 B / count = 30 / avg = 10 B
+
+# strcache performance: lookups = 33 / hit rate = 9%
+# hash-table stats:
+# Load=30/8192=0%, Rehash=0, Collisions=0/33=0%
+# Finished Make data base on Thu Aug 25 08:50:18 2022
+
+ 
