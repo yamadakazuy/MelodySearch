@@ -2,7 +2,7 @@
 CXX = g++ -std=c++17 -Wall 
 
 CFLAGS += -O0
-CXXFLAGS +=  -Ilibsmf
+CXXFLAGS +=  -I./
 
 OBJS = main.o smf.o
 
