@@ -9,8 +9,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <deque>
 #include <regex>
+// requires C++20
 #include <filesystem>
 
 using std::cout;
