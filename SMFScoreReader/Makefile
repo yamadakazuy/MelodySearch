@@ -15,11 +15,9 @@ all:	$(EXECUTABLE)
 $(EXECUTABLE):	$(OBJS)
 	$(CXX) -o $@ $^
 
-#%.o:	$(PROJECT_ROOT)%.cpp
 %.o:	%.cpp 
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
-#%.o:	$(PROJECT_ROOT)%.c
 %.o:	%.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
