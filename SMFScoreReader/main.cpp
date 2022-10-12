@@ -88,9 +88,24 @@ int main(int argc, char **argv) {
 						notenum = evt.notenumber();
 						if (notenum_1 != -1) {
 							//std::cout << last_noteon << "\t";
-							outputfile << ((notenum_2 == -1) ? "*" : (notenum_1 == notenum_2 ? "=" : (notenum_1 > notenum_2 ? "+" : "-")));
+							//outputfile << ((notenum_2 == -1) ? "*" : (notenum_1 == notenum_2 ? "=" : (notenum_1 > notenum_2 ? "+" : "-")));
 							//std::cout << notenum_1 << " <- " << notenum_2 ;
 							//std::cout << std::endl;
+							if (notenum_2 == -1) {
+								outputfile << "*";
+							} else {
+								if (notenum_1 == notenum_2) {
+									outputfile << "=";
+								} else if ( notenum_1 == notenum_2 + 1 ) {
+									outputfile << "#";
+								} else if ( notenum_1 > notenum_2 ) {
+									outputfile << "+";
+								} else if ( notenum_1 == notenum_2 - 1) {
+									outputfile << "b";
+								} else {
+									outputfile << "-";
+								}
+							}
 						}
 						last_noteon = globaltime;
 					} else {
@@ -99,10 +114,26 @@ int main(int argc, char **argv) {
 				}
 			}
 			if (note_count > 0) {
-				if (notenum_1 == -1)
+				if (notenum_1 == -1) {
 					notenum_1 = notenum;
+				}
+				if (notenum_2 == -1) {
+					outputfile << "*";
+				} else {
+					if (notenum_1 == notenum_2) {
+						outputfile << "=";
+					} else if ( notenum_1 == notenum_2 + 1 ) {
+						outputfile << "#";
+					} else if ( notenum_1 > notenum_2 ) {
+						outputfile << "+";
+					} else if ( notenum_1 == notenum_2 - 1) {
+						outputfile << "b";
+					} else {
+						outputfile << "-";
+					}
+				}
 				//std::cout << last_noteon << "\t";
-				outputfile << ((notenum_2 == -1) ? "*" : (notenum_1 == notenum_2 ? "=" : (notenum_1 > notenum_2 ? "+" : "-")));
+				//outputfile << ((notenum_2 == -1) ? "*" : (notenum_1 == notenum_2 ? "=" : (notenum_1 > notenum_2 ? "+" : "-")));
 				//std::cout << notenum_1 << " <- " << notenum_2 ;
 				//std::cout << std::endl;
 				break;

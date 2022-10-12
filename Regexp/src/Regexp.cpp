@@ -27,7 +27,7 @@ int main(const int argc, const char * argv[]) {
 		cout << "requires path regexp " << endl;
 		exit(1);
 	}
-	cout << "search " << regexpstr << " for .txt in " << path << endl;
+	cout << "search " << regexpstr << " for .contour in " << path << endl;
 
 	std::regex rpatt(regexpstr); //rpatt(R"(Alice was)");
 	std::match_results<string::const_iterator> res;
@@ -36,13 +36,13 @@ int main(const int argc, const char * argv[]) {
 	for (const fsys::directory_entry & entry : fsys::recursive_directory_iterator(path)) {
 		if (entry.is_directory())
 			continue;
-		if ( entry.path().string().ends_with(".txt") ) {
+		if ( entry.path().string().ends_with(".contour") ) {
 			counter += 1;
 			cout << counter << " " << entry.path().string() << endl;
 			std::ifstream ifs(entry.path().string());
 			string text((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
 			if ( std::regex_search(text, res, rpatt) ) {
-				cout << res.str() << ", " << res.position() - res.length() << endl;
+				cout << res.str() << ", " << res.position() << endl;
 			} else {
 				cout << "no match" << endl;
 			}
