@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
 	cout << "SMF2Contour Converter ver. 0.9.0" << endl;
 
 	if ( !(argc > 1) ) {
-		cerr << "usage: SMF2cont ディレクトリ名" << endl;
+		cerr << "usage: SMF2cont dirname [enter]" << endl;
 		return EXIT_FAILURE;
 	}
 	std::filesystem::path argpath(argv[1]);
@@ -103,16 +103,17 @@ int main(int argc, char **argv) {
 		if ( ! (entry.path().extension() == ".mid") )
 			continue;
 	 // ends_with() --- introduced in C++20
-		cout << "ファイル " << entry.path().filename();
+		cout << "File " << entry.path().filename();
 		input.open(entry.path().string(), (std::ios::in | std::ios::binary) );
 		if ( !input ) {
-			cerr << "オープンに失敗しました．" << endl;
+			cerr << " open failed." << endl;
 			continue;
 		}
+
 		smf::score midi(input);
 		input.close();
 		if ( ! midi.empty() ) {
-			std::cerr << "SMF読み込み失敗, スキップします．" << std::endl;
+			std::cerr << "Reading SMF failed. Skip." << std::endl;
 			continue;
 		}
 		std::filesystem::path outpath(entry.path());

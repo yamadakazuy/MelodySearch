@@ -8,7 +8,7 @@ OBJS = main.o smf.o
 
 CFLAGS += -g
 
-EXECUTABLE = demo.exe
+EXECUTABLE = smf2cont.exe
 
 all:	$(EXECUTABLE)
 
