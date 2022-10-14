@@ -40,6 +40,7 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 	smf::score midi(input);
+	cout << "midi" << endl;
 	input.close();
 	if ( ! midi.empty() ) {
 		std::cerr << "SMF読み込み失敗" << std::endl;

@@ -34,6 +34,7 @@ const string contour(const int & noteprev, const int & notenum) {
 		return "?";
 	}
 }
+
 bool fileout_contour(const smf::score & midi, const string & filename) {
 	std::ofstream out(filename, std::ios::out);
 	if ( ! out ) {
