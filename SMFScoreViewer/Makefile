@@ -8,17 +8,17 @@ OBJS = main.o smf.o
 
 CFLAGS += -g
 
-EXECUTABLE = demo.exe
+EXECUTABLE = smfviewer.exe
 
 all:	$(EXECUTABLE)
 
 $(EXECUTABLE):	$(OBJS)
 	$(CXX) -o $@ $^
 
-%.o:	%.cpp 
+%.o:	src/%.cpp 
 	$(CXX) -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o $@ $<
 
-%.o:	%.c
+%.o:	src/%.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 clean:

@@ -28,13 +28,14 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 	smf::score midi(input);
-	cout << "midi" << endl;
+
+	//cout << "midi" << endl;
 	input.close();
 	if ( ! midi.empty() ) {
 		std::cerr << "SMF読み込み失敗" << std::endl;
 		return EXIT_FAILURE;
 	}
-	std::cout << midi << std::endl;
+	//std::cout << midi << std::endl;
 
 	std::vector<smf::note> notes = midi.notes();
 	std::cout << "notes size = " << notes.size() << std::endl << std::endl;

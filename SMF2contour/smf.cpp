@@ -98,6 +98,50 @@ smf::event::event(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
 	}
 }
 
+void smf::event::read(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
+	delta = get_uint32VLQ(itr);
+	status = laststatus;
+	if (((*itr) & 0x80) != 0) {
+		status = *itr;
+		++itr;
+	}
+	uint8_t type;
+	uint32_t len;
+	type = status & 0xf0;
+	if ( (smf::MIDI_NOTEOFF <= type && type <= smf::MIDI_CONTROLCHANGE) || (type == smf::MIDI_PITCHBEND) ) {
+		data.push_back(*itr);
+		++itr;
+		data.push_back(*itr);
+		++itr;
+	} else if ( type == smf::MIDI_PROGRAMCHANGE || type == smf::MIDI_CHPRESSURE ) {
+		data.push_back(*itr);
+		++itr;
+	} else if ( status == smf::SYSEX ) {
+		len = get_uint32VLQ(itr);
+		for(uint32_t i = 0; i < len; ++i) {
+			data.push_back(*itr);
+			++itr;
+		}
+	} else if ( status == smf::ESCSYSEX ) {
+		len = get_uint32VLQ(itr);
+		for(uint32_t i = 0; i < len; ++i) {
+			data.push_back(*itr);
+			++itr;
+		}
+	} else if ( status == smf::META ) {
+		data.push_back(*itr); // function
+		++itr;
+		len = get_uint32VLQ(itr);
+		for(uint32_t i = 0; i < len; ++i) {
+			data.push_back(*itr);
+			++itr;
+		}
+	} else {
+		std::cerr << "error!" << std::dec << delta << std::hex << status << std::endl;
+		// error.
+	}
+}
+
 std::ostream & smf::event::printOn(std::ostream & out) const {
 	uint8_t type = status & 0xf0;
 	if ( (smf::MIDI_NOTEOFF <= type) && (type <= smf::MIDI_PITCHBEND) ) {
@@ -253,6 +297,57 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 		// error.
 	}
 	return out;
+}
+
+smf::score::score(std::istream & smffile) {
+	std::istreambuf_iterator<char> itr(smffile);
+	std::istreambuf_iterator<char> end_itr;
+
+	if ( check_str("MThd", itr) ) {
+		get_uint32BE(itr);
+		// The header length is always 6.
+		smfformat = get_uint16BE(itr);
+		ntracks = get_uint16BE(itr);
+		division = get_uint16BE(itr);
+	} else {
+		smfformat = 0;
+		ntracks = 0;
+		division = 0;
+		tracks.clear();
+		return;
+	}
+	while (itr != end_itr) {
+		if ( check_str("MTrk", itr) ) {
+			get_uint32BE(itr);
+			/*
+			std::cout << "track " << tracks.size() << std::endl;
+			if ( tracks.size() == 49 ) {
+				std::cout << 49 << std::endl;
+			}
+			*/
+			tracks.push_back(std::vector<event>());
+			uint8_t laststatus = 0;
+			event ev;
+			//long counter = 0;
+			do {
+				ev.clear();
+				ev.read(itr, laststatus);
+				/*
+				counter += 1;
+				if ( (counter % 100) == 0 ) {
+					std::cout << counter << std::endl;
+				}
+				*/
+				laststatus = ev.status;
+				tracks.back().push_back(ev);
+			} while ( !ev.isEoT() /* tracks.back().back().isEoT() */ );
+
+		} else {
+			std::cerr << "Warning: Encountered and abandoned unknown non-MTrk data chunk after MThd or MTrk. " << std::endl;
+			break;
+		}
+	}
+	return;
 }
 
 std::vector<smf::note> smf::score::notes() const{
