@@ -53,7 +53,7 @@ bool smf::check_str(const std::string & str, std::istreambuf_iterator<char> & it
 	return std::equal(str.begin(), str.end(), itr);
 }
 
-
+/*
 smf::event::event(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
 	delta = get_uint32VLQ(itr);
 	status = laststatus;
@@ -93,10 +93,11 @@ smf::event::event(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
 			++itr;
 		}
 	} else {
-		std::cerr << "error!" << std::dec << delta << std::hex << status << std::endl;
+		std::cerr << "smf::event::event error!" << std::dec << " delta = " << delta << std::hex << " status = " << int(status) << std::endl;
 		// error.
 	}
 }
+*/
 
 void smf::event::read(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
 	delta = get_uint32VLQ(itr);
@@ -105,9 +106,8 @@ void smf::event::read(std::istreambuf_iterator<char> & itr, uint8_t laststatus) 
 		status = *itr;
 		++itr;
 	}
-	uint8_t type;
 	uint32_t len;
-	type = status & 0xf0;
+	uint8_t type = status & 0xf0;
 	if ( (smf::MIDI_NOTEOFF <= type && type <= smf::MIDI_CONTROLCHANGE) || (type == smf::MIDI_PITCHBEND) ) {
 		data.push_back(*itr);
 		++itr;
@@ -137,7 +137,7 @@ void smf::event::read(std::istreambuf_iterator<char> & itr, uint8_t laststatus) 
 			++itr;
 		}
 	} else {
-		std::cerr << "error!" << std::dec << delta << std::hex << status << std::endl;
+		std::cerr << "smf::event::read error! " << "type = " << std::hex << int(type) << " status = " << std::hex << int(status) << std::endl;
 		// error.
 	}
 }
@@ -292,7 +292,7 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 		}
 		out << ")";
 	} else {
-		std::cout << "smfevent::operator<< error!";
+		std::cout << "smfevent::operator<< error! ";
 		std::cout << std::dec << delta << ", " << std::hex << int(status) << std::endl;
 		// error.
 	}

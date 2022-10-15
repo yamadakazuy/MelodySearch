@@ -68,7 +68,9 @@ struct event {
 
 	event(void) : delta(0), status(0), data() {}
 
-	event(std::istreambuf_iterator<char> & itr, uint8_t laststatus);
+	event(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
+		read(itr, laststatus);
+	}
 
 	void read(std::istreambuf_iterator<char> & itr, uint8_t laststatus = 0);
 
