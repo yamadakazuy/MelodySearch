@@ -140,9 +140,9 @@ void smf::event::read(std::istreambuf_iterator<char> & itr, uint8_t laststatus) 
 			data.push_back(*itr); // function
 			++itr;
 			len = get_uint32VLQ(itr);
-			if (len == 6208) {
-				std::cerr << "caution!" << std::endl;
-			}
+			//if (len == 6208) {
+			//	std::cerr << "caution!" << std::endl;
+			//}
 			for(uint32_t i = 0; i < len; ++i) {
 				data.push_back(*itr);
 				++itr;
@@ -150,7 +150,7 @@ void smf::event::read(std::istreambuf_iterator<char> & itr, uint8_t laststatus) 
 					break;
 				}
 			}
-			std::cerr << "meta (" << data.size() << ") " << std::endl;
+			//std::cerr << "meta (" << data.size() << ") " << std::endl;
 		} else if (status == smf::SYS_SONGPOS ) {
 			data.push_back(*itr);
 			++itr;
@@ -306,11 +306,21 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 			}
 			break;
 		default:
+			out << "unknown type " << "0x" << std::hex << (((unsigned int)data[0])& 0xff);
+			out << " (" << std::dec << data.size() << ") ";
+			bool textmode = false;
 			for(auto i = data.begin(); i != data.end(); ++i) {
 				if ( isprint(*i) && !isspace(*i) ) {
+					if (!textmode)
+						out << " \"";
+					textmode = true;
 					out << char(*i);
 				} else {
-					out << std::hex << std::setw(2) << int(*i) << ' ';
+					if (textmode)
+						out << "\" ";
+					textmode = false;
+					unsigned int val = *i & 0xff;
+					out << std::hex << std::setw(2) << std::setfill('0') << val;
 				}
 			}
 		}
@@ -320,13 +330,24 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 		if ( delta != 0 )
 			out << delta << ", ";
 		out<< "SYS_EX " ;
+		out << "(" << std::dec << data.size() << ") ";
+		bool textmode = false;
 		for(auto i = data.begin(); i != data.end(); ++i) {
 			if ( isprint(*i) && !isspace(*i) ) {
+				if (!textmode)
+					out << " \"";
+				textmode = true;
 				out << char(*i);
 			} else {
-				out << std::hex << std::setw(2) << int(*i);
+				if (textmode)
+					out << "\" ";
+				textmode = false;
+				unsigned int val = *i & 0xff;
+				out << std::hex << std::setw(2) << std::setfill('0') << val;
 			}
 		}
+		if (textmode)
+			out << "\"";
 		out << ")";
 	} else if (status == smf::SYS_SONGPOS ) {
 		out << "(";
@@ -408,6 +429,7 @@ smf::score::score(std::istream & smffile) {
 				*/
 				laststatus = ev.status;
 				tracks.back().push_back(ev);
+				std::cout << ev << std::endl;
 			} while ( !ev.isEoT() and itr != end_itr /* tracks.back().back().isEoT() */ );
 
 		} else {
