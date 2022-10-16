@@ -3,6 +3,8 @@
  *
  *  Created on: 2022/05/10
  *      Author: sin
+ *
+ *      Ver. 20221016
  */
 
 #ifndef SMF_H_
@@ -31,10 +33,22 @@ enum EVENT_TYPE {
 	MIDI_PROGRAMCHANGE = 0xc0,
 	MIDI_CHPRESSURE = 0xd0,
 	MIDI_PITCHBEND = 0xe0,
-	SYSEX = 0xf0, 	// System Exclusive
+	SYSTEM = 0xf0,
+	SYS_EX = 0xf0, 	// System Exclusive
+	SYS_SONGPOS = 0xf2,
+	SYS_SONGSEL= 0xf3,
+	SYS_TUNEREQ = 0xf6,
+	SYS_ENDOFEX = 0xf7,
+	SYS_TIMING_CLOCK = 0xf8,
+	SYS_TIMING_START = 0xfa,
+	SYS_TIMING_CONT = 0xfb,
+	SYS_TIMIMG_STOP = 0xfc,
+	SYS_ACTIVE_SENSING = 0xfe,
+	SYS_RESET = 0xff,
 	ESCSYSEX = 0xf7, 	// Escaped System Exclusive
 	META = 0xff, 	// Meta
 };
+
 
 static constexpr char * namesofnote[] = {
 		(char *) "C",
