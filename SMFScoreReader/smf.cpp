@@ -3,6 +3,8 @@
  *
  *  Created on: 2022/05/10
  *      Author: sin
+ *
+ *      Ver. 20221017
  */
 
 #include <iostream>
@@ -72,7 +74,7 @@ smf::event::event(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
 	} else if ( type == smf::MIDI_PROGRAMCHANGE || type == smf::MIDI_CHPRESSURE ) {
 		data.push_back(*itr);
 		++itr;
-	} else if ( status == smf::SYSEX ) {
+	} else if ( status == smf::SYS_EX ) {
 		len = get_uint32VLQ(itr);
 		for(uint32_t i = 0; i < len; ++i) {
 			data.push_back(*itr);
@@ -96,6 +98,90 @@ smf::event::event(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
 		std::cerr << "error!" << std::dec << delta << std::hex << status << std::endl;
 		// error.
 	}
+}
+
+
+void smf::event::read(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
+	std::istreambuf_iterator<char> end_itr;
+	delta = get_uint32VLQ(itr);
+	status = laststatus;
+	bool not_running_status = false;
+	if (((*itr) & 0x80) != 0) {
+		not_running_status = true;
+		status = *itr;
+		++itr;
+	} /*
+	else {
+		std::cout << "running status" << std::endl;
+	}
+	*/
+	uint32_t len;
+	uint8_t type = status & 0xf0;
+	if ( (smf::MIDI_NOTEOFF <= type && type <= smf::MIDI_CONTROLCHANGE) || (type == smf::MIDI_PITCHBEND) ) {
+		data.push_back(*itr);
+		++itr;
+		data.push_back(*itr);
+		++itr;
+	} else if ( type == smf::MIDI_PROGRAMCHANGE || type == smf::MIDI_CHPRESSURE ) {
+		data.push_back(*itr);
+		++itr;
+	} else if ( type == smf::SYSTEM ) {
+		if ( status == smf::SYS_EX ) {
+			len = get_uint32VLQ(itr);
+			for(uint32_t i = 0; i < len; ++i) {
+				data.push_back(*itr);
+				++itr;
+			}
+			//std::cerr << "sys_ex (" << data.size() << ") " << std::endl;
+		}else if ( status == smf::ESCSYSEX ) {
+			len = get_uint32VLQ(itr);
+			for(uint32_t i = 0; i < len; ++i) {
+				data.push_back(*itr);
+				++itr;
+			}
+			//std::cerr << "escsysex (" << data.size() << ") " << std::endl;
+		} else if ( status == smf::META ) {
+			data.push_back(*itr); // function
+			++itr;
+			len = get_uint32VLQ(itr);
+			//if (len == 6208) {
+			//	std::cerr << "caution!" << std::endl;
+			//}
+			for(uint32_t i = 0; i < len; ++i) {
+				data.push_back(*itr);
+				++itr;
+				if ( itr == end_itr ) {
+					break;
+				}
+			}
+			//std::cerr << "meta (" << data.size() << ") " << std::endl;
+		} else if (status == smf::SYS_SONGPOS ) {
+			data.push_back(*itr);
+			++itr;
+			data.push_back(*itr);
+			++itr;
+			//std::cerr << "system common: song pos pointer " << (((unsigned int)data[1])<<7 | (unsigned int)data[0]) << std::endl;
+		} else if ( status == smf::SYS_SONGSEL ) {
+			if ( (*itr & 0x80) != 0 ) {
+				std::cerr << "smf::smf::read warning! " << "SYS_SONGSEL song select followed by 8bit number 0x" << std::hex << (((unsigned int) *itr) & 0xff) << std::endl;
+			}
+			data.push_back( (*itr) & 0x7f);
+			++itr;
+			//std::cerr << "system common: song select " << std::hex << (unsigned int) (data[0]) << std::endl;
+		} else if ( status == smf::SYS_TUNEREQ ) {
+			//std::cerr << "system common: tune request" << std::endl;
+		} else {
+			std::cerr << "smf::event::read unknown system event!";
+			if ( not_running_status ) {
+				std::cerr << " status = " << std::hex << int(status);
+			} else {
+				std::cerr << " running status = " << std::hex << (unsigned int) laststatus;
+			}
+			std::cerr << ", type = " << std::hex << int(type) << std::endl;
+			// error.
+		}
+	}
+	//std::cout << *this << std::endl;
 }
 
 std::ostream & smf::event::printOn(std::ostream & out) const {
@@ -133,19 +219,6 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 			out << "CHANNEL PRESS, " << channel() << ", "
 			<< std::dec << (uint16_t(data[1])<<7 | data[0]);
 			break;
-		}
-		out << ")";
-	} else if ( status == smf::SYSEX ) {
-		out << "(";
-		if ( delta != 0 )
-			out << delta << ", ";
-		out<< "SYSEX " << std::hex << status << ' ';
-		for(auto i = data.begin(); i != data.end(); ++i) {
-			if ( isprint(*i) && !isspace(*i) ) {
-				out << char(*i);
-			} else {
-				out << std::hex << std::setw(2) << int(*i);
-			}
 		}
 		out << ")";
 	} else if ( status == smf::ESCSYSEX ) {
@@ -238,24 +311,143 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 			}
 			break;
 		default:
+			out << "unknown type " << "0x" << std::hex << (((unsigned int)data[0])& 0xff);
+			out << " (" << std::dec << data.size() << ") ";
+			bool textmode = false;
 			for(auto i = data.begin(); i != data.end(); ++i) {
 				if ( isprint(*i) && !isspace(*i) ) {
+					if (!textmode)
+						out << " \"";
+					textmode = true;
 					out << char(*i);
 				} else {
-					out << std::hex << std::setw(2) << int(*i) << ' ';
+					if (textmode)
+						out << "\" ";
+					textmode = false;
+					unsigned int val = *i & 0xff;
+					out << std::hex << std::setw(2) << std::setfill('0') << val;
 				}
 			}
 		}
 		out << ")";
+	} else if ( status == smf::SYS_EX ) {
+		out << "(";
+		if ( delta != 0 )
+			out << delta << ", ";
+		out<< "SYS_EX " ;
+		out << "(" << std::dec << data.size() << ") ";
+		bool textmode = false;
+		for(auto i = data.begin(); i != data.end(); ++i) {
+			if ( isprint(*i) && !isspace(*i) ) {
+				if (!textmode)
+					out << " \"";
+				textmode = true;
+				out << char(*i);
+			} else {
+				if (textmode)
+					out << "\" ";
+				textmode = false;
+				unsigned int val = *i & 0xff;
+				out << std::hex << std::setw(2) << std::setfill('0') << val;
+			}
+		}
+		if (textmode)
+			out << "\"";
+		out << ")";
+	} else if (status == smf::SYS_SONGPOS ) {
+		out << "(";
+		if ( delta != 0 )
+			out << std::dec << delta << ", ";
+		uint16_t val14bit = data[1] & 0x7f;
+		val14bit <<= 7;
+		val14bit |= (uint16_t)data[0] & 0x7f;
+		out << "SYS_SONGPOS " << val14bit << ")";
+	} else if ( status == smf::SYS_SONGSEL ) {
+		out << "(";
+		if ( delta != 0 )
+			out << std::dec << delta << ", ";
+		out << "SYS_SONGSEL "<< (uint16_t) data[0] << ")";
+	} else if ( status == smf::SYS_TUNEREQ ) {
+		out << "(";
+		if ( delta != 0 )
+			out << std::dec << delta << ", ";
+		out << "SYS_TUNEREQ" << ")";
 	} else {
-		std::cout << "smfevent::operator<< error!";
-		std::cout << std::dec << delta << ", " << std::hex << int(status) << std::endl;
+		out << "(";
+		if ( delta != 0 )
+			out << std::dec << delta << ", ";
+		out << "UNKNOWN MESSAGE: ";
+		// error.
+		std::cerr << "smfevent::operator<< error!";
+		out << std::hex << (unsigned int) status << " ";
+		for(auto i = data.begin(); i != data.end(); ++i) {
+			if ( isprint(*i) && !isspace(*i) ) {
+				out << char(*i);
+			} else {
+				out << std::hex << std::setw(2) << int(*i);
+			}
+		}
+		out << ")";
 		// error.
 	}
 	return out;
 }
 
-std::vector<smf::note> smf::score::notes() {
+smf::score::score(std::istream & smffile) {
+	std::istreambuf_iterator<char> itr(smffile);
+	std::istreambuf_iterator<char> end_itr;
+
+	if ( check_str("MThd", itr) ) {
+		get_uint32BE(itr);
+		// The header length is always 6.
+		smfformat = get_uint16BE(itr);
+		ntracks = get_uint16BE(itr);
+		division = get_uint16BE(itr);
+	} else {
+		smfformat = 0;
+		ntracks = 0;
+		division = 0;
+		tracks.clear();
+		return;
+	}
+	while (itr != end_itr) {
+		if ( check_str("MTrk", itr) ) {
+			get_uint32BE(itr);
+			/*
+			std::cout << "track " << tracks.size() << std::endl;
+			if ( tracks.size() == 49 ) {
+				std::cout << 49 << std::endl;
+			}
+			*/
+			tracks.push_back(std::vector<event>());
+			uint8_t laststatus = 0;
+			event ev;
+			//long counter = 0;
+			do {
+				ev.clear();
+				ev.read(itr, laststatus);
+				/*
+				counter += 1;
+				if ( (counter % 100) == 0 ) {
+					std::cout << counter << std::endl;
+				}
+				*/
+				//std::cout << "laststatus = " << std::hex << (int) laststatus << " " << ev << std::endl;
+				if ( ev.isMIDI() ) {
+					laststatus = ev.status;
+				}
+				tracks.back().push_back(ev);
+			} while ( !ev.isEoT() and itr != end_itr /* tracks.back().back().isEoT() */ );
+
+		} else {
+			std::cerr << "Warning: Encountered and abandoned unknown non-MTrk data chunk after MThd or MTrk. " << std::endl;
+			break;
+		}
+	}
+	return;
+}
+
+std::vector<smf::note> smf::score::notes() const{
 	std::vector<smf::note> noteseq;
 	struct trkinfo {
 		std::vector<smf::event>::const_iterator cursor;

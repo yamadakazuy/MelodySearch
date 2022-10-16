@@ -3,6 +3,8 @@
  *
  *  Created on: 2022/05/10
  *      Author: sin
+ *
+ *      Ver. 20221017
  */
 
 #ifndef SMF_H_
@@ -31,10 +33,22 @@ enum EVENT_TYPE {
 	MIDI_PROGRAMCHANGE = 0xc0,
 	MIDI_CHPRESSURE = 0xd0,
 	MIDI_PITCHBEND = 0xe0,
-	SYSEX = 0xf0, 	// System Exclusive
+	SYSTEM = 0xf0,
+	SYS_EX = 0xf0, 	// System Exclusive
+	SYS_SONGPOS = 0xf2,
+	SYS_SONGSEL= 0xf3,
+	SYS_TUNEREQ = 0xf6,
+	SYS_ENDOFEX = 0xf7,
+	SYS_TIMING_CLOCK = 0xf8,
+	SYS_TIMING_START = 0xfa,
+	SYS_TIMING_CONT = 0xfb,
+	SYS_TIMIMG_STOP = 0xfc,
+	SYS_ACTIVE_SENSING = 0xfe,
+	SYS_RESET = 0xff,
 	ESCSYSEX = 0xf7, 	// Escaped System Exclusive
 	META = 0xff, 	// Meta
 };
+
 
 static constexpr char * namesofnote[] = {
 		(char *) "C",
@@ -66,11 +80,11 @@ struct event {
 		return smf::namesofnote[notenum % 12];
 	}
 
-	event(void) {
-		clear();
-	}
+	event(void) : delta(0), status(0), data() {}
 
 	event(std::istreambuf_iterator<char> & itr, uint8_t laststatus);
+
+	void read(std::istreambuf_iterator<char> & itr, uint8_t laststatus = 0);
 
 	void clear() {
 		delta = 0;
@@ -104,6 +118,11 @@ struct event {
 		tmp <<= 8;
 		tmp |= uint8_t(data[3]);
 		return tmp;
+	}
+
+	bool isMIDI() const {
+		uint8_t msb4 = (status & 0xf0)>>4;
+		return (msb4 >= 8) and (msb4 <= 14);
 	}
 
 	bool isNote() const {
@@ -165,75 +184,6 @@ struct event {
 
 };
 
-/*
-class header {
-	uint16_t length;
-
-public:
-	uint16_t format, ntracks, division;
-
-	header(void) : length(0), format(0), ntracks(0), division(0) { }
-
-	header(std::istreambuf_iterator<char> & itr) {
-		length = get_uint32BE(itr);
-		//std::cout << "header" << std::endl;
-		format = get_uint16BE(itr);
-		ntracks = get_uint16BE(itr);
-		division = get_uint16BE(itr);
-	}
-
-	friend std::ostream & operator<<(std::ostream & out, const header & chunk) {
-		out << "Header";
-		out << "(format = " << chunk.format << ", ntracks = " << chunk.ntracks << ", division = " << chunk.division << ") ";
-		return out;
-	}
-};
-
-class track {
-public:
-	std::vector<smf::event> events;
-
-	track(void) : length(0) { }
-
-	track(std::istreambuf_iterator<char> & itr) {
-		get_uint32BE(itr);
-		//std::cout << "track" << std::endl;
-		events.clear();
-		uint8_t laststatus = 0;
-		do {
-			event ev(itr, laststatus);
-			laststatus = ev.status;
-			events.push_back(ev);
-		} while ( !events.back().isEoT() );
-	}
-
-	~track() {
-		events.clear();
-	}
-
-	void clear(void) {
-		//length = 0;
-		events.clear();
-	}
-
-	friend std::ostream & operator<<(std::ostream & out, const track & chunk) {
-		out << "Track chunk";
-		//out << "(length = " << chunk.length << ") ";
-		std::cout << std::endl;
-		for(auto i = chunk.events.begin(); i != chunk.events.end(); ++i) {
-			if ( i->isMeta() || i->isNote() ) {
-				if ( i->delta > 0 ) {
-					std::cout << std::endl;
-				} else {
-					std::cout << " ";
-				}
-				std::cout << *i ;
-			}
-		}
-		return out;
-	}
-};
-*/
 
 struct note {
 	uint32_t time;
@@ -257,6 +207,9 @@ class score {
 	std::vector<std::vector<smf::event>> tracks;
 
 public:
+	score() :  smfformat(0), ntracks(0), division(0), tracks(0) {}
+	score(std::istream & smffile);
+	/*
 	score(std::istream & smffile) {
 		std::istreambuf_iterator<char> itr(smffile);
 		std::istreambuf_iterator<char> end_itr;
@@ -282,6 +235,7 @@ public:
 				uint8_t laststatus = 0;
 				do {
 					event ev(itr, laststatus);
+					//std::cout << ev << std::endl;
 					laststatus = ev.status;
 					tracks.back().push_back(ev);
 				} while ( !tracks.back().back().isEoT() );
@@ -289,6 +243,7 @@ public:
 			}
 		}
 	}
+	*/
 
 	bool empty(void) const {
 		if ( ntracks != 0 )
@@ -318,11 +273,11 @@ public:
 		return ntracks;
 	}
 
-	std::vector<smf::event> & track(int i) {
+	const std::vector<smf::event> & track(int i) const {
 		return tracks[i];
 	}
 
-	std::vector<smf::note> notes();
+	std::vector<smf::note> notes() const;
 
 	friend std::ostream & operator<<(std::ostream & out, const score & midi) {
 		out << "smf";

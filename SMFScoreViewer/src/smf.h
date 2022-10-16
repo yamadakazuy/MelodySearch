@@ -4,7 +4,7 @@
  *  Created on: 2022/05/10
  *      Author: sin
  *
- *      Ver. 20221016
+ *      Ver. 20221017
  */
 
 #ifndef SMF_H_
@@ -118,6 +118,11 @@ struct event {
 		tmp <<= 8;
 		tmp |= uint8_t(data[3]);
 		return tmp;
+	}
+
+	bool isMIDI() const {
+		uint8_t msb4 = (status & 0xf0)>>4;
+		return (msb4 >= 8) and (msb4 <= 14);
 	}
 
 	bool isNote() const {

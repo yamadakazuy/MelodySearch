@@ -4,7 +4,7 @@
  *  Created on: 2022/05/10
  *      Author: sin
  *
- *      Ver. 20221016
+ *      Ver. 20221017
  */
 
 #include <iostream>
@@ -110,7 +110,11 @@ void smf::event::read(std::istreambuf_iterator<char> & itr, uint8_t laststatus) 
 		not_running_status = true;
 		status = *itr;
 		++itr;
+	} /*
+	else {
+		std::cout << "running status" << std::endl;
 	}
+	*/
 	uint32_t len;
 	uint8_t type = status & 0xf0;
 	if ( (smf::MIDI_NOTEOFF <= type && type <= smf::MIDI_CONTROLCHANGE) || (type == smf::MIDI_PITCHBEND) ) {
@@ -128,14 +132,14 @@ void smf::event::read(std::istreambuf_iterator<char> & itr, uint8_t laststatus) 
 				data.push_back(*itr);
 				++itr;
 			}
-			std::cerr << "sys_ex (" << data.size() << ") " << std::endl;
+			//std::cerr << "sys_ex (" << data.size() << ") " << std::endl;
 		}else if ( status == smf::ESCSYSEX ) {
 			len = get_uint32VLQ(itr);
 			for(uint32_t i = 0; i < len; ++i) {
 				data.push_back(*itr);
 				++itr;
 			}
-			std::cerr << "escsysex (" << data.size() << ") " << std::endl;
+			//std::cerr << "escsysex (" << data.size() << ") " << std::endl;
 		} else if ( status == smf::META ) {
 			data.push_back(*itr); // function
 			++itr;
@@ -156,16 +160,16 @@ void smf::event::read(std::istreambuf_iterator<char> & itr, uint8_t laststatus) 
 			++itr;
 			data.push_back(*itr);
 			++itr;
-			std::cerr << "system common: song pos pointer " << (((unsigned int)data[1])<<7 | (unsigned int)data[0]) << std::endl;
+			//std::cerr << "system common: song pos pointer " << (((unsigned int)data[1])<<7 | (unsigned int)data[0]) << std::endl;
 		} else if ( status == smf::SYS_SONGSEL ) {
 			if ( (*itr & 0x80) != 0 ) {
 				std::cerr << "smf::smf::read warning! " << "SYS_SONGSEL song select followed by 8bit number 0x" << std::hex << (((unsigned int) *itr) & 0xff) << std::endl;
 			}
 			data.push_back( (*itr) & 0x7f);
 			++itr;
-			std::cerr << "system common: song select " << std::hex << (unsigned int) (data[0]) << std::endl;
+			//std::cerr << "system common: song select " << std::hex << (unsigned int) (data[0]) << std::endl;
 		} else if ( status == smf::SYS_TUNEREQ ) {
-			std::cerr << "system common: tune request" << std::endl;
+			//std::cerr << "system common: tune request" << std::endl;
 		} else {
 			std::cerr << "smf::event::read unknown system event!";
 			if ( not_running_status ) {
@@ -177,6 +181,7 @@ void smf::event::read(std::istreambuf_iterator<char> & itr, uint8_t laststatus) 
 			// error.
 		}
 	}
+	//std::cout << *this << std::endl;
 }
 
 std::ostream & smf::event::printOn(std::ostream & out) const {
@@ -427,9 +432,11 @@ smf::score::score(std::istream & smffile) {
 					std::cout << counter << std::endl;
 				}
 				*/
-				laststatus = ev.status;
+				//std::cout << "laststatus = " << std::hex << (int) laststatus << " " << ev << std::endl;
+				if ( ev.isMIDI() ) {
+					laststatus = ev.status;
+				}
 				tracks.back().push_back(ev);
-				std::cout << ev << std::endl;
 			} while ( !ev.isEoT() and itr != end_itr /* tracks.back().back().isEoT() */ );
 
 		} else {
