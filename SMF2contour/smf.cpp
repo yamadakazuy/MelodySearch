@@ -4,7 +4,7 @@
  *  Created on: 2022/05/10
  *      Author: sin
  *
- *      Ver. 20221017
+ *      Ver. 20221017.02
  */
 
 #include <iostream>
@@ -447,7 +447,14 @@ smf::score::score(std::istream & smffile) {
 	return;
 }
 
-std::vector<smf::note> smf::score::notes() const{
+std::ostream & smf::score::header_info(std::ostream & out) const {
+	out << "Format = " << std::dec << smfformat;
+	out << ", num. of Tracks = " << ntracks;
+	out << ", division = " << division;
+	return out;
+}
+
+std::vector<smf::note> smf::score::notes() const {
 	std::vector<smf::note> noteseq;
 	struct trkinfo {
 		std::vector<smf::event>::const_iterator cursor;

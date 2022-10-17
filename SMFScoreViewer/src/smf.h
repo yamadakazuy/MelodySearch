@@ -4,7 +4,7 @@
  *  Created on: 2022/05/10
  *      Author: sin
  *
- *      Ver. 20221017
+ *      Ver. 20221017.02
  */
 
 #ifndef SMF_H_
@@ -278,6 +278,8 @@ public:
 	}
 
 	std::vector<smf::note> notes() const;
+
+	std::ostream & header_info(std::ostream & out) const;
 
 	friend std::ostream & operator<<(std::ostream & out, const score & midi) {
 		out << "smf";
