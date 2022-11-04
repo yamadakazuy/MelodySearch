@@ -6,10 +6,13 @@
 // Description : Hello World in C++, Ansi-style
 //============================================================================
 
+// ↓入力"*++--+-++==---#+++b==+-=b+-+--+-+-+-+b+==-+-==b==" "++--+-++==---#+++b==+-=b+-+--+-"
+//最後に[-]を追加
 
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstdio>
 // requires C++20
 #include <filesystem>
 
