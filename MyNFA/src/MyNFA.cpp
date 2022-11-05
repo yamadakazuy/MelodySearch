@@ -138,14 +138,13 @@ void nfa_print(nfa * mp) {
 	printf("nfa(\n");
 	printf("states = %s\n", bset64_str(states, buf));
 	printf("alphabet = {");
-	int the1st = 1;
+	int count = 0;
 	for(int i = 0; i < ALPHABET_LIMIT; ++i) {
-		if (alphabet[i]) {
-			if ( !the1st ) {
+		if ( alphabet[i] == 1 ) {
+			if (count)
 				printf(", ");
-			}
 			printf("%c", (char) i);
-			the1st = 0;
+			++count;
 		}
 	}
 	printf("},\n");
