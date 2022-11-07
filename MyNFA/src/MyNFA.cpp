@@ -37,9 +37,6 @@ typedef struct {
 	bset64 current;                           /* 現在の状態の集合　*/
 } nfa;
 
-// ユーティリティ
-#define char2state(x)  (tolower(x) - 0x30)
-#define state2char(x)  ((x) + 0x30)
 
 char * bset64_str(bset64 bits, char * buf) {
 	char * ptr = buf;
@@ -205,7 +202,7 @@ int nfa_run(nfa * mp, char * inputstr) {
 		fflush(stdout);
 		return STATE_IS_FINAL;
 	} else {
-		cout << "no match" << endl;
+		cout << "\nno match" << endl;
 		fflush(stdout);
 		return STATE_IS_NOT_FINAL;
 	}

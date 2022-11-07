@@ -12,6 +12,9 @@
 // requires C++20
 #include <filesystem>
 
+//C++11/C++20
+#include <chrono>
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -96,14 +99,15 @@ int main(const int argc, char *argv[]) {
 		cout << "requires path searchfile " << endl;
 		exit(1);
 	}
-	cout << "search " << melody << " for .contour in " << path << endl;
+	cout << "search " << melody << " for .cont in " << path << endl;
 
 	unsigned int counter = 0;
-	for (const fsys::directory_entry &entry : fsys::recursive_directory_iterator(
-			path)) {
+	auto start = std::chrono::system_clock::now(); // 計測開始時刻
+
+	for (const fsys::directory_entry &entry : fsys::recursive_directory_iterator(path)) {
 		if (entry.is_directory())
 			continue;
-		if (entry.path().string().ends_with(".contour")) {
+		if (entry.path().string().ends_with(".cont")) {
 			counter += 1;
 			cout << counter << " " << entry.path().string() << endl;
 			std::ifstream ifs(entry.path().string());
@@ -121,24 +125,9 @@ int main(const int argc, char *argv[]) {
 		}
 	}
 
-//	int buf_size = 81;
-//
-//	char str[buf_size];
-//	    if (searchfile.fail()) {
-//	        std::cerr << "Failed to open file." << std::endl;
-//	        return -1;
-//	    }
-//	    while (searchfile.getline(str, buf_size)) {
-//	    	find = NaiveSearch(str, strlen(str), argv, strlen(argv));
-//	    }
-//	    return 0;
-//	}
-//
-//	if (find != -1) {
-//		cout << text << ", " << find << endl;
-//	} else {
-//		cout << "no match" << endl;
-//	}
+	auto stop = std::chrono::system_clock::now(); 	// 計測終了時刻
+	auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count(); // ミリ秒に変換
+	cout << "It took " << millisec << " milli seconds." << endl;
 
 	return 0;
 }
