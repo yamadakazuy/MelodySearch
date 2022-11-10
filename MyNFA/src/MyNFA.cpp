@@ -40,6 +40,7 @@ typedef struct {
 	bset64 current;                           /* 現在の状態の集合　*/
 } nfa;
 
+#define bit64(x)  (uint64_t(1)<<(x))
 
 char * bset64_str(bset64 bits, char * buf) {
 	char * ptr = buf;
@@ -64,7 +65,7 @@ char * bset64_str(bset64 bits, char * buf) {
 /* 文字列から nfa を初期化 */
 void nfa_define(nfa * mp, string melody, int initial, int finals) {
 	int statesize = melody.length();
-	std::cout << endl << "statesize = " << statesize << endl;
+	//std::cout << endl << "statesize = " << statesize << endl;
 
 	/* データ構造の初期化 */
 	for(int i = 0; i < STATE_LIMIT; ++i) {
@@ -78,39 +79,43 @@ void nfa_define(nfa * mp, string melody, int initial, int finals) {
 		char c = melody[i];
 
 		if(i == 0){
-			mp->delta[i][(int)'+'] |= 1<<(i);
-			mp->delta[i][(int)'#'] |= 1<<(i);
-			mp->delta[i][(int)'-'] |= 1<<(i);
-			mp->delta[i][(int)'b'] |= 1<<(i);
-			mp->delta[i][(int)'='] |= 1<<(i);
-			mp->delta[i][(int)'*'] |= 1<<(i);
+			mp->delta[i][(int)'+'] |= bit64(i);
+			mp->delta[i][(int)'#'] |= bit64(i);
+			mp->delta[i][(int)'-'] |= bit64(i);
+			mp->delta[i][(int)'b'] |= bit64(i);
+			mp->delta[i][(int)'='] |= bit64(i);
+			mp->delta[i][(int)'*'] |= bit64(i);
 		}
 
 		if(i == statesize){
-			mp->delta[i][(int)'+'] |= 1<<(i);
-			mp->delta[i][(int)'#'] |= 1<<(i);
-			mp->delta[i][(int)'-'] |= 1<<(i);
-			mp->delta[i][(int)'b'] |= 1<<(i);
-			mp->delta[i][(int)'='] |= 1<<(i);
+			mp->delta[i][(int)'+'] |= bit64(i);
+			mp->delta[i][(int)'#'] |= bit64(i);
+			mp->delta[i][(int)'-'] |= bit64(i);
+			mp->delta[i][(int)'b'] |= bit64(i);
+			mp->delta[i][(int)'='] |= bit64(i);
 		}
 
 		if(c == '+'){
-			mp->delta[i][(int)'+'] |= 1<<(i+1);
+			mp->delta[i][(int)'+'] |= bit64(i+1);
 		}else if(c == '#'){
-			mp->delta[i][(int)'#'] |= 1<<(i+1);
+			mp->delta[i][(int)'#'] |= bit64(i+1);
 		}else if(c == '^'){
-			mp->delta[i][(int)'+'] |= 1<<(i+1);
-			mp->delta[i][(int)'#'] |= 1<<(i+1);
+			mp->delta[i][(int)'+'] |= bit64(i+1);
+			mp->delta[i][(int)'#'] |= bit64(i+1);
 		}else if(c == '-'){
-			mp->delta[i][(int)'-'] |= 1<<(i+1);
+			mp->delta[i][(int)'-'] |= bit64(i+1);
 		}else if(c == 'b'){
-			mp->delta[i][(int)'b'] |= 1<<(i+1);
+			mp->delta[i][(int)'b'] |= bit64(i+1);
 		}else if(c == '_'){
-			mp->delta[i][(int)'-'] |= 1<<(i+1);
-			mp->delta[i][(int)'b'] |= 1<<(i+1);
+			mp->delta[i][(int)'-'] |= bit64(i+1);
+			mp->delta[i][(int)'b'] |= bit64(i+1);
 		}else if(c == '='){
-			mp->delta[i][(int)'='] |= 1<<(i+1);
+			mp->delta[i][(int)'='] |= bit64(i+1);
 		}
+//		for(int a = 0; a < ALPHABET_LIMIT; ++a) {
+//			if ( mp->delta[i][(int)a] )
+//				std::cout << "(" << i << ", " << (char) a << ", " << mp->delta[i][(int)a] << ")" << endl;
+//		}
 	}
 	mp->initial = initial;
 	mp->finals |= 1<<finals;
@@ -127,9 +132,10 @@ void nfa_print(nfa * mp) {
 	}
 	for(int i = 0; i < STATE_LIMIT; ++i) {
 		for(int a = 0; a < ALPHABET_LIMIT; ++a) {
-			if ( mp->delta[i][a] != 0) {
-				states |= 1<<i;
-				states |= (int)mp->delta[i][a];
+			if ( mp->delta[i][a] ) {
+				//std::cout << "(" << i << ", " << (char) a << ", " << mp->delta[i][a] << ")" << endl;
+				states |= bit64(i);
+				states |= mp->delta[i][a];
 				alphabet[a] = true;
 				//std::cout << (char) a << " " << (int) alphabet[a] << ", ";
 			}
