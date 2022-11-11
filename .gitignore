@@ -6,3 +6,6 @@ a.out
 *.o
 *.exe
 *~
+
+.cproject
+.settings
