@@ -185,26 +185,26 @@ int nfa_accepting(nfa * mp) {
 
 int nfa_run(nfa * mp, char * inputstr) {
 	char * ptr = inputstr;
-	char buf[128];
+//	char buf[128];
 	int find = 0;
 
-	printf("run on '%s' :\n", ptr);
+//	printf("run on '%s' :\n", ptr);
 	nfa_reset(mp);
-	printf("     -> %s", bset64_str(mp->current, buf));
+//	printf("     -> %s", bset64_str(mp->current, buf));
 
 	for ( ; *ptr; ++ptr) {
 		nfa_transfer(mp, *ptr);
-		printf(", -%c-> %s", *ptr, bset64_str(mp->current, buf));
+//		printf(", -%c-> %s", *ptr, bset64_str(mp->current, buf));
 		if((mp->finals & mp->current) != 0) break;
 		find++;
 	}
 
 	if (nfa_accepting(mp)) {
-		cout << "\nmatch , " << find << endl;
+		cout << "match , " << find << endl;
 		fflush(stdout);
 		return STATE_IS_FINAL;
 	} else {
-		cout << "\nno match" << endl;
+		cout << "no match" << endl;
 		fflush(stdout);
 		return STATE_IS_NOT_FINAL;
 	}
@@ -227,33 +227,33 @@ int main(int argc, char **argv) {
 	int finals = melody.length();
 	nfa M;
 	nfa_define(&M, melody, initial, finals);
-	nfa_print(&M);
+//	nfa_print(&M);
+//
+//	char* input = &*path.begin();
+//	nfa_run(&M, input);
 
-	char* input = &*path.begin();
-	nfa_run(&M, input);
+	unsigned int counter = 0;
+	auto start = std::chrono::system_clock::now(); // 計測開始時刻
 
-//	unsigned int counter = 0;
-//	auto start = std::chrono::system_clock::now(); // 計測開始時刻
-//
-//	for (const fsys::directory_entry &entry : fsys::recursive_directory_iterator(path)) {
-//		if (entry.is_directory())
-//			continue;
-//		if (entry.path().string().ends_with(".cont")) {
-//			counter += 1;
-//			cout << counter << " " << entry.path().string() << endl;
-//			std::ifstream ifs(entry.path().string());
-//			string text((std::istreambuf_iterator<char>(ifs)),
-//					std::istreambuf_iterator<char>());
-//
-//			char* input= &*text.begin();
-//
-//			nfa_run(&M, input);
-//		}
-//	}
-//
-//	auto stop = std::chrono::system_clock::now(); 	// 計測終了時刻
-//	auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count(); // ミリ秒に変換
-//	cout << "It took " << millisec << " milli seconds." << endl;
+	for (const fsys::directory_entry &entry : fsys::recursive_directory_iterator(path)) {
+		if (entry.is_directory())
+			continue;
+		if (entry.path().string().ends_with(".cont")) {
+			counter += 1;
+			cout << counter << " " << entry.path().string() << endl;
+			std::ifstream ifs(entry.path().string());
+			string text((std::istreambuf_iterator<char>(ifs)),
+					std::istreambuf_iterator<char>());
+
+			char* input= &*text.begin();
+
+			nfa_run(&M, input);
+		}
+	}
+
+	auto stop = std::chrono::system_clock::now(); 	// 計測終了時刻
+	auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count(); // ミリ秒に変換
+	cout << "It took " << millisec << " milli seconds." << endl;
 
 	return 0;
 }
