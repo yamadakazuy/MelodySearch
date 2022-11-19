@@ -48,7 +48,8 @@ int main(const int argc, const char * argv[]) {
 			std::ifstream ifs(entry.path().string());
 			string text((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
 			if ( std::regex_search(text, res, rpatt) ) {
-				cout << res.str() << ", " << res.position() << endl;
+//				cout << res.str() << ", " << res.position() << endl;
+				cout << "match , " << res.position() << endl;
 			} else {
 				cout << "no match" << endl;
 			}

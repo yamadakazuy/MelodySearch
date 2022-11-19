@@ -39,7 +39,7 @@ int NaiveSearch(string text, int text_len, string melody, int melody_len) {
 		// 照合が melody の最後まで成功した場合、shift は出現位置（先頭）を表す（？）
 		/* melodyの全文字と比較を行うループ */
 		for (melody_pos = 0; melody_pos < melody_len; melody_pos++) {
-			cout << text[shift + melody_pos] << " @ shift = " << shift << ", " << melody[melody_pos] << " @ mel pos = " << melody_pos << endl;
+//			cout << text[shift + melody_pos] << " @ shift = " << shift << ", " << melody[melody_pos] << " @ mel pos = " << melody_pos << endl;
 			//^が入力されたとき//
 			if (melody[melody_pos] == '^') {
 				//cout << text[shift + melody_pos] << endl;
@@ -124,7 +124,7 @@ int main(const int argc, char *argv[]) {
 		for (const fsys::directory_entry &entry : fsys::recursive_directory_iterator(path)) {
 			if (entry.is_directory())
 				continue;
-			if (entry.path().string().ends_with(".contour")) {
+			if (entry.path().string().ends_with(".cont")) {
 				counter += 1;
 				cout << counter << " " << entry.path().string() << endl;
 				std::ifstream ifs(entry.path().string());
@@ -135,7 +135,7 @@ int main(const int argc, char *argv[]) {
 						melody.length());
 
 				if (find != -1) {
-					cout << melody << ", " << find << endl;
+					cout << "match , " << find << endl;
 				} else {
 					cout << "no match" << endl;
 				}
