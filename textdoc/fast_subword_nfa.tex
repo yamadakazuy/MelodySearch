@@ -1,0 +1,46 @@
+\documentclass[11pt]{jreport}
+\usepackage{latexsym}
+\usepackage{mathrsfs}
+\usepackage{amssymb}
+%\usepackage{url}
+%\usepackage{lscape}
+\usepackage{graphics}
+\usepackage{theorem}
+
+\input{A4}
+\usepackage{theorem}
+\renewcommand{\baselinestretch}{1.25}
+\setlength{\parskip}{0.25ex}
+\renewcommand{\arraystretch}{0.85}
+\begin{document}
+
+
+\subsection*{定義}
+
+有限アルファベットを $\Sigma$，空文字列を $\varepsilon$ とする．
+任意の文字列 $p \in \Sigma^*$ と $t \in \Sigma^*$に対して，
+部分文字列パターン $\langle p \rangle$ は，
+$s \cdot p \cdot u = t$ となる $s, u \in \Sigma^*$ が存在するとき，
+テキスト $t$ に位置 $|s|$ でマッチ（照合）するという．
+
+\begin{defn}[部分語オートマトン subword automata]
+ある文字列 $p \in\Sigma^*$ の部分文字列パターン $\langle p \rangle$ がマッチする文字列を受理し，
+そうでないものを却下する有限オートマトン $M_p$ を $p$ の部分語オートマトンという．
+
+非決定性の $M_p = (Q, \delta, q_0, F)$ は，以下のように構成できる．
+状態の集合を $Q = \{0, \ldots, |p|\}$ で状態数 $|p|+1$, 初期状態を $q_0 = 0$, 受理状態の集合を $F = \{ |p| \}$ とし，
+$0 \leq i \leq p, a \in \Sigma$ に対して遷移関係 $\delta \subseteq Q \times \Sigma \times Q$ を以下のように定義する．
+\begin{eqnarray*}
+\delta(i, a) = \left\{
+\begin{array}{ll}
+ 0 & (i = 0) \\
+ 1 & (i=0, a = p[0]) \\
+ 0 & (0 < i < |p|, a \neq p[i]) \\
+i+1 & (0 < i < |p|, a = p[i]) \\
+|p| & (i = |p|)
+\end{array}
+\right.
+\end{eqnarray*}
+\end{defn}
+
+\end{document}
