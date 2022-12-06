@@ -187,12 +187,21 @@ struct nfa {
 
 	bset64 transfer(char a) {
 		bset64 next = 0;
-		for(int i = 0; i < STATE_LIMIT; ++i) {
-			if ((current & (1<<i)) != 0) {
-				if (delta[i][(int)a] != 0) /* defined */
-					next |= delta[i][(int)a];
-				//else /* if omitted, go to and self-loop in the ghost state. */
+//		for(int i = 0; i < STATE_LIMIT; ++i) {
+//			if ((current & (1<<i)) != 0) {
+//				if (delta[i][(int)a] != 0) /* defined */
+//					next |= delta[i][(int)a];
+//				//else /* if omitted, go to and self-loop in the ghost state. */
+//			}
+//		}
+		bset64 state = current;
+
+		while(state != 0){
+			int i = __builtin_ctz(state);
+			if (delta[i][(int)a] != 0){
+				next |= delta[i][(int)a];
 			}
+			state &= state - 1;
 		}
 		return current = next;
 	}
