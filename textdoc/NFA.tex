@@ -34,6 +34,23 @@ $M$ が受理する文字列すべての集合 $L(M) = \{ s \in \Sigma^* \mid \m
 
 \subsection*{正規表現}
 
+メロディ概形文字列の有限アルファベットは, $\Sigma = \{\mathtt{+}, \mathtt{-}, \mathtt{\#}, \mathtt{b}, \mathtt{=}\}$ である．
+ただし楽譜の開始には，開始記号 $\mathtt{*}$ をおき，第一音には前の音がないため音程の上下は未定義として表す（←省略することにするか，別の文字にしたほうがいいかもしれない）．
+したがって，メロディ概形を表す正規表現は，
+\begin{enumerate}
+\item 
+文字それぞれのみにマッチするす記号
+$\mathtt{+}, \mathtt{-}, \mathtt{\#}, \mathtt{b}, \mathtt{=}$ .
+\item
+集合に含まれる文字いずれかにマッチする $\{\mathtt{+}, \mathtt{\#}\}$ を表す $\mathtt{\wedge} = \mathtt{(+|\#)}$, $\{\mathtt{-}, \mathtt{b}\}$ を表す $\mathtt{\wedge} = \mathtt{(-|b)}$, 
+\item
+$\Sigma$ を表す記号 $\mathtt{\circ}$, 
+\item
+直前の記号または集合の Kleene 閉包を表す $\mathtt{*}$
+\end{enumerate}
+からなる文字列，となる．
+ただし，$\mathtt{\circ*}$ は $\mathtt{*}$ と略記する．
+
 \subsection*{NFA の計算}
 
 ある文字列 $s\in\Sigma^*$ を NFA $M = (\Sigma, Q, \delta, q, F)$ が受理するかどうかを決定的なアルゴリズムで求めるためには，以下のように行う．
@@ -55,10 +72,10 @@ $M$ が受理する文字列すべての集合 $L(M) = \{ s \in \Sigma^* \mid \m
 検索パターンとする NFA の計算は，最初に受理状態に達した時点で受理計算としてよい．
 したがって，$\tilde\delta$ をもちいた
  * と複数文字集合からなるパターン照合を行う NFA の計算アルゴリズムは，以下のようになる．
- \begin{itemize}
- \item $S \leftarrow \{q_0\}$.
+ \begin{enumerate}
+ \item $S \leftarrow \{q_0\}$.  /* $S$ は現在の状態の集合. */
  \item ...
- \end{itemize}
+ \end{enumerate}
 
 
 \end{document}
