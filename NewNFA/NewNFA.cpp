@@ -1,5 +1,5 @@
 //============================================================================
-// Name        : MyNFA.cpp
+// Name        : NewNFA.cpp
 // Author      : Ayane
 // Version     :
 // Copyright   : Your copyright notice
@@ -118,17 +118,6 @@ struct nfa {
 				delta[i][(int)'b'] |= bit64(i+1);
 			}else if(c == '='){
 				delta[i][(int)'='] |= bit64(i+1);
-			}else if(c == '*'){
-				delta[i][(int)'+'] |= bit64(i+1);
-				delta[i][(int)'#'] |= bit64(i+1);
-				delta[i][(int)'-'] |= bit64(i+1);
-				delta[i][(int)'b'] |= bit64(i+1);
-				delta[i][(int)'='] |= bit64(i+1);
-				delta[i+1][(int)'+'] |= bit64(i+1);
-				delta[i+1][(int)'#'] |= bit64(i+1);
-				delta[i+1][(int)'-'] |= bit64(i+1);
-				delta[i+1][(int)'b'] |= bit64(i+1);
-				delta[i+1][(int)'='] |= bit64(i+1);
 			}
 	//		for(int a = 0; a < ALPHABET_LIMIT; ++a) {
 	//			if ( mp->delta[i][(int)a] )
@@ -238,7 +227,7 @@ struct nfa {
 		}
 
 		if (accepting()) {
-			cout << "match , " << find << endl;
+			cout << "match , " << find - size + 1 << endl;
 			fflush(stdout);
 			return STATE_IS_FINAL;
 		} else {
