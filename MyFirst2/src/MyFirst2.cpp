@@ -154,42 +154,39 @@ int main(const int argc, char *argv[]) {
 				string text((std::istreambuf_iterator<char>(ifs)),
 						std::istreambuf_iterator<char>());
 
-//				int find = NaiveSearch(text, melo[0]);
-//
-//				if (find == -1){
-//					cout << "no match" << endl;
-//				}else{
-//					for(int i = 1; i < melo.size(); i++){
-//						find = NaiveSearch(text, melo[i], find);
-//						melo_len[i] = melo[i].size();
-//						if(find == -1){
-//							cout << "no match" << endl;
-//						}
-//					}
-//					cout << "match , " << find + melo_len[melo.size()-1] - 1 << endl;
-//				}
+				int find = NaiveSearch(text, melo[0]);
+				int i;
 
-				int find = 0;
-
-				for(int i = 0; i < melo.size(); i++){
-					find = NaiveSearch(text, melo[i], find);
-					melo_len[i] = melo[i].size();
-					if(find == -1){
-						cout << "no match" << endl;
-						break;
+				if (find == -1){
+					cout << "no match" << endl;
+				}else{
+					for(i = 1; i < melo.size(); i++){
+						find = NaiveSearch(text, melo[i], find+1);
+						melo_len[i] = melo[i].size();
+						if(find == -1){
+							cout << "no match" << endl;
+							break;
+						}
+					}
+					if(i == melo.size()){
+						cout << "match , " << find + melo_len[melo.size()-1] - 1 << endl;
 					}
 				}
-				cout << "match , " << find + melo_len[melo.size()-1] - 1 << endl;
 			}
+
+//				int find = -1;
+//
+//				for(int i = 0; i < melo.size(); i++){
+//					find = NaiveSearch(text, melo[i], find+1);
+//					melo_len[i] = melo[i].size();
+//					if(find == -1){
+//						cout << "no match" << endl;
+//						break;
+//					}
+//				}
+//				cout << "match , " << find + melo_len[melo.size()-1] - 1 << endl;
+//			}
 		}
-	} else {
-//		 'path' をテキスト（被検索対象）にする
-//		int find = NaiveSearch(path, melody);
-//		if (find != -1) {
-//			cout << "match ," << find << endl;
-//		} else {
-//			cout << "no match" << endl;
-//		}
 	}
 
 	auto stop = std::chrono::system_clock::now(); 	// 計測終了時刻
