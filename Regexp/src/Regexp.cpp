@@ -42,7 +42,7 @@ int main(const int argc, const char * argv[]) {
 	for (const fsys::directory_entry & entry : fsys::recursive_directory_iterator(path)) {
 		if (entry.is_directory())
 			continue;
-		if ( entry.path().string().ends_with(".cont") ) {
+		if ( entry.path().string().ends_with(".contour") ) {
 			counter += 1;
 			cout << counter << " " << entry.path().string() << endl;
 			std::ifstream ifs(entry.path().string());
