@@ -161,8 +161,8 @@ int main(const int argc, char *argv[]) {
 					cout << "no match" << endl;
 				}else{
 					for(i = 1; i < melo.size(); i++){
-						find = NaiveSearch(text, melo[i], find+1);
-						melo_len[i] = melo[i].size();
+						find = NaiveSearch(text, melo[i], find + melo[i-1].length() + 1);
+						melo_len[i] = melo[i].length();
 						if(find == -1){
 							cout << "no match" << endl;
 							break;
@@ -174,18 +174,6 @@ int main(const int argc, char *argv[]) {
 				}
 			}
 
-//				int find = -1;
-//
-//				for(int i = 0; i < melo.size(); i++){
-//					find = NaiveSearch(text, melo[i], find+1);
-//					melo_len[i] = melo[i].size();
-//					if(find == -1){
-//						cout << "no match" << endl;
-//						break;
-//					}
-//				}
-//				cout << "match , " << find + melo_len[melo.size()-1] - 1 << endl;
-//			}
 		}
 	}
 

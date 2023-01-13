@@ -19,7 +19,7 @@ using std::vector;
 
 const string contour(const int & noteprev, const int & notenum) {
 	if ( noteprev == -1 ) {
-		return "*";
+		return "0";
 	} else if ( notenum == noteprev ) {
 		return "=";
 	} else if ( notenum == noteprev + 1 ) {
