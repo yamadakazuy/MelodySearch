@@ -91,7 +91,7 @@ struct nfa {
 				delta[i][(int)'-'] |= bit64(i);
 				delta[i][(int)'b'] |= bit64(i);
 				delta[i][(int)'='] |= bit64(i);
-				delta[i][(int)'*'] |= bit64(i);
+				delta[i][(int)'0'] |= bit64(i);
 			}
 
 			if(i == size){
@@ -261,7 +261,7 @@ int main(int argc, char **argv) {
 		cout << "requires path searchfile " << endl;
 		exit(1);
 	}
-	cout << "search " << melody << " for .cont in " << path << endl;
+//	cout << "search " << melody << " for .cont in " << path << endl;
 
 	int initial = 0;
 	int final = melody.length();

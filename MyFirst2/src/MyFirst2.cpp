@@ -139,7 +139,9 @@ int main(const int argc, char *argv[]) {
 //	cout << "search " << melody << " for .cont in " << path << endl;
 
 	vector<string> melo = split(melody, '*');
-	int melo_len[melo.size()];
+	int melo_num = melo.size();
+	int melo_len[melo_num];
+
 
 	unsigned int counter = 0;
 	auto start = std::chrono::system_clock::now(); // 計測開始時刻
@@ -160,7 +162,7 @@ int main(const int argc, char *argv[]) {
 				if (find == -1){
 					cout << "no match" << endl;
 				}else{
-					for(i = 1; i < melo.size(); i++){
+					for(i = 1; i < melo_num; i++){
 						find = NaiveSearch(text, melo[i], find + melo[i-1].length() + 1);
 						melo_len[i] = melo[i].length();
 						if(find == -1){
@@ -168,8 +170,8 @@ int main(const int argc, char *argv[]) {
 							break;
 						}
 					}
-					if(i == melo.size()){
-						cout << "match , " << find + melo_len[melo.size()-1] - 1 << endl;
+					if(i == melo_num){
+						cout << "match , " << find  + melo[i-1].length() - 1 << endl;
 					}
 				}
 			}
