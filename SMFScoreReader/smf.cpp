@@ -13,6 +13,7 @@
 
 #include "smf.h"
 
+// read 4 bytes to get a 32 bit value in the big endian byte order
 uint32_t smf::get_uint32BE(std::istreambuf_iterator<char> & itr) {
 	uint32_t res = 0;
 	for(uint16_t i = 0; i < 4; ++i) {
@@ -23,6 +24,7 @@ uint32_t smf::get_uint32BE(std::istreambuf_iterator<char> & itr) {
 	return res;
 }
 
+// read 2 bytes to get a 16 bit value in the big endian byte order
 uint32_t smf::get_uint16BE(std::istreambuf_iterator<char> & itr) {
 	uint32_t res = *itr;
 	++itr;
@@ -47,12 +49,15 @@ uint32_t smf::get_uint32VLQ(std::istreambuf_iterator<char> & itr) {
 }
 
 bool smf::check_str(const std::string & str, std::istreambuf_iterator<char> & itr) {
-//		bool res = true;
-//		for(auto i = sig.begin(); i != sig.end(); ++i, ++itr) {
-//			res &= (*i == *itr);
-//		}
-//		return res;
-	return std::equal(str.begin(), str.end(), itr);
+		bool res = true;
+		std::cerr << "check_str: ";
+		for(auto i = str.begin(); i != str.end(); ++i, ++itr) {
+			std::cerr << *itr;
+			res &= (*i == *itr);
+		}
+		std::cerr << std::endl;
+		return res;
+//	return std::equal(str.begin(), str.end(), itr);
 }
 
 
@@ -397,7 +402,9 @@ smf::score::score(std::istream & smffile) {
 	std::istreambuf_iterator<char> itr(smffile);
 	std::istreambuf_iterator<char> end_itr;
 
-	if ( check_str("MThd", itr) ) {
+	uint32_t tracksig;
+	tracksig = get_uint32BE(itr);
+	if ( tracksig == INT_MThd ) {
 		get_uint32BE(itr);
 		// The header length is always 6.
 		smfformat = get_uint16BE(itr);
@@ -410,15 +417,12 @@ smf::score::score(std::istream & smffile) {
 		tracks.clear();
 		return;
 	}
+
 	while (itr != end_itr) {
-		if ( check_str("MTrk", itr) ) {
-			get_uint32BE(itr);
-			/*
-			std::cout << "track " << tracks.size() << std::endl;
-			if ( tracks.size() == 49 ) {
-				std::cout << 49 << std::endl;
-			}
-			*/
+		uint32_t tracksig = get_uint32BE(itr);
+		if ( tracksig == INT_MTrk ) {
+			uint32_t len = get_uint32BE(itr);  // skip the track length
+			//std::cerr << len << std::endl;
 			tracks.push_back(std::vector<event>());
 			uint8_t laststatus = 0;
 			event ev;
@@ -439,8 +443,24 @@ smf::score::score(std::istream & smffile) {
 				tracks.back().push_back(ev);
 			} while ( !ev.isEoT() and itr != end_itr /* tracks.back().back().isEoT() */ );
 
+		} else if ( tracksig == INT_XFIH) {
+			std::cerr << "XFIH" << std::endl;
+			uint32_t l = get_uint32BE(itr);
+			std::cerr << int(l) << std::endl;
+			for (unsigned int i = 0; itr != end_itr and i < l; ++i, ++itr) {
+				std::cerr << std::hex << std::setfill('0') << std::setw(2) << (0x0000L | uint8_t(*itr)) << " ";
+			}
+			std::cerr << std::endl;
+		} else if ( tracksig == INT_XFKM ) {
+			std::cerr << "XFKM" << std::endl;
+			uint32_t l = get_uint32BE(itr);
+			std::cerr << int(l) << std::endl;
+			for (unsigned int i = 0; itr != end_itr and i < l; ++i, ++itr) {
+				std::cerr << std::hex << std::setfill('0') << std::setw(2) << (0x0000L | uint8_t(*itr)) << " ";
+			}
+			std::cerr << std::endl;
 		} else {
-			std::cerr << "Warning: Encountered and abandoned unknown non-MTrk data chunk after MThd or MTrk. " << std::endl;
+			std::cerr << "Warning: Encountered and abandoned unknown non-MTrk data chunk after MThd or MTrk. " << std::hex << tracksig << std::endl;
 			break;
 		}
 	}

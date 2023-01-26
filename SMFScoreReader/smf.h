@@ -25,6 +25,11 @@ bool check_str(const std::string & str, std::istreambuf_iterator<char> & itr);
 int octave(uint8_t notenum);
 const char * notename(uint8_t notenum);
 
+constexpr uint32_t INT_MTrk = 0x4d54726b;
+constexpr uint32_t INT_MThd = 0x4d546864;
+constexpr uint32_t INT_XFIH = 0x58464948;
+constexpr uint32_t INT_XFKM = 0x58464b4d;
+
 enum EVENT_TYPE {
 	MIDI_NOTEOFF = 0x80,
 	MIDI_NOTEON = 0x90,

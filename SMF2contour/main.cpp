@@ -50,6 +50,8 @@ bool fileout_contour(const smf::score & midi, const string & filename) {
 		for(const auto & evt : midi.track(i)) {
 			if (evt.deltaTime() > 0)
 				globaltime += evt.deltaTime();
+			if ( evt.channel() == 10 )
+				continue;
 			if ( evt.isNoteOn() ) {
 				++note_count;
 				if (last_noteon < globaltime) {
@@ -70,7 +72,8 @@ bool fileout_contour(const smf::score & midi, const string & filename) {
 			if (notenum_1 == -1)
 				notenum_1 = notenum;
 			out << contour(notenum_2, notenum_1);
-			break;
+			//break;
+			out << endl;
 		}
 	}
 	out.close();
