@@ -37,6 +37,8 @@ namespace fsys = std::filesystem;
 #define STATE_IS_NOT_FINAL 		0
 #define STATE_IS_FINAL 			1
 
+long count;
+
 typedef uint64_t bset64; 	/* 符号なし64bit整数型をビット表現で集合として使用する */
 
 struct nfa {
@@ -92,7 +94,7 @@ struct nfa {
 				delta[i][(int)'-'] |= bit64(i);
 				delta[i][(int)'b'] |= bit64(i);
 				delta[i][(int)'='] |= bit64(i);
-				delta[i][(int)'*'] |= bit64(i);
+				delta[i][(int)'0'] |= bit64(i);
 			}
 
 			if(i == size){
@@ -189,6 +191,7 @@ struct nfa {
 	bset64 transfer(char a) {
 		bset64 next = 0;
 		for(int i = 0; i < STATE_LIMIT; ++i) {
+			count++;
 			if ((current & (1<<i)) != 0) {
 				if (delta[i][(int)a] != 0) /* defined */
 					next |= delta[i][(int)a];
@@ -234,6 +237,9 @@ struct nfa {
 int main(int argc, char **argv) {
 
 	string path, melody;
+	int hit = 0;
+
+	count = 0;
 
 	if (argc >= 3) {
 		path = argv[1];
@@ -268,9 +274,14 @@ int main(int argc, char **argv) {
 
 			char* input= &*text.begin();
 
-			p.run(input);
+			if(p.run(input)== 1){
+				hit++;
+			}
 		}
 	}
+
+	cout << "hit = " << hit << endl;
+	cout << "counter = " << count << endl;
 
 	auto stop = std::chrono::system_clock::now(); 	// 計測終了時刻
 	auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count(); // ミリ秒に変換
