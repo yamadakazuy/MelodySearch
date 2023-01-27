@@ -196,6 +196,11 @@ struct nfa {
 		current = 1<<initial;
 	}
 
+	int hit_count(int hit){
+		hit++;
+		return hit;
+	}
+
 	bset64 transfer(char a) {
 		bset64 next = 0;
 //		for(int i = 0; i < STATE_LIMIT; ++i) {
@@ -253,6 +258,7 @@ struct nfa {
 int main(int argc, char **argv) {
 
 	string path, melody;
+	int hit = 0;
 
 	if (argc >= 3) {
 		path = argv[1];
@@ -287,9 +293,13 @@ int main(int argc, char **argv) {
 
 			char* input= &*text.begin();
 
-			p.run(input);
+			if(p.run(input)== 1){
+				hit++;
+			}
 		}
 	}
+
+	cout << "hit = " << hit << endl;
 
 	auto stop = std::chrono::system_clock::now(); 	// 計測終了時刻
 	auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count(); // ミリ秒に変換
