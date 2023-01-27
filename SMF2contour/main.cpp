@@ -17,21 +17,21 @@ using std::endl;
 using std::cerr;
 using std::vector;
 
-const string contour(const int & noteprev, const int & notenum) {
+char contour(const int & noteprev, const int & notenum) {
 	if ( noteprev == -1 ) {
-		return "0";
+		return '0';
 	} else if ( notenum == noteprev ) {
-		return "=";
+		return '=';
 	} else if ( notenum == noteprev + 1 ) {
-		return "#";
+		return '#';
 	} else if ( notenum + 1 == noteprev ) {
-		return "b";
+		return 'b';
 	} else if ( notenum > noteprev ) {
-		return "+";
+		return '+';
 	} else if ( notenum < noteprev ) {
-		return "-";
+		return '-';
 	} else {
-		return "?";
+		return '?';
 	}
 }
 
@@ -41,40 +41,25 @@ bool fileout_contour(const smf::score & midi, const string & filename) {
 		cerr << filename << " オープン失敗!!!" << endl;
 		return false;
 	}
-	int64_t globaltime, last_noteon;
-	int notenum, notenum_1, notenum_2, note_count;
-	for(int i = 0; i < midi.noftracks(); ++i ) {
-		globaltime = 0, last_noteon = -1;
-		notenum = -1;
-		note_count = 0;
-		for(const auto & evt : midi.track(i)) {
-			if (evt.deltaTime() > 0)
-				globaltime += evt.deltaTime();
-			if ( evt.channel() == 10 )
-				continue;
-			if ( evt.isNoteOn() ) {
-				++note_count;
-				if (last_noteon < globaltime) {
-					// new voice
-					notenum_2 = notenum_1;
-					notenum_1 = notenum;
-					notenum = evt.notenumber();
-					if (notenum_1 != -1) {
-						out << contour(notenum_2, notenum_1);
-					}
-					last_noteon = globaltime;
-				} else {
-					notenum = std::max(notenum, evt.notenumber());
-				}
-			}
-		}
-		if (note_count > 0) {
-			if (notenum_1 == -1)
-				notenum_1 = notenum;
-			out << contour(notenum_2, notenum_1);
-			//break;
-			out << endl;
-		}
+
+	int lastnotenum[16];
+	std::vector<string> seqs;
+	for(int i = 0; i < 16; ++i) {
+		lastnotenum[i] = -1; // null note number
+		seqs.push_back("");
+	}
+
+	for(const auto & note : midi.notes() ) {
+		int nn = int(note.number);
+		int ch = int(note.channel);
+		seqs[ch].push_back(contour(lastnotenum[ch], nn));
+		//cout << contour(lastnotenum[ch], nn) << endl;
+		lastnotenum[ch] = nn;
+	}
+	for(int i = 0; i < 16; ++i) {
+		if ( i+1 == 10 or seqs[i].length() == 0 )
+			continue;
+		out << (i+1) << ":" << seqs[i] << endl;
 	}
 	out.close();
 	return true;

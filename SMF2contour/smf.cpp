@@ -492,7 +492,7 @@ std::vector<smf::note> smf::score::notes() const {
 		while ( trk[i].cursor->deltaTime() == 0 && ! trk[i].cursor->isEoT() ) {
 			// issue events
 			const smf::event & evt = *trk[i].cursor;
-			std::cout << i << ": " << evt << " ";
+			//std::cout << i << ": " << evt << " ";
 			if ( evt.isNoteOn() ) {
 				noteseq.push_back(note(globaltime, evt));
 				emu[evt.channel()].key[evt.notenumber()].noteon = true;
@@ -506,7 +506,7 @@ std::vector<smf::note> smf::score::notes() const {
 			}
 			++trk[i].cursor;
 		}
-		std::cout << std::endl;
+		//std::cout << std::endl;
 		if ( trk[i].cursor->isEoT() )
 			continue;
 		trk[i].to_go = trk[i].cursor->deltaTime();
