@@ -141,6 +141,7 @@ int main(const int argc, char *argv[]) {
 	vector<string> melo = split(melody, '*');
 	int melo_num = melo.size();
 	int melo_len[melo_num];
+	int hit = 0;
 
 
 	unsigned int counter = 0;
@@ -172,12 +173,15 @@ int main(const int argc, char *argv[]) {
 					}
 					if(i == melo_num){
 						cout << "match , " << find  + melo[i-1].length() - 1 << endl;
+						hit++;
 					}
 				}
 			}
 
 		}
 	}
+
+	cout << "hit = " << hit << endl;
 
 	auto stop = std::chrono::system_clock::now(); 	// 計測終了時刻
 	auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count(); // ミリ秒に変換
