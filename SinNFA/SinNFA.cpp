@@ -34,7 +34,7 @@ private:
 	static constexpr unsigned int STATE_LIMIT = 64;
 	static constexpr unsigned int ALPHABET_LIMIT = 8;  /* = -> 1, # -> 2, + -> 3, ^ -> 4, b -> 7, - -> 6, _ -> 5 */
 	static constexpr unsigned char indexalpha[] = "\0=#+^_-b";
-	static constexpr unsigned int alphindex[] = {
+	static constexpr unsigned int  alphaindex[] = {
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
@@ -52,6 +52,8 @@ private:
 	static constexpr unsigned int STATE_IS_NOT_FINAL = 0;
 	static constexpr unsigned int STATE_IS_FINAL = 1;
 
+	//uint8_t alphaindex[256];
+	//char indexalpha[ALPHABET_LIMIT];
 	//bset64 delta[STATE_LIMIT][ALPHABET_LIMIT];	/* 遷移関数 : Q x Σ -> 2^Q*/
 	bset64 stayers[ALPHABET_LIMIT];
 	bset64 ascenders[ALPHABET_LIMIT];
@@ -60,7 +62,7 @@ private:
 	int size;
 	bset64 current;                           /* 現在の状態の集合　*/
 
-	std::ostream & bset64_out(std::ostream & out, bset64 bits) {
+	static std::ostream & bset64_out(std::ostream & out, bset64 bits) {
 		out << "{";
 		int cnt = 0;
 		for(unsigned int i = 0; i < STATE_LIMIT; ++i) {
@@ -109,19 +111,19 @@ public:
 			char c = melody[i];
 			switch( int(c) ) {
 			case '^':
-				ascenders[alphindex[int('+')]] |= bit64(i);
-				ascenders[alphindex[int('#')]] |= bit64(i);
+				ascenders[alphaindex[int('+')]] |= bit64(i);
+				ascenders[alphaindex[int('#')]] |= bit64(i);
 				break;
 			case '_':
-				ascenders[alphindex[int('-')]] |= bit64(i);
-				ascenders[alphindex[int('b')]] |= bit64(i);
+				ascenders[alphaindex[int('-')]] |= bit64(i);
+				ascenders[alphaindex[int('b')]] |= bit64(i);
 				break;
 			case '=':
 			case '#':
 			case '+':
 			case 'b':
 			case '-':
-				ascenders[alphindex[int(c)]] |= bit64(i);
+				ascenders[alphaindex[int(c)]] |= bit64(i);
 				break;
 			}
 
@@ -140,53 +142,9 @@ public:
 		}
 		bset64_out(out, states);
 		out << "alphabet = {";
-		bool alphabet[ALPHABET_LIMIT];
-		char buf[160];
+		out << (nfa.indexalpha+1);
+		out << "}, ";
 
-		states = 0;
-		for(int a = 0; a < ALPHABET_LIMIT; ++a) {
-			alphabet[a] = false;
-		}
-		for(int i = 0; i < STATE_LIMIT; ++i) {
-			for(int a = 0; a < ALPHABET_LIMIT; ++a) {
-				if ( delta[i][a] ) {
-					//std::cout << "(" << i << ", " << (char) a << ", " << mp->delta[i][a] << ")" << endl;
-					states |= bit64(i);
-					states |= delta[i][a];
-					alphabet[a] = true;
-					//std::cout << (char) a << " " << (int) alphabet[a] << ", ";
-				}
-			}
-		}
-		//std::cout << endl;
-
-		int count = 0;
-		for(int i = 0; i < ALPHABET_LIMIT; ++i) {
-			//std::cout << (int)alphabet[i] << ", ";
-			if ( alphabet[i] == true) {
-				if (count)
-					printf(", ");
-				printf("%c", (char) i);
-				++count;
-			}
-		}
-		printf("},\n");
-
-		printf("delta = \n");
-		printf("state symbol| next\n");
-		printf("------------+------\n");
-		for(int i = 0; i < STATE_LIMIT; ++i) {
-			for(int a = 0; a < ALPHABET_LIMIT; ++a) {
-				if ( delta[i][a] ) {
-					printf("  %d  ,  %c   | %s \n", i, a, bset64_str(delta[i][a], buf));
-				}
-			}
-		}
-		printf("------------+------\n");
-		printf("initial state = %x\n", initial);
-		printf("accepting states = %s\n", bset64_str(final, buf));
-		printf(")\n");
-		fflush(stdout);
 		return out;
 	}
 
