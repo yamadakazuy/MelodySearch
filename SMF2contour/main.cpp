@@ -37,36 +37,47 @@ char contour(const int & noteprev, const int & notenum) {
 }
 
 bool fileout_contour(const smf::score & midi, const string & filename) {
-
-	int lastnotenum[16];
-	std::vector<string> seqs;
+	vector<smf::note> noteseq[16];
 	for(int i = 0; i < 16; ++i) {
-		lastnotenum[i] = -1; // null note number
-		seqs.push_back("");
+		noteseq[i].clear();
 	}
 
-	for(const auto & note : midi.notes() ) {
-		int nn = int(note.number);
-		int ch = int(note.channel);
-		seqs[ch].push_back(contour(lastnotenum[ch], nn));
-		//cout << contour(lastnotenum[ch], nn) << endl;
-		lastnotenum[ch] = nn;
+	for(const auto & a_note : midi.notes() ) {
+		int nn = int(a_note.number);
+		int ch = int(a_note.channel);
+		int tm = int(a_note.time);
+		if ( noteseq[ch].empty() or noteseq[ch].back().time != tm ) {
+			noteseq[ch].push_back(a_note);
+		} else { // if not empty and the last note is in the same voice
+			if ( noteseq[ch].back().number < nn ) {
+				noteseq[ch].pop_back();
+				noteseq[ch].push_back(a_note);
+			}
+		}
 	}
 
-	std::ostringstream outfilenamess;
-	for(int i = 0; i < 16; ++i) {
-		if ( i+1 == 10 or seqs[i].length() == 0 )
+	std::ostringstream filenamess;
+	for(int ch = 0; ch < 16; ++ch) {
+		if ( ch == 9 or noteseq[ch].empty() ) {
+			// skip the rhythm box channel and an empty channel.
 			continue;
-		outfilenamess.str("");
-		outfilenamess.clear();
-		outfilenamess << filename << "." << std::setw(2) << std::setfill('0') << std::dec << (i+1) << ".cont";
+		}
+		filenamess.str("");
+		filenamess.clear();
+		filenamess << filename << "_" << std::setw(2) << std::setfill('0') << std::dec << (ch+1) << ".cont";
 		//cout << outfilenamess.str() << endl;
-		std::ofstream out(outfilenamess.str(), std::ios::out);
+		std::ofstream out(filenamess.str(), std::ios::out);
 		if ( ! out ) {
-			cerr << outfilenamess.str() << " オープン失敗!!!" << endl;
+			cerr << filenamess.str() << " オープン失敗!!!" << endl;
 			return false;
 		}
-		out << seqs[i] << endl;
+		for(int i = 0; i < noteseq[ch].size(); ++i) {
+			if ( i == 0 ) {
+				out << "0";
+			} else {
+				out << contour(noteseq[ch][i-1].number, noteseq[ch][i].number);
+			}
+		}
 		out.close();
 	}
 	return true;
@@ -93,10 +104,12 @@ int main(int argc, char **argv) {
 
 	auto start = std::chrono::system_clock::now(); // 計測開始時刻
 
+	string pathext;
 	for (const auto & entry : std::filesystem::recursive_directory_iterator(argpath)) {
 		if (entry.is_directory())
 			continue;
-		if ( ! (entry.path().extension() == ".mid") )
+		pathext = entry.path().extension();
+		if ( pathext != ".mid" and pathext != ".MID" )
 			continue;
 	 // ends_with() --- introduced in C++20
 		cout << "File " << entry.path().filename();
