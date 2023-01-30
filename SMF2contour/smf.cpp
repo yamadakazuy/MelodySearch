@@ -454,6 +454,12 @@ smf::score::score(std::istream & smffile) {
 				//std::cerr << std::hex << std::setfill('0') << std::setw(2) << (0x0000L | uint8_t(*itr)) << " ";
 			}
 			//std::cerr << std::endl;
+		} else if ( tracksig == INT_Cont ) {
+			uint32_t l = get_uint32BE(itr);
+			std::cerr << "Unknown track signature Cont " << std::dec << int(l) << std::endl;
+			for (unsigned int i = 0; itr != end_itr and i < l; ++i, ++itr) {
+				//std::cerr << std::hex << std::setfill('0') << std::setw(2) << (0x0000L | uint8_t(*itr)) << " ";
+			}
 		} else {
 			std::cerr << " Warning: Abandoned unknown non-MTrk data chunk: " << std::hex << tracksig << " ";
 			break;

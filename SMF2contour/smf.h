@@ -29,6 +29,7 @@ constexpr uint32_t INT_MTrk = 0x4d54726b;
 constexpr uint32_t INT_MThd = 0x4d546864;
 constexpr uint32_t INT_XFIH = 0x58464948;
 constexpr uint32_t INT_XFKM = 0x58464b4d;
+constexpr uint32_t INT_Cont = 0x436f6e74;
 
 enum EVENT_TYPE {
 	MIDI_NOTEOFF = 0x80,

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <vector>
 
 //C++17
@@ -36,11 +37,6 @@ char contour(const int & noteprev, const int & notenum) {
 }
 
 bool fileout_contour(const smf::score & midi, const string & filename) {
-	std::ofstream out(filename, std::ios::out);
-	if ( ! out ) {
-		cerr << filename << " オープン失敗!!!" << endl;
-		return false;
-	}
 
 	int lastnotenum[16];
 	std::vector<string> seqs;
@@ -56,12 +52,23 @@ bool fileout_contour(const smf::score & midi, const string & filename) {
 		//cout << contour(lastnotenum[ch], nn) << endl;
 		lastnotenum[ch] = nn;
 	}
+
+	std::ostringstream outfilenamess;
 	for(int i = 0; i < 16; ++i) {
 		if ( i+1 == 10 or seqs[i].length() == 0 )
 			continue;
-		out << (i+1) << ":" << seqs[i] << endl;
+		outfilenamess.str("");
+		outfilenamess.clear();
+		outfilenamess << filename << "." << std::setw(2) << std::setfill('0') << std::dec << (i+1) << ".cont";
+		//cout << outfilenamess.str() << endl;
+		std::ofstream out(outfilenamess.str(), std::ios::out);
+		if ( ! out ) {
+			cerr << outfilenamess.str() << " オープン失敗!!!" << endl;
+			return false;
+		}
+		out << seqs[i] << endl;
+		out.close();
 	}
-	out.close();
 	return true;
 }
 
@@ -106,8 +113,8 @@ int main(int argc, char **argv) {
 			continue;
 		}
 		std::filesystem::path outpath(entry.path());
-		outpath.replace_extension(".cont");
-		cout << " melodic contour written to " << outpath.filename();
+		outpath.replace_extension("");
+		cout << " melodic contour written to " << outpath.filename() << ".xx.cont";
 		if ( fileout_contour(midi, outpath.string() ) ) {
 			cout << ", done." << endl;
 		} else {
