@@ -211,7 +211,7 @@ struct nfa {
 
 		while(state != 0){
 			int i = __builtin_ctz(state);
-			count++;
+//			count++;
 
 			if (delta[i][(int)a] != 0){
 				next |= delta[i][(int)a];
@@ -301,7 +301,7 @@ int main(int argc, char **argv) {
 	}
 
 	cout << "hit = " << hit << endl;
-	cout << "counter = " << count << endl;
+//	cout << "counter = " << count << endl;
 
 	auto stop = std::chrono::system_clock::now(); 	// 計測終了時刻
 	auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count(); // ミリ秒に変換

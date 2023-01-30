@@ -138,11 +138,11 @@ int main(const int argc, char *argv[]) {
 	}
 //	cout << "search " << melody << " for .cont in " << path << endl;
 
+
 	vector<string> melo = split(melody, '*');
 	int melo_num = melo.size();
 	int melo_len[melo_num];
 	int hit = 0;
-
 
 	unsigned int counter = 0;
 	auto start = std::chrono::system_clock::now(); // 計測開始時刻
