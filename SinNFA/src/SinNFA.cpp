@@ -66,7 +66,7 @@ public:
 		if ( bset.bits ) {
 			int cnt = 0;
 			uint64_t val = bset.bits;
-			for(int i = 0; i < UPPER_LIMIT; ++i) {
+			for(unsigned int i = 0; i < UPPER_LIMIT; ++i) {
 				if ( val & 1 ) {
 					if (cnt)
 						out << ", ";
@@ -101,11 +101,12 @@ private:
 
 	bset64 staybits;
 	bset64 advancebits[ALPHABET_LIMIT];
+	bset64 initial_state;
 	bset64 final_states;			 					/* 最終状態 */
 	int size;
 	bset64 current;                           /* 現在の状態の集合　*/
 
-	nfa(string melody) : final_states(0), current(1) {
+	nfa(const string & melody) : initial_state(1), final_states(1LL<<melody.size()), current(0) {
 		define(melody);
 	}
 
@@ -116,17 +117,32 @@ private:
 
 		/* データ構造の初期化 */
 		staybits = 0;
-		for(int asc = 0; asc < ALPHABET_LIMIT; ++asc) {
-			advancebits[asc] = 0;
+		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
+			advancebits[ascii] = 0;
 		}
-		final_states = 0;
-
 		for(int i = 0; i <= size; i++){
 			char c = melody[i];
-
+			switch ( c ) {
+			case '*':
+				staybits.set(i);
+				break;
+			case '=':
+			case '+':
+			case '-':
+			case '#':
+			case 'b':
+				advancebits[int(c)].set(i);
+				break;
+			case '^':
+				advancebits[int('+')].set(i);
+				advancebits[int('#')].set(i);
+				break;
+			case '_':
+				advancebits[int('-')].set(i);
+				advancebits[int('b')].set(i);
+				break;
+			}
 		}
-		initial = init;
-		final |= 1<<fin;
 	}
 
 	void print() {
@@ -247,8 +263,6 @@ int main(int argc, char **argv) {
 	string path, melody;
 	int hit = 0;
 
-	count = 0;
-
 	if (argc >= 3) {
 		path = argv[1];
 		melody = argv[2];
@@ -260,13 +274,14 @@ int main(int argc, char **argv) {
 
 	int initial = 0;
 	int final = melody.length();
-	nfa p(melody, initial, final);
+	nfa p(melody);
 
 //	print(&M);
 //
 //	char* input = &*path.begin();
 //	run(&M, input);
 
+	/*
 	unsigned int counter = 0;
 	auto start = std::chrono::system_clock::now(); // 計測開始時刻
 
@@ -294,6 +309,6 @@ int main(int argc, char **argv) {
 	auto stop = std::chrono::system_clock::now(); 	// 計測終了時刻
 	auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count(); // ミリ秒に変換
 	cout << "It took " << millisec << " milli seconds." << endl;
-
+*/
 	return 0;
 }
