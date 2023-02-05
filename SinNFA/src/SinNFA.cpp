@@ -31,6 +31,9 @@ using std::cout;
 using std::endl;
 using std::string;
 
+namespace fsys = std::filesystem;
+
+
 struct bset64 {
 	uint64_t bits;
 
@@ -39,6 +42,16 @@ struct bset64 {
 public:
 	bset64(void) : bits(0) {}
 	bset64(const uint64_t & intval) : bits(intval) {}
+
+	bset64 & operator=(const uint64_t & intval) {
+		bits = intval;
+		return *this;
+	}
+
+	bset64 & operator=(const bset64 & bset) {
+		bits = bset.bits;
+		return *this;
+	}
 
 	bset64 & set(unsigned int bpos) {
 		bits |= (uint64_t(1)<<bpos);
@@ -50,15 +63,30 @@ public:
 		return *this;
 	}
 
-	/*
-	bset64 & operator=(uint64_t val) {
-		bits = val;
-		return *this;
-	}
-	 */
-
 	constexpr explicit operator uint64_t() const {
 		return bits;
+	}
+
+	bset64 & operator<<=(const unsigned int s) {
+		bits <<= s;
+		return *this;
+	}
+
+	bset64 & operator&=(const bset64 & b) {
+		bits &= b.bits;
+		return *this;
+	}
+
+	friend bset64 operator&(const bset64 & a, const bset64 b) {
+		return a.bits & b.bits;
+	}
+
+	friend bset64 operator|(const bset64 & a, const bset64 b) {
+		return a.bits | b.bits;
+	}
+
+	friend bool operator!=(const bset64 & a, const uint64_t b) {
+		return a.bits != b;
 	}
 
 	friend std::ostream & operator<<(std::ostream & out, const bset64 & bset) {
@@ -106,17 +134,29 @@ private:
 	int size;
 	bset64 current;                           /* 現在の状態の集合　*/
 
-	nfa(const string & melody) : initial_state(1), final_states(1LL<<melody.size()), current(0) {
-		define(melody);
+public:
+	nfa(const string & melody) : initial_state(0), final_states(0), current(0) {
+		initial_state.set(0);
+		string patt;
+		for(unsigned int i = 0; i < melody.size(); ++i) {
+			if ( i == 0 and melody[i] == '*' )
+				continue;
+			if ( i == melody.size() - 1 and melody[i] == '*' )
+				continue;
+			patt.push_back(melody[i]);
+		}
+		size = patt.size();
+		final_states.set(size);
+		define(patt);
 	}
 
 
 	/* 文字列から nfa を初期化 */
 	void define(const string & melody) {
-		size = melody.length() + 1;
-
 		/* データ構造の初期化 */
-		staybits = 0;
+		staybits.set(0);
+		staybits.set(size);
+
 		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
 			advancebits[ascii] = 0;
 		}
@@ -145,114 +185,50 @@ private:
 		}
 	}
 
-	void print() {
-		bset64 states;
-		bool alphabet[ALPHABET_LIMIT];
-		char buf[160];
-
-		states = 0;
-		for(int a = 0; a < ALPHABET_LIMIT; ++a) {
-			alphabet[a] = false;
-		}
-		for(int i = 0; i < STATE_LIMIT; ++i) {
-			for(int a = 0; a < ALPHABET_LIMIT; ++a) {
-				if ( delta[i][a] ) {
-					//std::cout << "(" << i << ", " << (char) a << ", " << mp->delta[i][a] << ")" << endl;
-					states |= bit64(i);
-					states |= delta[i][a];
-					alphabet[a] = true;
-					//std::cout << (char) a << " " << (int) alphabet[a] << ", ";
-				}
+	friend std::ostream & operator<<(std::ostream & out, const nfa & m) {
+		out << "NFA(states = " << m.current;
+		out << ", staybits = " << m.staybits << ", " << endl;
+		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
+			if ( uint64_t(m.advancebits[ascii]) != 0 ) {
+				out << char(ascii) << " : " << m.advancebits[ascii] << endl;
 			}
 		}
-		//std::cout << endl;
-		printf("nfa(\n");
-		printf("states = %s\n", bset64_str(states, buf));
-		printf("alphabet = {");
-		int count = 0;
-		for(int i = 0; i < ALPHABET_LIMIT; ++i) {
-			//std::cout << (int)alphabet[i] << ", ";
-			if ( alphabet[i] == true) {
-				if (count)
-					printf(", ");
-				printf("%c", (char) i);
-				++count;
-			}
-		}
-		printf("},\n");
-
-		printf("delta = \n");
-		printf("state symbol| next\n");
-		printf("------------+------\n");
-		for(int i = 0; i < STATE_LIMIT; ++i) {
-			for(int a = 0; a < ALPHABET_LIMIT; ++a) {
-				if ( delta[i][a] ) {
-					printf("  %d  ,  %c   | %s \n", i, a, bset64_str(delta[i][a], buf));
-				}
-			}
-		}
-		printf("------------+------\n");
-		printf("initial state = %x\n", initial);
-		printf("accepting states = %s\n", bset64_str(final, buf));
-		printf(")\n");
-		fflush(stdout);
+		out << "final states = " << m.final_states << ") " << endl;
+		return out;
 	}
 
 	void reset() {
-		current = 1<<initial;
+		current = initial_state;
 	}
 
-	bset64 transfer(char a) {
-		bset64 next = 0;
-//		for(int i = 0; i < STATE_LIMIT; ++i) {
-//			if ((current & (1<<i)) != 0) {
-//				if (delta[i][(int)a] != 0) /* defined */
-//					next |= delta[i][(int)a];
-//				//else /* if omitted, go to and self-loop in the ghost state. */
-//			}
-//		}
-		bset64 state = current;
 
-		while(state != 0){
-			int i = __builtin_ctz(state);
-//			count++;
-
-			if (delta[i][(int)a] != 0){
-				next |= delta[i][(int)a];
-			}
-			state &= state - 1;
-		}
-		return current = next;
+	bset64 transfer(const char a) {
+		bset64 next = current & advancebits[int(a)];
+		next <<= 1;
+		return current = next | (current & staybits);
 	}
 
-	int accepting() {
-		return (final & current) != 0;
+	bool accepting() {
+		return (final_states & current) != 0;
 	}
 
-	int run(char * inputstr) {
-		char * ptr = inputstr;
-	//	char buf[128];
-		int find = 0;
-
-	//	printf("run on '%s' :\n", ptr);
+	long long run(const char * inputstr) {
+		const char * ptr = inputstr;
+		long long pos = 0;
 		reset();
-	//	printf("     -> %s", bset64_str(mp->current, buf));
-
 		for ( ; *ptr; ++ptr) {
 			transfer(*ptr);
-	//		printf(", -%c-> %s", *ptr, bset64_str(mp->current, buf));
-			if((final & current) != 0) break;
-			find++;
+			if ( accepting() )
+				break;
+			++pos;
 		}
 
 		if (accepting()) {
-			cout << "match , " << find << endl;
-			fflush(stdout);
-			return STATE_IS_FINAL;
+			//cout << "match , " << pos << endl;
+			return pos;
 		} else {
-			cout << "no match" << endl;
-			fflush(stdout);
-			return STATE_IS_NOT_FINAL;
+			//cout << "no match" << endl;
+			return -1;
 		}
 	}
 
@@ -261,7 +237,6 @@ private:
 int main(int argc, char **argv) {
 
 	string path, melody;
-	int hit = 0;
 
 	if (argc >= 3) {
 		path = argv[1];
@@ -270,45 +245,43 @@ int main(int argc, char **argv) {
 		cout << "requires path searchfile " << endl;
 		exit(1);
 	}
-//	cout << "search " << melody << " for .cont in " << path << endl;
 
-	int initial = 0;
-	int final = melody.length();
-	nfa p(melody);
+	nfa m(melody);
 
-//	print(&M);
-//
-//	char* input = &*path.begin();
-//	run(&M, input);
+	cout << "search " << melody << " for .cont in " << path << endl;
+	cout << "by NFA " << m << endl;
 
-	/*
-	unsigned int counter = 0;
-	auto start = std::chrono::system_clock::now(); // 計測開始時刻
+	unsigned int filecounter = 0;
+	unsigned int hitcounter = 0;
+	unsigned long search_micros = 0, total_millis = 0;
 
-	for (const fsys::directory_entry &entry : fsys::recursive_directory_iterator(path)) {
+	auto start_total = std::chrono::system_clock::now(); // 計測開始時刻
+	for (const fsys::directory_entry &entry :
+			fsys::recursive_directory_iterator(path)) {
 		if (entry.is_directory())
 			continue;
 		if (entry.path().string().ends_with(".cont")) {
-			counter += 1;
-			cout << counter << " " << entry.path().string() << endl;
+			filecounter += 1;
+			cout << filecounter << " " << entry.path().string() << endl;
 			std::ifstream ifs(entry.path().string());
 			string text((std::istreambuf_iterator<char>(ifs)),
 					std::istreambuf_iterator<char>());
 
-			char* input= &*text.begin();
+			//char* input= &*text.begin();
 
-			if(p.run(input)== 1){
-				hit++;
+			auto start_search = std::chrono::system_clock::now(); // 計測開始時刻
+			if( m.run(text.c_str()) >= 0 ){
+				hitcounter++;
 			}
+			auto stop_search = std::chrono::system_clock::now(); 	// 計測終了時刻
+			search_micros += std::chrono::duration_cast<std::chrono::microseconds >(stop_search - start_search).count(); // ミリ秒に変換
 		}
 	}
+	auto stop_total = std::chrono::system_clock::now(); 	// 計測終了時刻
+	total_millis += std::chrono::duration_cast<std::chrono::milliseconds >(stop_total - start_total).count(); // ミリ秒に変換
 
-	cout << "hit = " << hit << endl;
-//	cout << "counter = " << count << endl;
+	cout << "hits = " << hitcounter << endl;
+	cout << "It took " << search_micros << " micros in search, totaly "<< total_millis << " milli seconds." << endl;
 
-	auto stop = std::chrono::system_clock::now(); 	// 計測終了時刻
-	auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count(); // ミリ秒に変換
-	cout << "It took " << millisec << " milli seconds." << endl;
-*/
 	return 0;
 }

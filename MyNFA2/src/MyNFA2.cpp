@@ -225,10 +225,10 @@ struct nfa {
 		return (final & current) != 0;
 	}
 
-	int run(char * inputstr) {
-		char * ptr = inputstr;
+	long long int run(const char * inputstr) {
+		const char * ptr = inputstr;
 	//	char buf[128];
-		int find = 0;
+		long long pos = 0;
 
 	//	printf("run on '%s' :\n", ptr);
 		reset();
@@ -238,17 +238,17 @@ struct nfa {
 			transfer(*ptr);
 	//		printf(", -%c-> %s", *ptr, bset64_str(mp->current, buf));
 			if((final & current) != 0) break;
-			find++;
+			pos++;
 		}
 
 		if (accepting()) {
-			cout << "match , " << find << endl;
-			fflush(stdout);
-			return STATE_IS_FINAL;
+			//cout << "match , " << find << endl;
+			//fflush(stdout);
+			return pos;
 		} else {
-			cout << "no match" << endl;
-			fflush(stdout);
-			return STATE_IS_NOT_FINAL;
+			//cout << "no match" << endl;
+			//fflush(stdout);
+			return -1;
 		}
 	}
 
@@ -280,8 +280,9 @@ int main(int argc, char **argv) {
 //	run(&M, input);
 
 	unsigned int counter = 0;
-	auto start = std::chrono::system_clock::now(); // 計測開始時刻
+	unsigned long search_micros = 0, total_millis = 0;
 
+	auto start_total = std::chrono::system_clock::now(); // 計測開始時刻
 	for (const fsys::directory_entry &entry : fsys::recursive_directory_iterator(path)) {
 		if (entry.is_directory())
 			continue;
@@ -292,20 +293,20 @@ int main(int argc, char **argv) {
 			string text((std::istreambuf_iterator<char>(ifs)),
 					std::istreambuf_iterator<char>());
 
-			char* input= &*text.begin();
-
-			if(p.run(input)== 1){
+			auto start_search = std::chrono::system_clock::now(); // 計測開始時刻
+			if( p.run(text.c_str()) >= 0 ) {
 				hit++;
 			}
+			auto stop_search = std::chrono::system_clock::now(); 	// 計測終了時刻
+			search_micros += std::chrono::duration_cast<std::chrono::microseconds >(stop_search - start_search).count(); // ミリ秒に変換
 		}
 	}
 
-	cout << "hit = " << hit << endl;
-//	cout << "counter = " << count << endl;
+	auto stop_total = std::chrono::system_clock::now(); 	// 計測終了時刻
+	total_millis += std::chrono::duration_cast<std::chrono::milliseconds >(stop_total - start_total).count(); // ミリ秒に変換
 
-	auto stop = std::chrono::system_clock::now(); 	// 計測終了時刻
-	auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count(); // ミリ秒に変換
-	cout << "It took " << millisec << " milli seconds." << endl;
+	cout << "hits = " << hit << endl;
+	cout << "It took " << search_micros << " micros in search, totaly "<< total_millis << " milli seconds." << endl;
 
 	return 0;
 }
