@@ -250,11 +250,12 @@ int main(int argc, char **argv) {
 	nfa m(melody);
 
 	cout << "search " << melody << " for .cont in " << path << endl;
-	cout << "by NFA " << m << endl;
+	//cout << "by NFA " << m << endl;
 
-	unsigned int filecounter = 0;
-	unsigned int hitcounter = 0;
-	unsigned long long search_micros = 0, total_millis = 0;
+	long filecounter = 0;
+	long hitcounter = 0;
+	long bytecounter = 0;
+	long long search_micros = 0, total_millis = 0;
 
 	auto start_total = std::chrono::system_clock::now(); // 計測開始時刻
 	for (const fsys::directory_entry &entry :
@@ -262,17 +263,19 @@ int main(int argc, char **argv) {
 		if (entry.is_directory())
 			continue;
 		if (entry.path().string().ends_with(".cont")) {
-			filecounter += 1;
-			cout << filecounter << " " << entry.path().string() << endl;
+			filecounter ++;
+			//cout << filecounter << " " << entry.path().string() << endl;
 			std::ifstream ifs(entry.path().string());
 			string text((std::istreambuf_iterator<char>(ifs)),
 					std::istreambuf_iterator<char>());
 
 			//char* input= &*text.begin();
-
+			bytecounter += text.length();
 			auto start_search = std::chrono::system_clock::now(); // 計測開始時刻
-			if( m.run(text.c_str()) >= 0 ){
-				hitcounter++;
+			long long pos = m.run(text.c_str());
+			if ( pos >= 0 ){
+				hitcounter ++;
+				cout << filecounter << " @ " << pos << " in " << entry.path().string() << endl;
 			}
 			auto stop_search = std::chrono::system_clock::now(); 	// 計測終了時刻
 			search_micros += std::chrono::duration_cast<std::chrono::microseconds >(stop_search - start_search).count(); // ミリ秒に変換
@@ -281,8 +284,8 @@ int main(int argc, char **argv) {
 	auto stop_total = std::chrono::system_clock::now(); 	// 計測終了時刻
 	total_millis += std::chrono::duration_cast<std::chrono::milliseconds >(stop_total - start_total).count(); // ミリ秒に変換
 
-	cout << "hits = " << hitcounter << endl;
-	cout << "It took " << search_micros << " micros in search, totaly "<< total_millis << " milli seconds." << endl;
+	cout << hitcounter << " hits " << filecounter << " files " << bytecounter << " bytes "
+			<< search_micros << " micros "<< total_millis << " mills." << endl;
 
 	return 0;
 }
