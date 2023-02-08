@@ -43,12 +43,12 @@ public:
 	bset64(void) : bits(0) {}
 	bset64(const uint64_t & intval) : bits(intval) {}
 
-	bset64 & operator=(const uint64_t & intval) {
+	inline bset64 & operator=(const uint64_t & intval) {
 		bits = intval;
 		return *this;
 	}
 
-	bset64 & operator=(const bset64 & bset) {
+	inline bset64 & operator=(const bset64 & bset) {
 		bits = bset.bits;
 		return *this;
 	}
@@ -58,34 +58,34 @@ public:
 		return *this;
 	}
 
-	bset64 & clear(unsigned int bpos) {
+	inline bset64 & clear(unsigned int bpos) {
 		bits &= ~(uint64_t(1)<<bpos);
 		return *this;
 	}
 
-	constexpr explicit operator uint64_t() const {
+	inline constexpr explicit operator uint64_t() const {
 		return bits;
 	}
 
-	bset64 & operator<<=(const unsigned int s) {
+	inline bset64 & operator<<=(const unsigned int s) {
 		bits <<= s;
 		return *this;
 	}
 
-	bset64 & operator&=(const bset64 & b) {
+	inline bset64 & operator&=(const bset64 & b) {
 		bits &= b.bits;
 		return *this;
 	}
 
-	friend bset64 operator&(const bset64 & a, const bset64 b) {
+	inline friend bset64 operator&(const bset64 & a, const bset64 b) {
 		return a.bits & b.bits;
 	}
 
-	friend bset64 operator|(const bset64 & a, const bset64 b) {
+	inline friend bset64 operator|(const bset64 & a, const bset64 b) {
 		return a.bits | b.bits;
 	}
 
-	friend bool operator!=(const bset64 & a, const uint64_t b) {
+	inline friend bool operator!=(const bset64 & a, const uint64_t b) {
 		return a.bits != b;
 	}
 
@@ -253,7 +253,7 @@ int main(int argc, char **argv) {
 
 	unsigned int filecounter = 0;
 	unsigned int hitcounter = 0;
-	unsigned long search_micros = 0, total_millis = 0;
+	unsigned long long search_micros = 0, total_millis = 0;
 
 	auto start_total = std::chrono::system_clock::now(); // 計測開始時刻
 	for (const fsys::directory_entry &entry :

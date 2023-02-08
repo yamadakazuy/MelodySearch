@@ -143,7 +143,7 @@ int main(const int argc, char *argv[]) {
 	int melo_num = melo.size();
 	int melo_len[melo_num];
 	unsigned int hitcounter = 0;
-	unsigned long search_micros = 0, total_millis = 0;
+	unsigned long long search_micros = 0, total_millis = 0;
 
 	auto start_total = std::chrono::system_clock::now(); // 計測開始時刻
 
