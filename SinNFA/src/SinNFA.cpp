@@ -113,10 +113,11 @@ struct nfa {
 private:
 	/* 整数のビット長により設定する上限 */
 	static constexpr unsigned int STATE_LIMIT = 64;
-	static constexpr unsigned int ALPHABET_LIMIT = 128;  /* =,+,-,#,b のアスキーコードを含む範囲 */
+	/* =,+,-,#,b のアスキーコードを含む範囲 */
+	static constexpr unsigned int ALPHABET_LIMIT = 128;
 
 	/* 定数 */
-		/* 状態は 数字，英大文字を含む空白 (0x20) から _ (0x5f) までの一文字 */
+	/* 状態は 数字，英大文字を含む空白 (0x20) から _ (0x5f) までの一文字 */
 	/* に対応させる正の整数 {0,...,63} の要素に限定. */
 	/* 文字は ASCII 文字, char 型の {0,...,127} の要素に限定. */
 	//bset64 delta[STATE_LIMIT][ALPHABET_LIMIT];	/* 遷移関数 : Q x Σ -> 2^Q*/
