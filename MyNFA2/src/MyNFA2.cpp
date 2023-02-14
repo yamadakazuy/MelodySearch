@@ -36,7 +36,7 @@ namespace fsys = std::filesystem;
 #define STATE_IS_NOT_FINAL 		0
 #define STATE_IS_FINAL 			1
 
-long count;
+//long count;
 
 typedef uint64_t bset64; 	/* 符号なし64bit整数型をビット表現で集合として使用する */
 
@@ -242,13 +242,11 @@ struct nfa {
 		}
 
 		if (accepting()) {
-			cout << "match , " << find << endl;
 			fflush(stdout);
-			return STATE_IS_FINAL;
+			return find;
 		} else {
-			cout << "no match" << endl;
 			fflush(stdout);
-			return STATE_IS_NOT_FINAL;
+			return -1;
 		}
 	}
 
@@ -259,7 +257,7 @@ int main(int argc, char **argv) {
 	string path, melody;
 	int hit = 0;
 
-	count = 0;
+//	count = 0;
 
 	if (argc >= 3) {
 		path = argv[1];
@@ -294,8 +292,11 @@ int main(int argc, char **argv) {
 
 			char* input= &*text.begin();
 
-			if(p.run(input)== 1){
+			if(p.run(input) != -1){
 				hit++;
+				cout << "match , " << p.run(input) << endl;
+			}else{
+				cout << "no match" << endl;
 			}
 		}
 	}
