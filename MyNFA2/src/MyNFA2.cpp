@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <cstdio>
 // requires C++20
@@ -51,19 +52,20 @@ struct nfa {
 	bset64 current;                           /* 現在の状態の集合　*/
 
 
-	char * bset64_str(bset64 bits, char * buf) {
-		char * ptr = buf;
-		ptr += sprintf(ptr, "{");
+	const string bset64_str(bset64 bits) {
+		std::ostringstream out;
+		out << "{";
 		int cnt = 0;
 		for(int i = 0; i < STATE_LIMIT; ++i) {
 			if (bits>>i & 1) {
-				if (cnt) ptr += sprintf(ptr, ", ");
-				ptr += sprintf(ptr, "%d", i);
+				if (cnt)
+					out << ", ";
+				out << std::dec << i;
 				++cnt;
 			}
 		}
-		sprintf(ptr, "}");
-		return buf;
+		out << "}";
+		return out.str();
 	}
 
 	nfa(string melody, int initial, int final){
@@ -144,7 +146,6 @@ struct nfa {
 	void print() {
 		bset64 states;
 		bool alphabet[ALPHABET_LIMIT];
-		char buf[160];
 
 		states = 0;
 		for(int a = 0; a < ALPHABET_LIMIT; ++a) {
@@ -163,7 +164,7 @@ struct nfa {
 		}
 		//std::cout << endl;
 		printf("nfa(\n");
-		printf("states = %s\n", bset64_str(states, buf));
+		printf("states = %s\n", bset64_str(states).c_str());
 		printf("alphabet = {");
 		int count = 0;
 		for(int i = 0; i < ALPHABET_LIMIT; ++i) {
@@ -183,13 +184,13 @@ struct nfa {
 		for(int i = 0; i < STATE_LIMIT; ++i) {
 			for(int a = 0; a < ALPHABET_LIMIT; ++a) {
 				if ( delta[i][a] ) {
-					printf("  %d  ,  %c   | %s \n", i, a, bset64_str(delta[i][a], buf));
+					printf("  %d  ,  %c   | %s \n", i, a, bset64_str(delta[i][a]).c_str());
 				}
 			}
 		}
 		printf("------------+------\n");
 		printf("initial state = %x\n", initial);
-		printf("accepting states = %s\n", bset64_str(final, buf));
+		printf("accepting states = %s\n", bset64_str(final).c_str());
 		printf(")\n");
 		fflush(stdout);
 	}

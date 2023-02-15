@@ -13,8 +13,8 @@ patterns = sys.argv[1:]
 
 folder = "../../MelodySearch/smf/ayanetest"
 
-programs = {"NFA2": "../../MelodySearch/MyNFA2/Debug/MyNFA2.exe" , 
-        "First2": "../../MelodySearch/MyFirst2/Debug/MyFirst2.exe",
+programs = {"NFA2": "../../MelodySearch/MyNFA2/Debug/MyNFA2" , 
+        "First2": "../../MelodySearch/MyFirst2/Debug/MyFirst2",
 #        "SinNFA": "../../Privatespace/SinNFA/Debug/SinNFA.exe"
         }
 
@@ -32,7 +32,7 @@ for prog, exe in programs.items():
                 print(result.stdout.split('\n')[-3].split(' ')[2])
             print(result.stdout.split('\n')[-2].split(' ')[2], end='\t')
         print()
-
+    print()
 # print(sys.argv)
 # cmd =  ["C:/Users/ayane/Documents/MelodySearch/MyFirst2/Debug/MyFirst2.exe", folder , pattern]
 # result = subprocess.run(cmd, stdout=subprocess.PIPE , stderr=subprocess.PIPE ,encoding="utf-8")

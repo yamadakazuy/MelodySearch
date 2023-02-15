@@ -148,7 +148,7 @@ int main(const int argc, char *argv[]) {
 
 	vector<string> melo = split(melody, '*');
 	int melo_num = melo.size();
-	int melo_len[melo_num];
+	//int melo_len[melo_num];
 	unsigned int filecounter = 0, hitcounter = 0;
 	unsigned long long search_micros = 0, total_millis = 0;
 
@@ -176,7 +176,7 @@ int main(const int argc, char *argv[]) {
 				} else {
 					for(i = 1; i < melo_num; i++){
 						find = NaiveSearch(text, melo[i], find + melo[i-1].length() + 1);
-						melo_len[i] = melo[i].length();
+						//melo_len[i] = melo[i].length();
 						if(find == -1){
 							if ( verbose_mode )
 								cout << "no match" << endl;
