@@ -242,7 +242,7 @@ struct nfa {
 		}
 
 		if (accepting()) {
-			return find;
+			return pos;
 		} else {
 			return -1;
 		}
@@ -291,8 +291,8 @@ int main(int argc, char **argv) {
 
 			char* input= &*text.begin();
 
+			auto start_search = std::chrono::system_clock::now();
 			if(p.run(input) != -1){
-
 				hit++;
 				cout << "match , " << p.run(input) << endl;
 			}else{

@@ -160,8 +160,10 @@ int main(const int argc, char *argv[]) {
 
 				auto start_search = std::chrono::system_clock::now(); // 計測開始時刻
 				int find = NaiveSearch(text, melo[0]);
-				int i;
+				auto stop_search = std::chrono::system_clock::now(); 	// 計測終了時刻
+				search_micros += std::chrono::duration_cast<std::chrono::microseconds >(stop_search - start_search).count(); // ミリ秒に変換
 
+				int i;
 				if (find == -1){
 					//cout << "no match" << endl;
 				} else {
@@ -178,8 +180,6 @@ int main(const int argc, char *argv[]) {
 						hitcounter++;
 					}
 				}
-				auto stop_search = std::chrono::system_clock::now(); 	// 計測終了時刻
-				search_micros += std::chrono::duration_cast<std::chrono::microseconds >(stop_search - start_search).count(); // ミリ秒に変換
 			}
 
 		}

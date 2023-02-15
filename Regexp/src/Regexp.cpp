@@ -24,13 +24,12 @@ namespace fsys = std::filesystem;
 
 int main(const int argc, const char * argv[]) {
 	string path, regexpstr;
-	int hit = 0;
 
 	if (argc >= 3) {
 		path = argv[1];
 		regexpstr = argv[2];
 	} else {
-		cout << "requires path regexp " << endl;
+		cout << "requires path regex " << endl;
 		exit(1);
 	}
 	//cout << "search " << regexpstr << " for .contour in " << path << endl;
@@ -38,32 +37,36 @@ int main(const int argc, const char * argv[]) {
 	std::regex rpatt(regexpstr); //rpatt(R"(Alice was)");
 	std::match_results<string::const_iterator> res;
 
-	unsigned int counter = 0;
-	auto start = std::chrono::system_clock::now(); // 計測開始時刻
+	unsigned int hitcounter = 0, filecounter = 0;
+	unsigned long search_micros = 0, total_millis = 0;
 
+	auto start_total = std::chrono::system_clock::now(); // 計測開始時刻
 	for (const fsys::directory_entry & entry : fsys::recursive_directory_iterator(path)) {
 		if (entry.is_directory())
 			continue;
 		if ( entry.path().string().ends_with(".cont") ) {
-			counter += 1;
-			cout << counter << " " << entry.path().string() << endl;
+			filecounter ++;
+			cout << filecounter << " " << entry.path().string() << endl;
 			std::ifstream ifs(entry.path().string());
 			string text((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-			if ( std::regex_search(text, res, rpatt) ) {
+			auto start_search = std::chrono::system_clock::now(); // 計測開始時刻
+			bool matched = std::regex_search(text, res, rpatt);
+			auto stop_search = std::chrono::system_clock::now(); 	// 計測終了時刻
+			search_micros += std::chrono::duration_cast<std::chrono::microseconds >(stop_search - start_search).count(); // ミリ秒に変換
+			if ( matched ) {
 //				cout << res.str() << ", " << res.position() << endl;
 				cout << "match , " << res.position() + res.length() - 1 << endl;
-				hit++;
+				hitcounter++;
 			} else {
 				cout << "no match" << endl;
 			}
 		}
 	}
+	auto stop_total = std::chrono::system_clock::now(); 	// 計測終了時刻
+	total_millis += std::chrono::duration_cast<std::chrono::milliseconds >(stop_total - start_total).count(); // ミリ秒に変換
 
-	cout << "hit = " << hit << endl;
-
-	auto stop = std::chrono::system_clock::now(); 	// 計測終了時刻
-	auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count(); // ミリ秒に変換
-	cout << "It took " << millisec << " milli seconds." << endl;
+	cout << "hits = " << hitcounter << endl;
+	cout << "It took " << search_micros << " micros in search, totaly "<< total_millis << " milli seconds." << endl;
 
 	return 0;
 }
