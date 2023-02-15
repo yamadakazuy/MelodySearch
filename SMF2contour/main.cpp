@@ -45,7 +45,7 @@ bool fileout_contour(const smf::score & midi, const string & filename) {
 	for(const auto & a_note : midi.notes() ) {
 		int nn = int(a_note.number);
 		int ch = int(a_note.channel);
-		int tm = int(a_note.time);
+		unsigned int tm = int(a_note.time);
 		if ( noteseq[ch].empty() or noteseq[ch].back().time != tm ) {
 			noteseq[ch].push_back(a_note);
 		} else { // if not empty and the last note is in the same voice
@@ -71,7 +71,7 @@ bool fileout_contour(const smf::score & midi, const string & filename) {
 			cerr << filenamess.str() << " オープン失敗!!!" << endl;
 			return false;
 		}
-		for(int i = 0; i < noteseq[ch].size(); ++i) {
+		for(unsigned int i = 0; i < noteseq[ch].size(); ++i) {
 			if ( i == 0 ) {
 				out << "0";
 			} else {
@@ -108,30 +108,30 @@ int main(int argc, char **argv) {
 	for (const auto & entry : std::filesystem::recursive_directory_iterator(argpath)) {
 		if (entry.is_directory())
 			continue;
-		pathext = entry.path().extension();
-		if ( pathext != ".mid" and pathext != ".MID" )
-			continue;
-	 // ends_with() --- introduced in C++20
-		cout << "File " << entry.path().filename();
-		input.open(entry.path().string(), (std::ios::in | std::ios::binary) );
-		if ( !input ) {
-			cerr << " open failed." << endl;
-			continue;
-		}
+		pathext = entry.path().extension().string();
+		if ( pathext.ends_with(".mid") or pathext.ends_with(".MID") ) {
+		 // ends_with() --- introduced in C++20
+			cout << "File " << entry.path().filename();
+			input.open(entry.path().string(), (std::ios::in | std::ios::binary) );
+			if ( !input ) {
+				cerr << " open failed." << endl;
+				continue;
+			}
 
-		smf::score midi(input);
-		input.close();
-		if ( ! midi.empty() ) {
-			std::cerr << "Reading SMF failed. Skip." << std::endl;
-			continue;
-		}
-		std::filesystem::path outpath(entry.path());
-		outpath.replace_extension("");
-		cout << " melodic contour written to " << outpath.filename() << ".xx.cont";
-		if ( fileout_contour(midi, outpath.string() ) ) {
-			cout << ", done." << endl;
-		} else {
-			cout << " conversion failed." << endl;
+			smf::score midi(input);
+			input.close();
+			if ( ! midi.empty() ) {
+				std::cerr << "Reading SMF failed. Skip." << std::endl;
+				continue;
+			}
+			std::filesystem::path outpath(entry.path());
+			outpath.replace_extension("");
+			cout << " melodic contour written to " << outpath.filename() << ".xx.cont";
+			if ( fileout_contour(midi, outpath.string() ) ) {
+				cout << ", done." << endl;
+			} else {
+				cout << " conversion failed." << endl;
+			}
 		}
 	}
 

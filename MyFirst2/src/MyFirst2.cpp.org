@@ -142,53 +142,50 @@ int main(const int argc, char *argv[]) {
 	vector<string> melo = split(melody, '*');
 	int melo_num = melo.size();
 	int melo_len[melo_num];
-	unsigned int hitcounter = 0;
-	unsigned long long search_micros = 0, total_millis = 0;
+	int hit = 0;
 
-	auto start_total = std::chrono::system_clock::now(); // 計測開始時刻
-
+	unsigned int counter = 0;
+	auto start = std::chrono::system_clock::now(); // 計測開始時刻
 	if ( !test_mode ) {
 		for (const fsys::directory_entry &entry : fsys::recursive_directory_iterator(path)) {
 			if (entry.is_directory())
 				continue;
 			if (entry.path().string().ends_with(".cont")) {
-				hitcounter += 1;
-				cout << hitcounter << " " << entry.path().string() << endl;
+				counter += 1;
+				cout << counter << " " << entry.path().string() << endl;
 				std::ifstream ifs(entry.path().string());
 				string text((std::istreambuf_iterator<char>(ifs)),
 						std::istreambuf_iterator<char>());
 
-				auto start_search = std::chrono::system_clock::now(); // 計測開始時刻
 				int find = NaiveSearch(text, melo[0]);
 				int i;
 
 				if (find == -1){
-					//cout << "no match" << endl;
-				} else {
+					cout << "no match" << endl;
+				}else{
 					for(i = 1; i < melo_num; i++){
 						find = NaiveSearch(text, melo[i], find + melo[i-1].length() + 1);
 						melo_len[i] = melo[i].length();
 						if(find == -1){
-							//cout << "no match" << endl;
+							cout << "no match" << endl;
 							break;
 						}
 					}
 					if(i == melo_num){
-						//cout << "match , " << find  + melo[i-1].length() - 1 << endl;
-						hitcounter++;
+						cout << "match , " << find  + melo[i-1].length() - 1 << endl;
+						hit++;
 					}
 				}
-				auto stop_search = std::chrono::system_clock::now(); 	// 計測終了時刻
-				search_micros += std::chrono::duration_cast<std::chrono::microseconds >(stop_search - start_search).count(); // ミリ秒に変換
 			}
 
 		}
 	}
-	auto stop_total = std::chrono::system_clock::now(); 	// 計測終了時刻
-	total_millis += std::chrono::duration_cast<std::chrono::milliseconds >(stop_total - start_total).count(); // ミリ秒に変換
 
-	cout << "hits = " << hitcounter << endl;
-	cout << "It took " << search_micros << " micros in search, totaly "<< total_millis << " milli seconds." << endl;
+	cout << "hit = " << hit << endl;
+
+	auto stop = std::chrono::system_clock::now(); 	// 計測終了時刻
+	auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count(); // ミリ秒に変換
+	cout << "It took " << millisec << " milli seconds." << endl;
 
 	return 0;
 }
