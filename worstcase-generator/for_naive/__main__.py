@@ -25,6 +25,6 @@ if __name__ == '__main__':
     with open(outfilename, "w") as of :
         of.write("0")
         for i in range(outlength - 1) :
-            of.write("=")
+            of.write("=====+")
     
     

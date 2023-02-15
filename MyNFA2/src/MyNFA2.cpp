@@ -36,7 +36,7 @@ namespace fsys = std::filesystem;
 #define STATE_IS_NOT_FINAL 		0
 #define STATE_IS_FINAL 			1
 
-long count;
+//long count;
 
 typedef uint64_t bset64; 	/* 符号なし64bit整数型をビット表現で集合として使用する */
 
@@ -242,12 +242,8 @@ struct nfa {
 		}
 
 		if (accepting()) {
-			//cout << "match , " << find << endl;
-			//fflush(stdout);
-			return pos;
+			return find;
 		} else {
-			//cout << "no match" << endl;
-			//fflush(stdout);
 			return -1;
 		}
 	}
@@ -259,7 +255,7 @@ int main(int argc, char **argv) {
 	string path, melody;
 	int hit = 0;
 
-	count = 0;
+//	count = 0;
 
 	if (argc >= 3) {
 		path = argv[1];
@@ -293,9 +289,14 @@ int main(int argc, char **argv) {
 			string text((std::istreambuf_iterator<char>(ifs)),
 					std::istreambuf_iterator<char>());
 
-			auto start_search = std::chrono::system_clock::now(); // 計測開始時刻
-			if( p.run(text.c_str()) >= 0 ) {
+			char* input= &*text.begin();
+
+			if(p.run(input) != -1){
+
 				hit++;
+				cout << "match , " << p.run(input) << endl;
+			}else{
+				cout << "no match" << endl;
 			}
 			auto stop_search = std::chrono::system_clock::now(); 	// 計測終了時刻
 			search_micros += std::chrono::duration_cast<std::chrono::microseconds >(stop_search - start_search).count(); // ミリ秒に変換
