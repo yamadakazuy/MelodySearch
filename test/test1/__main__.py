@@ -11,19 +11,20 @@ import sys
 
 patterns = sys.argv[1:]
 
-folder = "C:/Users/ayane/Documents/MelodySearch/smf/ayanetest"
+folder = "../../MelodySearch/smf/ayanetest"
 
-cmds = {"NFA2": "C:/Users/ayane/Documents/MelodySearch/MyNFA2/Debug/MyNFA2.exe" , 
-        "First2": "C:/Users/ayane/Documents/MelodySearch/MyFirst2/Debug/MyFirst2.exe"
+programs = {"NFA2": "../../MelodySearch/MyNFA2/Debug/MyNFA2.exe" , 
+        "First2": "../../MelodySearch/MyFirst2/Debug/MyFirst2.exe",
+#        "SinNFA": "../../Privatespace/SinNFA/Debug/SinNFA.exe"
         }
 
-for prog in ["NFA2", "First2"]:
+for prog, exe in programs.items():
     for pat in patterns: 
         print(prog, pat)   
         for i in range(5):
             #cmd = ["C:/Users/ayane/Documents/MelodySearch/MyNFA2/Debug/MyNFA2.exe", folder , pat]
             #cmd = ["C:/Users/ayane/Documents/MelodySearch/MyFirst2/Debug/MyFirst2.exe", folder , pat]
-            cmd = [cmds[prog],folder, pat]
+            cmd = [exe,folder, pat]
             result = subprocess.run(cmd, stdout=subprocess.PIPE , stderr=subprocess.PIPE ,encoding="utf-8")
     
             # print(result.stdout.split('\n'))

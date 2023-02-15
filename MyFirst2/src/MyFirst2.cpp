@@ -122,27 +122,34 @@ int main(const int argc, char *argv[]) {
 //
 //	find = NaiveSearch(text, strlen(text), argv, strlen(argv));
 
-	string path, melody;
+	string path = "", melody = "";
 	bool test_mode = false;
+	bool verbose_mode = false; // true で印字出力多め
 	if (argc >= 3) {
-		int i = 1;
-		if (string("-t") == string(argv[i]) ) {
-			test_mode = true;
-			i += 1;
+		for (int i = 1; i < argc; ++i) {
+			if (string("-t") == string(argv[i]) ) {
+				test_mode = true;
+				i += 1;
+			} else if (string("-v") == string(argv[i]) ) {
+				verbose_mode = true;
+			} else {
+				if (path.length() == 0)
+					path = argv[i];
+				else
+					melody = argv[i];
+			}
 		}
-		path = argv[i];
-		melody = argv[i+1];
 	} else {
-		cout << "requires path searchfile " << endl;
+		cout << "requires dirpath melody" << endl;
 		exit(1);
 	}
-//	cout << "search " << melody << " for .cont in " << path << endl;
 
+	cout << "search " << melody << " for .cont in " << path << " by naive." << endl;
 
 	vector<string> melo = split(melody, '*');
 	int melo_num = melo.size();
 	int melo_len[melo_num];
-	unsigned int hitcounter = 0;
+	unsigned int filecounter = 0, hitcounter = 0;
 	unsigned long long search_micros = 0, total_millis = 0;
 
 	auto start_total = std::chrono::system_clock::now(); // 計測開始時刻
@@ -152,42 +159,45 @@ int main(const int argc, char *argv[]) {
 			if (entry.is_directory())
 				continue;
 			if (entry.path().string().ends_with(".cont")) {
-				hitcounter += 1;
-				cout << hitcounter << " " << entry.path().string() << endl;
+				filecounter ++;
+				if ( verbose_mode )
+					cout << hitcounter << " " << entry.path().string() << endl;
 				std::ifstream ifs(entry.path().string());
 				string text((std::istreambuf_iterator<char>(ifs)),
 						std::istreambuf_iterator<char>());
 
 				auto start_search = std::chrono::system_clock::now(); // 計測開始時刻
 				int find = NaiveSearch(text, melo[0]);
-				auto stop_search = std::chrono::system_clock::now(); 	// 計測終了時刻
-				search_micros += std::chrono::duration_cast<std::chrono::microseconds >(stop_search - start_search).count(); // ミリ秒に変換
 
 				int i;
 				if (find == -1){
-					//cout << "no match" << endl;
+					if ( verbose_mode )
+						cout << "no match" << endl;
 				} else {
 					for(i = 1; i < melo_num; i++){
 						find = NaiveSearch(text, melo[i], find + melo[i-1].length() + 1);
 						melo_len[i] = melo[i].length();
 						if(find == -1){
-							//cout << "no match" << endl;
+							if ( verbose_mode )
+								cout << "no match" << endl;
 							break;
 						}
 					}
 					if(i == melo_num){
-						//cout << "match , " << find  + melo[i-1].length() - 1 << endl;
+						if ( verbose_mode )
+							cout << "match , " << find  + melo[i-1].length() - 1 << endl;
 						hitcounter++;
 					}
 				}
+				auto stop_search = std::chrono::system_clock::now(); 	// 計測終了時刻
+				search_micros += std::chrono::duration_cast<std::chrono::microseconds >(stop_search - start_search).count(); // ミリ秒に変換
 			}
-
 		}
 	}
 	auto stop_total = std::chrono::system_clock::now(); 	// 計測終了時刻
 	total_millis += std::chrono::duration_cast<std::chrono::milliseconds >(stop_total - start_total).count(); // ミリ秒に変換
 
-	cout << "hits = " << hitcounter << endl;
+	cout << "hits = " << hitcounter << " among " << filecounter << endl;
 	cout << "It took " << search_micros << " micros in search, totaly "<< total_millis << " milli seconds." << endl;
 
 	return 0;
