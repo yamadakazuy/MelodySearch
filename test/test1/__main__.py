@@ -13,15 +13,17 @@ patterns = sys.argv[1:]
 
 folder = "../../MelodySearch/smf/ayanetest"
 
-programs = {"NFA2": "../../MelodySearch/MyNFA2/Debug/MyNFA2" , 
-        "First2": "../../MelodySearch/MyFirst2/Debug/MyFirst2",
-#        "SinNFA": "../../Privatespace/SinNFA/Debug/SinNFA.exe"
+programs = {"NFA2": "../../MelodySearch/MyNFA2/Debug/MyNFA2.exe" , 
+        "First2": "../../MelodySearch/MyFirst2/Debug/MyFirst2.exe",
+        "xxxNFA": "../../Privatespace/SinNFA/Debug/SinNFA.exe"
         }
 
 for prog, exe in programs.items():
+    print(prog)
     for pat in patterns: 
-        print(prog, pat)   
-        for i in range(5):
+        print(pat, end='\t')
+        hist = []
+        for i in range(10):
             #cmd = ["C:/Users/ayane/Documents/MelodySearch/MyNFA2/Debug/MyNFA2.exe", folder , pat]
             #cmd = ["C:/Users/ayane/Documents/MelodySearch/MyFirst2/Debug/MyFirst2.exe", folder , pat]
             cmd = [exe,folder, pat]
@@ -29,9 +31,12 @@ for prog, exe in programs.items():
     
             # print(result.stdout.split('\n'))
             if i == 0:
-                print(result.stdout.split('\n')[-3].split(' ')[2])
-            print(result.stdout.split('\n')[-2].split(' ')[2], end='\t')
-        print()
+                print(result.stdout.split('\n')[-3].split(' ')[2] + '\t', end='')
+            hist.append(int(result.stdout.split('\n')[-2].split(' ')[2]))
+        hmax = max(hist)
+        hmin = min(hist)
+        avr = (sum(hist) - hmax - hmin) / (len(hist) - 2)
+        print('xavr\t' + str(avr) + '\tmax\t' + str(hmax) + '\tmin\t' + str(hmin))
     print()
 # print(sys.argv)
 # cmd =  ["C:/Users/ayane/Documents/MelodySearch/MyFirst2/Debug/MyFirst2.exe", folder , pattern]
