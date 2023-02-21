@@ -13,9 +13,9 @@ patterns = sys.argv[1:]
 
 folder = "../../MelodySearch/smf/ayanetest"
 
-programs = {"NFA2": "../../MelodySearch/MyNFA2/Debug/MyNFA2.exe" , 
-        "First2": "../../MelodySearch/MyFirst2/Debug/MyFirst2.exe",
-        "xxxNFA": "../../Privatespace/SinNFA/Debug/SinNFA.exe"
+programs = {"NFA2": "../MyNFA2/Debug/MyNFA2" , 
+        "First2": "../MyFirst2/Debug/MyFirst2",
+        "xxxNFA": "../SinNFA/Debug/SinNFA.exe"
         }
 
 for prog, exe in programs.items():
