@@ -22,7 +22,7 @@ using std::endl;
 using std::string;
 namespace fsys = std::filesystem;
 
-struct nfa {
+struct MyNFA {
 private:
 	/* 整数のビット長により設定する上限 */
 	static constexpr unsigned int STATE_LIMIT = 64;
@@ -35,6 +35,7 @@ private:
 	static constexpr unsigned int STATE_IS_NOT_FINAL = 	0;
 	static constexpr unsigned int STATE_IS_FINAL 	= 1;
 
+	static constexpr char alphabet[] = "#+-0=b";
 	/* 状態は 数字，英大文字を含む空白 (0x20) から _ (0x5f) までの一文字 */
 	/* に対応させる正の整数 {0,...,63} の要素に限定. */
 	/* 文字は ASCII 文字, char 型の {0,...,127} の要素に限定. */
@@ -44,40 +45,28 @@ private:
 	int size;
 	bset64 current;                           /* 現在の状態の集合　*/
 
-
+public:
 	/* パターン文字列から nfa を初期化 */
-	nfa(string melody) {
+	MyNFA(string melody) {
 		size = melody.length();
 		//std::cout << endl << "statesize = " << statesize << endl;
 
 		/* データ構造の初期化 */
-		for(int i = 0; i < STATE_LIMIT; ++i) {
-			for(int a = 0; a < ALPHABET_LIMIT; ++a) { /* = 1 からでもよいが */
+		for(unsigned int i = 0; i < STATE_LIMIT; ++i) {
+			for(unsigned int a = 0; a < ALPHABET_LIMIT; ++a) { /* = 1 からでもよいが */
 				delta[i][a] = 0; 	/* 空集合に初期化 */
 			}
 		}
 		initials.set(0);
 		finals.set(size);
 
+		for(unsigned i = 0; alphabet[i] != 0 ; ++i) {
+			delta[0][(int) alphabet[i]] |= bit64(0);
+			delta[size][(int) alphabet[i]] |= bit64(size);
+		}
+
 		for(int i = 0; i <= size; i++){
 			char c = melody[i];
-
-			if(i == 0){
-				delta[i][(int)'+'] |= bit64(i);
-				delta[i][(int)'#'] |= bit64(i);
-				delta[i][(int)'-'] |= bit64(i);
-				delta[i][(int)'b'] |= bit64(i);
-				delta[i][(int)'='] |= bit64(i);
-				delta[i][(int)'0'] |= bit64(i);
-			}
-
-			if(i == size){
-				delta[i][(int)'+'] |= bit64(i);
-				delta[i][(int)'#'] |= bit64(i);
-				delta[i][(int)'-'] |= bit64(i);
-				delta[i][(int)'b'] |= bit64(i);
-				delta[i][(int)'='] |= bit64(i);
-			}
 
 			if(c == '+'){
 				delta[i][(int)'+'] |= bit64(i+1);
@@ -115,15 +104,15 @@ private:
 
 	}
 
-	friend std::ostream & operator<<(std::ostream & out, const nfa & m) {
+	friend std::ostream & operator<<(std::ostream & out, const MyNFA & m) {
 		bset64 states(0);
-		bool alphabet[nfa::ALPHABET_LIMIT];
+		bool alphabet[MyNFA::ALPHABET_LIMIT];
 
-		for(int a = 0; a < nfa::ALPHABET_LIMIT; ++a) {
+		for(unsigned int a = 0; a < MyNFA::ALPHABET_LIMIT; ++a) {
 			alphabet[a] = false;
 		}
-		for(int i = 0; i < nfa::STATE_LIMIT; ++i) {
-			for(int a = 0; a < nfa::ALPHABET_LIMIT; ++a) {
+		for(unsigned int i = 0; i < MyNFA::STATE_LIMIT; ++i) {
+			for(unsigned int a = 0; a < MyNFA::ALPHABET_LIMIT; ++a) {
 				if ( m.delta[i][a] != 0 ) {
 					states |= bit64(i);
 					states |= m.delta[i][a];
@@ -132,10 +121,10 @@ private:
 			}
 		}
 		out << "nfa(" << endl;
-		out << "states = " << states << endl;
+		out << "states = " << states.str() << endl;
 		out << "alphabet = {";
 		int count = 0;
-		for(int i = 0; i < ALPHABET_LIMIT; ++i) {
+		for(unsigned int i = 0; i < ALPHABET_LIMIT; ++i) {
 			if ( alphabet[i] == true) {
 				if (count)
 					printf(", ");
@@ -148,16 +137,16 @@ private:
 		out << "delta = " << endl;
 		out << "state symbol| next" << endl;
 		out << "------------+------" << endl;
-		for(int i = 0; i < nfa::STATE_LIMIT; ++i) {
-			for(int a = 0; a < nfa::ALPHABET_LIMIT; ++a) {
+		for(unsigned int i = 0; i < MyNFA::STATE_LIMIT; ++i) {
+			for(unsigned int a = 0; a < MyNFA::ALPHABET_LIMIT; ++a) {
 				if ( m.delta[i][a] != 0 ) {
-					out << "  " << i << "  ,  " << char(a) << "   | " << m.delta[i][a] << endl;
+					out << "  " << i << "  ,  " << char(a) << "   | " << m.delta[i][a].str() << endl;
 				}
 			}
 		}
 		out << "------------+------" << endl;
-		out << "initial state = " << m.initials << endl;
-		out << "accepting states = " << m.finals << endl;
+		out << "initial state = " << m.initials.str() << endl;
+		out << "accepting states = " << m.finals.str() << endl;
 		out << ")" << endl;
 		return out;
 	}
@@ -193,21 +182,19 @@ private:
 		return (finals & current) != 0;
 	}
 
-	long long int run(const char * inputstr) {
+	long int run(const char * inputstr) {
 		const char * ptr = inputstr;
-	//	char buf[128];
 		long long pos = 0;
 
-	//	printf("run on '%s' :\n", ptr);
 		reset();
-	//	printf("     -> %s", bset64_str(mp->current, buf));
-
+		//std::cout << current.str() ;
 		for ( ; *ptr; ++ptr) {
 			transfer(*ptr);
-	//		printf(", -%c-> %s", *ptr, bset64_str(mp->current, buf));
+			//std::cout << "-" << char(*ptr) << "["<< pos << "]" << "-> "<< current.str() ;
 			if ( (finals & current) != 0 ) break;
 			pos++;
 		}
+		//std::cout << endl;
 
 		if (accepting()) {
 			return pos;

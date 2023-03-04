@@ -48,7 +48,8 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	ShiftNFA m(melody);
+	MyNFA mmy(melody);
+	ShiftNFA mshift(melody);
 
 	long filecounter = 0;
 	long hitcounter = 0;
@@ -68,7 +69,12 @@ int main(int argc, char **argv) {
 			//char* input= &*text.begin();
 			bytecounter += text.length();
 			auto start_search = chrono::system_clock::now(); // 計測開始時刻
-			long long pos = m.run(text.c_str());
+			long pos = mmy.run(text.c_str());
+			long pos_2 = mshift.run(text.c_str());
+			if ( pos != pos_2) {
+				cout << "Result miss match: " << filecounter << " " << entry.path().string();
+				cout << " mmy match at " << pos << ", mshift at " << pos_2 << endl;
+			}
 			if ( pos >= 0 ){
 				if ( verbose_mode != SILENT_MODE ) {
 					cout << filecounter << " " << entry.path().string();
@@ -84,13 +90,15 @@ int main(int argc, char **argv) {
 			auto stop_search = chrono::system_clock::now(); 	// 計測終了時刻
 			search_micros += chrono::duration_cast<std::chrono::microseconds >(stop_search - start_search).count(); // ミリ秒に変換
 		}
+		//break; ///////////////////////////////////////////////////////////
 	}
 	auto stop_total = chrono::system_clock::now(); 	// 計測終了時刻
 	total_millis += chrono::duration_cast<chrono::milliseconds >(stop_total - start_total).count(); // ミリ秒に変換
 
 	if (verbose_mode == VERBOSE_MODE ) {
-		cout << "NFA = " << m << endl;
 		cout << "search " << melody << " for .cont in " << path << "." << endl;
+		cout << "NFA = " << mmy << endl;
+		cout << "ShiftNFA = " << mshift << endl;
 	}
 	cout << "hits = " << hitcounter << " among " << filecounter << " files " << bytecounter << " bytes." << endl;
 	cout << "It took " << search_micros << " micros in search, totaly "<< total_millis << " milli seconds." << endl;

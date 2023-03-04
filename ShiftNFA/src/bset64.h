@@ -103,22 +103,29 @@ public:
 		return a.bits == b;
 	}
 
-	friend std::ostream & operator<<(std::ostream & out, const bset64 & bset) {
-		out << "bset64{";
-		if ( bset.bits ) {
+	std::string str() const {
+		std::ostringstream buf("");
+		buf << "{";
+		if ( bits != 0 ) {
 			int cnt = 0;
-			uint64_t val = bset.bits;
+			uint64_t val = bits;
 			for(unsigned int i = 0; i < BIT_LENGTH; ++i) {
 				if ( val & 1 ) {
 					if (cnt)
-						out << ", ";
-					out << std::dec << i;
+						buf << ", ";
+					buf << std::dec << i;
 					++cnt;
 				}
 				val >>= 1;
 			}
 		}
-		out << "} ";
+		buf << "} ";
+		return buf.str();
+	}
+
+	friend std::ostream & operator<<(std::ostream & out, const bset64 & bset) {
+		out << "bset64";
+		out << bset.str();
 		return out;
 	}
 };

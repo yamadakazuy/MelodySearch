@@ -123,7 +123,7 @@ public:
 		return (final_states & current) != 0;
 	}
 
-	long long run(const char * inputstr) {
+	long run(const char * inputstr) {
 		const char * ptr = inputstr;
 		long long pos = 0;
 		reset();
