@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <cinttypes>
 
 using std::cout;
@@ -48,17 +49,13 @@ private:
 public:
 	ShiftNFA(const string & melody) : initial_state(0), final_states(0), current(0) {
 		initial_state.set(0);
-		string patt;
-		for(unsigned int i = 0; i < melody.size(); ++i) {
-			if ( i == 0 and melody[i] == '*' )
-				continue;
-			if ( i == melody.size() - 1 and melody[i] == '*' )
-				continue;
-			patt.push_back(melody[i]);
+		size = 0;
+		for(const char & c : melody) {
+			if ( c != '*' )
+				++size;
 		}
-		size = patt.size();
 		final_states.set(size);
-		define(patt);
+		define(melody);
 	}
 
 
@@ -71,40 +68,47 @@ public:
 		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
 			advancebits[ascii] = 0;
 		}
-		for(int i = 0; i <= size; i++){
+		unsigned int pos = 0; // position in the pattern whose '*' replaced by zero-length separator
+		for(unsigned int i = 0; i < melody.length(); ++i){
 			char c = melody[i];
 			switch ( c ) {
 			case '*':
-				staybits.set(i);
+				staybits.set(pos);
 				break;
 			case '=':
 			case '+':
 			case '-':
 			case '#':
 			case 'b':
-				advancebits[int(c)].set(i);
+				advancebits[int(c)].set(pos);
 				break;
 			case '^':
-				advancebits[int('+')].set(i);
-				advancebits[int('#')].set(i);
+				advancebits[int('+')].set(pos);
+				advancebits[int('#')].set(pos);
 				break;
 			case '_':
-				advancebits[int('-')].set(i);
-				advancebits[int('b')].set(i);
+				advancebits[int('-')].set(pos);
+				advancebits[int('b')].set(pos);
 				break;
 			}
+			if ( c != '*' )
+				++pos;
 		}
 	}
 
 	friend std::ostream & operator<<(std::ostream & out, const ShiftNFA & m) {
-		out << "ShiftNFA(states = " << m.current;
-		out << ", staybits = " << m.staybits << ", " << endl;
+		bset64 allstates = m.staybits;
+		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
+			allstates |= m.advancebits[ascii];
+		}
+		out << "ShiftNFA(states = " << allstates.str();
+		out << ", staybits = " << m.staybits.str() << ", " << endl << "advance bits = " << endl;
 		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
 			if ( uint64_t(m.advancebits[ascii]) != 0 ) {
-				out << char(ascii) << " : " << m.advancebits[ascii] << endl;
+				out << char(ascii) << " : " << m.advancebits[ascii].str() << endl;
 			}
 		}
-		out << "final states = " << m.final_states << ") " << endl;
+		out << "final states = " << m.final_states.str() << ") " << endl;
 		return out;
 	}
 

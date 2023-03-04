@@ -119,13 +119,13 @@ public:
 				val >>= 1;
 			}
 		}
-		buf << "} ";
+		buf << "}";
 		return buf.str();
 	}
 
 	friend std::ostream & operator<<(std::ostream & out, const bset64 & bset) {
 		out << "bset64";
-		out << bset.str();
+		out << bset.str() << ' ';
 		return out;
 	}
 };

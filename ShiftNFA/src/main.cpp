@@ -17,7 +17,7 @@
 using namespace std;
 
 #include "bset64.h"
-#include "MyNFA2.h"
+#include "MyNFA.h"
 #include "ShiftNFA.h"
 
 int main(int argc, char **argv) {
@@ -50,6 +50,14 @@ int main(int argc, char **argv) {
 
 	MyNFA mmy(melody);
 	ShiftNFA mshift(melody);
+
+	if (verbose_mode == VERBOSE_MODE ) {
+		cout << "search " << melody << " for .cont in " << path << "." << endl;
+		cout << "NFA = " << mmy << endl;
+		cout << "ShiftNFA = " << mshift << endl;
+	}
+
+	return 0;
 
 	long filecounter = 0;
 	long hitcounter = 0;
@@ -95,11 +103,6 @@ int main(int argc, char **argv) {
 	auto stop_total = chrono::system_clock::now(); 	// 計測終了時刻
 	total_millis += chrono::duration_cast<chrono::milliseconds >(stop_total - start_total).count(); // ミリ秒に変換
 
-	if (verbose_mode == VERBOSE_MODE ) {
-		cout << "search " << melody << " for .cont in " << path << "." << endl;
-		cout << "NFA = " << mmy << endl;
-		cout << "ShiftNFA = " << mshift << endl;
-	}
 	cout << "hits = " << hitcounter << " among " << filecounter << " files " << bytecounter << " bytes." << endl;
 	cout << "It took " << search_micros << " micros in search, totaly "<< total_millis << " milli seconds." << endl;
 

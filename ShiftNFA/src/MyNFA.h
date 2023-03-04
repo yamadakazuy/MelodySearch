@@ -20,7 +20,6 @@
 using std::cout;
 using std::endl;
 using std::string;
-namespace fsys = std::filesystem;
 
 struct MyNFA {
 private:
@@ -42,13 +41,17 @@ private:
 	bset64 delta[STATE_LIMIT][ALPHABET_LIMIT];	/* 遷移関数 : Q x Σ -> 2^Q*/
 	bset64  initials; 								/* 初期状態 */
 	bset64 finals;			 					/* 最終状態 */
-	int size;
+	unsigned int size;
 	bset64 current;                           /* 現在の状態の集合　*/
 
 public:
 	/* パターン文字列から nfa を初期化 */
 	MyNFA(string melody) {
-		size = melody.length();
+		size = 0;
+		for(const char & c : melody) {
+			if ( c != '*' )
+				++size;
+		}
 		//std::cout << endl << "statesize = " << statesize << endl;
 
 		/* データ構造の初期化 */
@@ -60,48 +63,36 @@ public:
 		initials.set(0);
 		finals.set(size);
 
-		for(unsigned i = 0; alphabet[i] != 0 ; ++i) {
-			delta[0][(int) alphabet[i]] |= bit64(0);
-			delta[size][(int) alphabet[i]] |= bit64(size);
-		}
-
-		for(int i = 0; i <= size; i++){
+		unsigned int pos = 0;
+		for(unsigned int i = 0; i < melody.length(); i++){
 			char c = melody[i];
 
 			if(c == '+'){
-				delta[i][(int)'+'] |= bit64(i+1);
+				delta[pos][(int)'+'] |= bit64(pos+1);
 			}else if(c == '#'){
-				delta[i][(int)'#'] |= bit64(i+1);
+				delta[pos][(int)'#'] |= bit64(pos+1);
 			}else if(c == '^'){
-				delta[i][(int)'+'] |= bit64(i+1);
-				delta[i][(int)'#'] |= bit64(i+1);
+				delta[pos][(int)'+'] |= bit64(pos+1);
+				delta[pos][(int)'#'] |= bit64(pos+1);
 			}else if(c == '-'){
-				delta[i][(int)'-'] |= bit64(i+1);
+				delta[pos][(int)'-'] |= bit64(pos+1);
 			}else if(c == 'b'){
-				delta[i][(int)'b'] |= bit64(i+1);
+				delta[pos][(int)'b'] |= bit64(pos+1);
 			}else if(c == '_'){
-				delta[i][(int)'-'] |= bit64(i+1);
-				delta[i][(int)'b'] |= bit64(i+1);
+				delta[pos][(int)'-'] |= bit64(pos+1);
+				delta[pos][(int)'b'] |= bit64(pos+1);
 			}else if(c == '='){
-				delta[i][(int)'='] |= bit64(i+1);
-			}else if(c == '*'){
-				delta[i][(int)'+'] |= bit64(i+1);
-				delta[i][(int)'#'] |= bit64(i+1);
-				delta[i][(int)'-'] |= bit64(i+1);
-				delta[i][(int)'b'] |= bit64(i+1);
-				delta[i][(int)'='] |= bit64(i+1);
-				delta[i+1][(int)'+'] |= bit64(i+1);
-				delta[i+1][(int)'#'] |= bit64(i+1);
-				delta[i+1][(int)'-'] |= bit64(i+1);
-				delta[i+1][(int)'b'] |= bit64(i+1);
-				delta[i+1][(int)'='] |= bit64(i+1);
+				delta[pos][(int)'='] |= bit64(pos+1);
+			} else if ( c == '*' ) {
+				// VLDC '*'
+				for(const char * p = alphabet; *p != 0 ; ++p) {
+					delta[pos][(int) *p] |= bit64(pos);
+				}
 			}
-	//		for(int a = 0; a < ALPHABET_LIMIT; ++a) {
-	//			if ( mp->delta[i][(int)a] )
-	//				std::cout << "(" << i << ", " << (char) a << ", " << mp->delta[i][(int)a] << ")" << endl;
-	//		}
+			if ( c != '*') {
+				++pos;
+			}
 		}
-
 	}
 
 	friend std::ostream & operator<<(std::ostream & out, const MyNFA & m) {
