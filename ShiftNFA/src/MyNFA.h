@@ -90,6 +90,8 @@ public:
 				}
 			}
 			if ( c != '*') {
+				// the state transition for '*' is just the self loop,
+				// otherwise it advances the state to the next
 				++pos;
 			}
 		}
@@ -131,7 +133,7 @@ public:
 		for(unsigned int i = 0; i < MyNFA::STATE_LIMIT; ++i) {
 			for(unsigned int a = 0; a < MyNFA::ALPHABET_LIMIT; ++a) {
 				if ( m.delta[i][a] != 0 ) {
-					out << "  " << i << "  ,  " << char(a) << "   | " << m.delta[i][a].str() << endl;
+					out << " " << std::setw(3) << i << " ,  " << char(a) << "   | " << m.delta[i][a].str() << endl;
 				}
 			}
 		}

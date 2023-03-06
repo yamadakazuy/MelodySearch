@@ -14,6 +14,9 @@
 // requires C++20
 #include <filesystem>
 
+using std::cout;
+using std::cerr;
+using std::endl;
 using namespace std;
 
 #include "bset64.h"
@@ -25,17 +28,31 @@ int main(int argc, char **argv) {
 	string path = "", melody;
 
 	enum {
-		SILENT_MODE = 0,
-		MODERATE_MODE = 1,
-		VERBOSE_MODE = 2,
-	} verbose_mode = MODERATE_MODE; // 2 で印字出力多め
+		MODE_SILENT = 0,
+		MODE_MODERATE = 1,
+		MODE_VERBOSE = 2,
+	} verbose_mode = MODE_MODERATE; // 2 で印字出力多め
 
+	enum {
+		PM_MYNFA = 0,
+		PM_SHIFTNFA = 1,
+	} pm = PM_MYNFA; // 2 で印字出力多め
+
+	bool show_pm = false;
 	if (argc >= 3) {
 		for (int i = 1; i < argc; ++i) {
-			if (string("-v") == string(argv[i]) ) {
-				verbose_mode = VERBOSE_MODE;
-			} else if (string("-s") == string(argv[i]) ) {
-				verbose_mode = SILENT_MODE;
+			if ( string(argv[i]).starts_with('-') ) {
+				if (string("-v") == string(argv[i]) ) {
+					verbose_mode = MODE_VERBOSE;
+				} else if (string("-s") == string(argv[i]) ) {
+					verbose_mode = MODE_SILENT;
+				} else if (string("-my") == string(argv[i]) ) {
+					pm = PM_MYNFA;
+				} else if (string("-shift") == string(argv[i]) ) {
+					pm = PM_SHIFTNFA;
+				} else if (string("-show") == string(argv[i]) ) {
+					show_pm = true;
+				}
 			} else {
 				if (path.length() == 0)
 					path = argv[i];
@@ -43,7 +60,9 @@ int main(int argc, char **argv) {
 					melody = argv[i];
 			}
 		}
-	} else {
+	}
+
+	if ( path.length() == 0 and melody.length() == 0 ) {
 		cout << "requires dirpath melody" << endl;
 		exit(1);
 	}
@@ -51,13 +70,11 @@ int main(int argc, char **argv) {
 	MyNFA mmy(melody);
 	ShiftNFA mshift(melody);
 
-	if (verbose_mode == VERBOSE_MODE ) {
+	if ( show_pm ) {
 		cout << "search " << melody << " for .cont in " << path << "." << endl;
 		cout << "NFA = " << mmy << endl;
 		cout << "ShiftNFA = " << mshift << endl;
 	}
-
-	return 0;
 
 	long filecounter = 0;
 	long hitcounter = 0;
@@ -77,21 +94,28 @@ int main(int argc, char **argv) {
 			//char* input= &*text.begin();
 			bytecounter += text.length();
 			auto start_search = chrono::system_clock::now(); // 計測開始時刻
-			long pos = mmy.run(text.c_str());
-			long pos_2 = mshift.run(text.c_str());
-			if ( pos != pos_2) {
-				cout << "Result miss match: " << filecounter << " " << entry.path().string();
-				cout << " mmy match at " << pos << ", mshift at " << pos_2 << endl;
+			long pos;
+			if ( pm == PM_MYNFA ) {
+				pos = mmy.run(text.c_str());
+			} else if ( pm == PM_SHIFTNFA ) {
+				pos = mshift.run(text.c_str());
 			}
+			/*
+
+			if ( pos != pos_2) {
+				cerr << "Result miss match: " << filecounter << " " << entry.path().string();
+				cerr << " mmy match at " << pos << ", mshift at " << pos_2 << endl;
+			}
+			*/
 			if ( pos >= 0 ){
-				if ( verbose_mode != SILENT_MODE ) {
+				if ( verbose_mode != MODE_SILENT ) {
 					cout << filecounter << " " << entry.path().string();
 					cout << " match at " << pos << "." << endl;
 				}
 				hitcounter++;
 			} else {
-				if ( verbose_mode == VERBOSE_MODE ) {
-					cout << filecounter << " " << entry.path().string() << endl;
+				if ( verbose_mode == MODE_VERBOSE ) {
+					cout << filecounter << " " << entry.path().string();
 					cout << "no match." << endl;
 				}
 			}

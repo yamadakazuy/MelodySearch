@@ -14,6 +14,9 @@
 #include <vector>
 #include <cinttypes>
 
+// requires C++20
+//#include <format>
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -26,6 +29,7 @@ private:
 	static constexpr unsigned int STATE_LIMIT = 64;
 	/* =,+,-,#,b のアスキーコードを含む範囲 */
 	static constexpr unsigned int ALPHABET_LIMIT = 128;
+	static constexpr char alphabet[] = "#+-0=b";
 
 	/* 定数 */
 	/* 状態は 数字，英大文字を含む空白 (0x20) から _ (0x5f) までの一文字 */
@@ -101,8 +105,28 @@ public:
 		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
 			allstates |= m.advancebits[ascii];
 		}
-		out << "ShiftNFA(states = " << allstates.str();
-		out << ", staybits = " << m.staybits.str() << ", " << endl << "advance bits = " << endl;
+		out << "ShiftNFA(states = " << allstates.str() << ", " << endl;
+		cout << "delta = " << endl;
+		out << "state symbol| next" << endl;
+		out << "------------+------" << endl;
+		for(; allstates != 0; allstates.clsb() ) {
+			unsigned int stateid = allstates.ctz();
+			for(const char * p = alphabet; *p != 0; ++p) {
+				bset64 nextstates = 0;
+				if ( m.advancebits[(int)*p].is_set(stateid) ) {
+					nextstates.set(stateid+1);
+				}
+				if ( (m.staybits & (1ULL<<stateid)) != 0 ) {
+					nextstates.set(stateid);
+				}
+				if ( nextstates != 0) {
+					cout << std::setw(4) << stateid << " ," << std::setw(5) << *p << " | ";
+					cout << nextstates.str() << endl;
+				}
+			}
+		}
+		out << "------------+------ ," << endl;
+		out << "staybits = " << m.staybits.str() << ", " << endl << "advance bits = " << endl;
 		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
 			if ( uint64_t(m.advancebits[ascii]) != 0 ) {
 				out << char(ascii) << " : " << m.advancebits[ascii].str() << endl;

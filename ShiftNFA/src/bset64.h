@@ -53,9 +53,18 @@ public:
 		return __builtin_ctzll(bits);
 	}
 
+	// clear the lowest set bit
 	inline bset64 & clsb() {
-		bits &= bits -1;
+		bits &= (bits -1);
 		return *this;
+	}
+
+	inline bool is_set(unsigned int & bpos) const {
+		return (bits & (uint64_t(1)<<bpos)) != 0;
+	}
+
+	inline bool is_clear(unsigned int & bpos) const {
+		return (bits & (uint64_t(1)<<bpos)) == 0;
 	}
 
 	inline constexpr explicit operator uint64_t() const {
