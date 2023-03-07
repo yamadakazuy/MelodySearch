@@ -213,7 +213,7 @@ class score {
 	std::vector<std::vector<smf::event>> tracks;
 
 public:
-	score() :  smfformat(0), ntracks(0), division(0), tracks(0) {}
+	score() :  smfformat(0), ntracks(0), division(0), tracks() {}
 	score(std::istream & smffile);
 	/*
 	score(std::istream & smffile) {
@@ -250,6 +250,14 @@ public:
 		}
 	}
 	*/
+
+	void clear() {
+		for(unsigned int i = 0; i < tracks.size(); ++i) {
+			tracks[i].clear();
+		}
+		tracks.clear();
+		smfformat = 0, ntracks = 0, division = 0;
+	}
 
 	bool is_empty(void) const {
 		return  ntracks == 0;

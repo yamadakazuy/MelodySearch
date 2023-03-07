@@ -79,10 +79,6 @@ bool fileout_score(const smf::score & midi, const string & filename) {
 	}
 	out.close();
 
-	for(int i = 0; i < 16; ++i) {
-		noteseq[i].clear();
-	}
-
 	return true;
 }
 
