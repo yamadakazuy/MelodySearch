@@ -1,7 +1,7 @@
 #PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-CXX = g++ -std=c++17 -Wall 
+CXX = g++ -std=c++2a -Wall 
 
-CFLAGS += -O0
+CFLAGS += -O2
 CXXFLAGS +=  -I./
 
 OBJS = main.o smf.o

@@ -100,13 +100,6 @@ int main(int argc, char **argv) {
 			} else if ( pm == PM_SHIFTNFA ) {
 				pos = mshift.run(text.c_str());
 			}
-			/*
-
-			if ( pos != pos_2) {
-				cerr << "Result miss match: " << filecounter << " " << entry.path().string();
-				cerr << " mmy match at " << pos << ", mshift at " << pos_2 << endl;
-			}
-			*/
 			if ( pos >= 0 ){
 				if ( verbose_mode != MODE_SILENT ) {
 					cout << filecounter << " " << entry.path().string();
