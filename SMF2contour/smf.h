@@ -251,10 +251,8 @@ public:
 	}
 	*/
 
-	bool empty(void) const {
-		if ( ntracks != 0 )
-			return true;
-		return false;
+	bool is_empty(void) const {
+		return  ntracks == 0;
 	}
 
 	uint16_t format() const {

@@ -15,7 +15,6 @@
 #include <cinttypes>
 
 // requires C++20
-//#include <format>
 
 using std::cout;
 using std::endl;
@@ -45,14 +44,14 @@ private:
 
 	bset64 staybits;
 	bset64 advancebits[ALPHABET_LIMIT];
-	bset64 initial_state;
+	bset64 initial_states;
 	bset64 final_states;			 					/* 最終状態 */
 	int size;
 	bset64 current;                           /* 現在の状態の集合　*/
 
 public:
-	ShiftNFA(const string & melody) : initial_state(0), final_states(0), current(0) {
-		initial_state.set(0);
+	ShiftNFA(const string & melody) : initial_states(0), final_states(0), current(0) {
+		initial_states.set(0);
 		size = 0;
 		for(const char & c : melody) {
 			if ( c != '*' )
@@ -66,8 +65,6 @@ public:
 	/* 文字列から nfa を初期化 */
 	void define(const string & melody) {
 		/* データ構造の初期化 */
-		staybits.set(0);
-		staybits.set(size);
 
 		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
 			advancebits[ascii] = 0;
@@ -116,7 +113,7 @@ public:
 				if ( m.advancebits[(int)*p].is_set(stateid) ) {
 					nextstates.set(stateid+1);
 				}
-				if ( (m.staybits & (1ULL<<stateid)) != 0 ) {
+				if ( m.staybits.is_set(stateid) ) {
 					nextstates.set(stateid);
 				}
 				if ( nextstates != 0) {
@@ -126,18 +123,20 @@ public:
 			}
 		}
 		out << "------------+------ ," << endl;
+		/*
 		out << "staybits = " << m.staybits.str() << ", " << endl << "advance bits = " << endl;
 		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
 			if ( uint64_t(m.advancebits[ascii]) != 0 ) {
 				out << char(ascii) << " : " << m.advancebits[ascii].str() << endl;
 			}
 		}
+		*/
 		out << "final states = " << m.final_states.str() << ") " << endl;
 		return out;
 	}
 
 	void reset() {
-		current = initial_state;
+		current = initial_states;
 	}
 
 

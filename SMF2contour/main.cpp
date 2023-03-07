@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
 
 			smf::score midi(input);
 			input.close();
-			if ( ! midi.empty() ) {
+			if ( midi.is_empty() ) {
 				std::cerr << "Reading SMF failed. Skip." << std::endl;
 				continue;
 			}
