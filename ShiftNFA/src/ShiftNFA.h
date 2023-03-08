@@ -28,7 +28,7 @@ private:
 	static constexpr unsigned int STATE_LIMIT = 64;
 	/* =,+,-,#,b のアスキーコードを含む範囲 */
 	static constexpr unsigned int ALPHABET_LIMIT = 128;
-	static constexpr char alphabet[] = "#+-0=b";
+	static constexpr char alphabet[] = "#+-,=b";
 
 	/* 定数 */
 	/* 状態は 数字，英大文字を含む空白 (0x20) から _ (0x5f) までの一文字 */

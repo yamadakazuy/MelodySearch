@@ -34,7 +34,7 @@ private:
 	static constexpr unsigned int STATE_IS_NOT_FINAL = 	0;
 	static constexpr unsigned int STATE_IS_FINAL 	= 1;
 
-	static constexpr char alphabet[] = "#+-0=b";
+	static constexpr char alphabet[] = "#+-,=b";
 	/* 状態は 数字，英大文字を含む空白 (0x20) から _ (0x5f) までの一文字 */
 	/* に対応させる正の整数 {0,...,63} の要素に限定. */
 	/* 文字は ASCII 文字, char 型の {0,...,127} の要素に限定. */

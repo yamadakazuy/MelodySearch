@@ -41,6 +41,7 @@ int main(int argc, char **argv) {
 	bool show_pm = false;
 	if (argc >= 3) {
 		for (int i = 1; i < argc; ++i) {
+			cout << argv[i] << endl;
 			if ( string(argv[i]).starts_with('-') ) {
 				if (string("-v") == string(argv[i]) ) {
 					verbose_mode = MODE_VERBOSE;
@@ -97,7 +98,7 @@ int main(int argc, char **argv) {
 			long pos;
 			if ( pm == PM_MYNFA ) {
 				pos = mmy.run(text.c_str());
-			} else if ( pm == PM_SHIFTNFA ) {
+			} else { //if ( pm == PM_SHIFTNFA ) {
 				pos = mshift.run(text.c_str());
 			}
 			if ( pos >= 0 ){

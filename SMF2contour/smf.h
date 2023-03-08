@@ -296,6 +296,7 @@ public:
 	friend std::ostream & operator<<(std::ostream & out, const score & midi) {
 		out << "smf";
 		out << "(header: format = " << std::dec << midi.format() << ", ntracks = " << midi.noftracks() << ", resolution = " << midi.resolution() << ") ";
+		/*
 		for(uint16_t i = 0; i < midi.noftracks() ; ++i) {
 			out << std::endl << "track " << std::dec << i << ": ";
 			for(auto e = midi.tracks[i].cbegin(); e != midi.tracks[i].end() ; ++e) {
@@ -303,6 +304,7 @@ public:
 			}
 
 		}
+		*/
 		out << std::endl;
 		return out;
 	}

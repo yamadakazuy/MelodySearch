@@ -33,7 +33,7 @@ char contour(const int & diff) {
 	} else if ( diff < -1 ) {
 		return '-';
 	}
-	return '0'; // never happen.
+	return '0'; //　This should never happen.
 }
 
 bool fileout_score(const smf::score & midi, const string & filename) {
@@ -44,7 +44,7 @@ bool fileout_score(const smf::score & midi, const string & filename) {
 		noteseq[i].clear();
 	}
 
-	cerr << " convrting.. " << std::flush;
+	cout << " converting.." << std::flush;
 	for(const auto & a_note : midi.notes() ) {
 		int nn = int(a_note.number);
 		int ch = int(a_note.channel);
@@ -59,7 +59,7 @@ bool fileout_score(const smf::score & midi, const string & filename) {
 		}
 	}
 
-	cerr << " conversion finished. " << std::flush;
+	cout << ". " << std::flush;
 	// fileout noteseq
 	std::ofstream out(filename, std::ios::out);
 	if ( ! out ) {
@@ -123,6 +123,7 @@ int main(int argc, char **argv) {
 				std::cerr << "Reading SMF failed. Skip." << std::endl;
 				continue;
 			}
+			cout << midi << endl;
 			std::filesystem::path outpath(entry.path());
 			outpath.replace_extension(".cont");
 			cout << " writing melodic contour into " << outpath.string();

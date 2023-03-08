@@ -29,6 +29,7 @@ constexpr uint32_t INT_MTrk = 0x4d54726b;
 constexpr uint32_t INT_MThd = 0x4d546864;
 constexpr uint32_t INT_XFIH = 0x58464948;
 constexpr uint32_t INT_XFKM = 0x58464b4d;
+constexpr uint32_t INT_Cont = 0x436f6e74;
 
 enum EVENT_TYPE {
 	MIDI_NOTEOFF = 0x80,
@@ -212,7 +213,7 @@ class score {
 	std::vector<std::vector<smf::event>> tracks;
 
 public:
-	score() :  smfformat(0), ntracks(0), division(0), tracks(0) {}
+	score() :  smfformat(0), ntracks(0), division(0), tracks() {}
 	score(std::istream & smffile);
 	/*
 	score(std::istream & smffile) {
@@ -250,10 +251,16 @@ public:
 	}
 	*/
 
-	bool empty(void) const {
-		if ( ntracks != 0 )
-			return true;
-		return false;
+	void clear() {
+		for(unsigned int i = 0; i < tracks.size(); ++i) {
+			tracks[i].clear();
+		}
+		tracks.clear();
+		smfformat = 0, ntracks = 0, division = 0;
+	}
+
+	bool is_empty(void) const {
+		return  ntracks == 0;
 	}
 
 	uint16_t format() const {
