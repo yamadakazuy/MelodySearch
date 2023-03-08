@@ -31,6 +31,7 @@ int main(int argc, char **argv) {
 		MODE_SILENT = 0,
 		MODE_MODERATE = 1,
 		MODE_VERBOSE = 2,
+		MODE_TEST = 3,
 	} verbose_mode = MODE_MODERATE; // 2 で印字出力多め
 
 	enum {
@@ -53,6 +54,8 @@ int main(int argc, char **argv) {
 					pm = PM_SHIFTNFA;
 				} else if (string("-show") == string(argv[i]) ) {
 					show_pm = true;
+				} else if (string("-test") == string(argv[i]) ) {
+					verbose_mode = MODE_TEST;
 				}
 			} else {
 				if (path.length() == 0)
@@ -73,8 +76,17 @@ int main(int argc, char **argv) {
 
 	if ( show_pm ) {
 		cout << "search " << melody << " for .cont in " << path << "." << endl;
-		cout << "NFA = " << mmy << endl;
-		cout << "ShiftNFA = " << mshift << endl;
+		if ( pm == PM_MYNFA )
+			cout << "NFA = " << mmy << endl;
+		if ( pm == PM_SHIFTNFA )
+			cout << "ShiftNFA = " << mshift << endl;
+	}
+
+	if ( verbose_mode == MODE_TEST ) {
+		string s = "12,-=b#+=-b=#+=+-==b==#=+-++==-+--++-+-+==-+-+===-+-b+b+b++=#b--b";
+		long testpos = mmy.run(s.c_str());
+		cout << (mmy.accepting() ? "accept " : "reject ") << testpos << endl;
+		exit(0);
 	}
 
 	long filecounter = 0;
@@ -90,28 +102,44 @@ int main(int argc, char **argv) {
 		if (entry.path().string().ends_with(".cont")) {
 			filecounter ++;
 			ifstream ifs(entry.path().string());
+			/*
 			string text((istreambuf_iterator<char>(ifs)),
 					istreambuf_iterator<char>());
 			//char* input= &*text.begin();
 			bytecounter += text.length();
+			*/
 			auto start_search = chrono::system_clock::now(); // 計測開始時刻
 			long pos;
-			if ( pm == PM_MYNFA ) {
-				pos = mmy.run(text.c_str());
-			} else { //if ( pm == PM_SHIFTNFA ) {
-				pos = mshift.run(text.c_str());
-			}
-			if ( pos >= 0 ){
-				if ( verbose_mode != MODE_SILENT ) {
-					cout << filecounter << " " << entry.path().string();
-					cout << " match at " << pos << "." << endl;
+			string line, chnum, track;
+			stringstream ss;
+			while(std::getline(ifs, line) ) {
+				bytecounter += line.length();
+				ss.str(line);
+				ss.clear();
+				if ( ! std::getline(ss, chnum, ',') )
+					break;
+				ss >> track;
+				if ( pm == PM_MYNFA ) {
+					pos = mmy.run(track.c_str());
+				} else { //if ( pm == PM_SHIFTNFA ) {
+					pos = mshift.run(track.c_str());
 				}
-				hitcounter++;
-			} else {
-				if ( verbose_mode == MODE_VERBOSE ) {
-					cout << filecounter << " " << entry.path().string();
-					cout << "no match." << endl;
+				if ( pos >= 0 ){
+					if ( verbose_mode != MODE_SILENT ) {
+						cout << filecounter << " " << entry.path().string();
+						cout << " match at ch. " << chnum << ", " << pos << "." << endl;
+					}
+					hitcounter++;
+					//break;
 				}
+				/*
+				else {
+					if ( verbose_mode == MODE_VERBOSE ) {
+						cout << filecounter << " " << entry.path().string();
+						cout << "no match." << endl;
+					}
+				}
+				*/
 			}
 			auto stop_search = chrono::system_clock::now(); 	// 計測終了時刻
 			search_micros += chrono::duration_cast<std::chrono::microseconds >(stop_search - start_search).count(); // ミリ秒に変換

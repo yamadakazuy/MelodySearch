@@ -184,7 +184,7 @@ public:
 		for ( ; *ptr; ++ptr) {
 			transfer(*ptr);
 			//std::cout << "-" << char(*ptr) << "["<< pos << "]" << "-> "<< current.str() ;
-			if ( (finals & current) != 0 ) break;
+			//if ( (finals & current) != 0 ) break;
 			pos++;
 		}
 		//std::cout << endl;
@@ -197,82 +197,3 @@ public:
 	}
 
 };
-/*
-int main(int argc, char **argv) {
-
-	string path = "", melody = "";
-
-//	count = 0;
-
-	bool verbose_mode = false; // true で印字出力多め
-	if (argc >= 3) {
-		for (int i = 1; i < argc; ++i) {
-			//if (string("-t") == string(argv[i]) ) {
-			//	test_mode = true;
-			//	i += 1;
-			//} else
-			if (string("-v") == string(argv[i]) ) {
-				verbose_mode = true;
-			} else {
-				if (path.length() == 0)
-					path = argv[i];
-				else
-					melody = argv[i];
-			}
-		}
-	} else {
-		cout << "requires dirpath melody" << endl;
-		exit(1);
-	}
-
-	cout << "search " << melody << " for .cont in " << path << " by MyNFA2." << endl;
-
-	int initial = 0;
-	int final = melody.length();
-	nfa p(melody, initial, final);
-
-//	print(&M);
-//
-//	char* input = &*path.begin();
-//	run(&M, input);
-
-	unsigned long hitcounter= 0, filecounter = 0;
-	unsigned long search_micros = 0, total_millis = 0;
-
-	auto start_total = std::chrono::system_clock::now(); // 計測開始時刻
-	for (const fsys::directory_entry &entry : fsys::recursive_directory_iterator(path)) {
-		if (entry.is_directory())
-			continue;
-		if (entry.path().string().ends_with(".cont")) {
-			filecounter += 1;
-			if ( verbose_mode )
-				cout << filecounter << " " << entry.path().string() << endl;
-			std::ifstream ifs(entry.path().string());
-			string text((std::istreambuf_iterator<char>(ifs)),
-					std::istreambuf_iterator<char>());
-
-			char* input= &*text.begin();
-
-			auto start_search = std::chrono::system_clock::now();
-			if(p.run(input) != -1){
-				hitcounter++;
-				if ( verbose_mode )
-					cout << "match , " << p.run(input) << endl;
-			} else {
-				if ( verbose_mode )
-					cout << "no match" << endl;
-			}
-			auto stop_search = std::chrono::system_clock::now(); 	// 計測終了時刻
-			search_micros += std::chrono::duration_cast<std::chrono::microseconds >(stop_search - start_search).count(); // ミリ秒に変換
-		}
-	}
-
-	auto stop_total = std::chrono::system_clock::now(); 	// 計測終了時刻
-	total_millis += std::chrono::duration_cast<std::chrono::milliseconds >(stop_total - start_total).count(); // ミリ秒に変換
-
-	cout << "hits = " << hitcounter << " among " << filecounter << " files." << endl;
-	cout << "It took " << search_micros << " micros in search, totaly "<< total_millis << " milli seconds." << endl;
-
-	return 0;
-}
-*/
