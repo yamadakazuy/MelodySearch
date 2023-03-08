@@ -156,8 +156,8 @@ public:
 		reset();
 		for ( ; *ptr; ++ptr) {
 			transfer(*ptr);
-			if ( accepting() )
-				break;
+			//if ( accepting() )
+			//	break;
 			++pos;
 		}
 

@@ -102,12 +102,6 @@ int main(int argc, char **argv) {
 		if (entry.path().string().ends_with(".cont")) {
 			filecounter ++;
 			ifstream ifs(entry.path().string());
-			/*
-			string text((istreambuf_iterator<char>(ifs)),
-					istreambuf_iterator<char>());
-			//char* input= &*text.begin();
-			bytecounter += text.length();
-			*/
 			auto start_search = chrono::system_clock::now(); // 計測開始時刻
 			long pos;
 			string line, chnum, track;
