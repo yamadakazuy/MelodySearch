@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 	bool show_pm = false;
 	if (argc >= 3) {
 		for (int i = 1; i < argc; ++i) {
-			cout << argv[i] << endl;
+			//cout << argv[i] << endl;
 			if ( string(argv[i]).starts_with('-') ) {
 				if (string("-v") == string(argv[i]) ) {
 					verbose_mode = MODE_VERBOSE;
@@ -104,15 +104,10 @@ int main(int argc, char **argv) {
 			ifstream ifs(entry.path().string());
 			auto start_search = chrono::system_clock::now(); // 計測開始時刻
 			long pos;
-			string line, chnum, track;
-			stringstream ss;
-			while(std::getline(ifs, line) ) {
-				bytecounter += line.length();
-				ss.str(line);
-				ss.clear();
-				if ( ! std::getline(ss, chnum, ',') )
-					break;
-				ss >> track;
+			string chnum, track;
+			while(std::getline(ifs, chnum, ',') ) {
+				std::getline(ifs, track);
+				bytecounter += track.length();
 				if ( pm == PM_MYNFA ) {
 					pos = mmy.run(track.c_str());
 				} else { //if ( pm == PM_SHIFTNFA ) {
@@ -124,7 +119,7 @@ int main(int argc, char **argv) {
 						cout << " match at ch. " << chnum << ", " << pos << "." << endl;
 					}
 					hitcounter++;
-					//break;
+					break;
 				}
 				/*
 				else {
