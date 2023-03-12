@@ -44,34 +44,41 @@ private:
 
 	bset64 staybits;
 	bset64 advancebits[ALPHABET_LIMIT];
-	bset64 initial_states;
-	bset64 final_states;			 					/* 最終状態 */
+	bset64 initials;
+	bset64 finals;			 					/* 最終状態 */
 	int size;
+	string pattern;
 	bset64 current;                           /* 現在の状態の集合　*/
 
 public:
-	ShiftNFA(const string & melody) : initial_states(0), final_states(0), current(0) {
-		initial_states.set(0);
+	ShiftNFA(const string & melody) : initials(0), finals(0), current(0) {
+		initials.set(0);
 		size = 0;
 		for(const char & c : melody) {
-			if ( c != '*' )
+			if ( c != '*' ) {
+				pattern += c;
 				++size;
+			} else {
+				if ( pattern.length() == 0 or pattern.back() != '*' ) {
+					pattern += '*';
+				}
+			}
 		}
-		final_states.set(size);
-		define(melody);
+		finals.set(size);
+		define();
 	}
 
 
 	/* 文字列から nfa を初期化 */
-	void define(const string & melody) {
+	void define() {
 		/* データ構造の初期化 */
 
 		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
 			advancebits[ascii] = 0;
 		}
 		unsigned int pos = 0; // position in the pattern whose '*' replaced by zero-length separator
-		for(unsigned int i = 0; i < melody.length(); ++i){
-			char c = melody[i];
+		for(unsigned int i = 0; i < pattern.length(); ++i){
+			char c = pattern[i];
 			switch ( c ) {
 			case '*':
 				staybits.set(pos);
@@ -102,7 +109,7 @@ public:
 		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
 			allstates |= m.advancebits[ascii];
 		}
-		out << "ShiftNFA(states = " << allstates.str() << ", " << endl;
+		out << "ShiftNFA(" << m.pattern << ", states = " << allstates.str() << ", " << endl;
 		cout << "delta = " << endl;
 		out << "state symbol| next" << endl;
 		out << "------------+------" << endl;
@@ -131,12 +138,12 @@ public:
 			}
 		}
 		*/
-		out << "final states = " << m.final_states.str() << ") " << endl;
+		out << "final states = " << m.finals.str() << ") " << endl;
 		return out;
 	}
 
 	void reset() {
-		current = initial_states;
+		current = initials;
 	}
 
 
@@ -147,25 +154,23 @@ public:
 	}
 
 	bool accepting() {
-		return (final_states & current) != 0;
+		return (finals & current) != 0;
 	}
 
 	long run(const char * inputstr) {
-		const char * ptr = inputstr;
+		bool interrupt = pattern.back() == '*';
 		long long pos = 0;
 		reset();
-		for ( ; *ptr; ++ptr) {
+		for (const char * ptr = inputstr ; *ptr; ++ptr) {
 			transfer(*ptr);
-			//if ( accepting() )
-			//	break;
+			if ( interrupt and accepting() )
+				break;
 			++pos;
 		}
 
 		if (accepting()) {
-			//cout << "match , " << pos << endl;
 			return pos;
 		} else {
-			//cout << "no match" << endl;
 			return -1;
 		}
 	}

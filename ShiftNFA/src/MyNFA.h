@@ -5,6 +5,8 @@
 // Copyright   : Your copyright notice
 // Description : Hello World in C++, Ansi-style
 //============================================================================
+#ifndef SRC_MYNFA_H_
+#define SRC_MYNFA_H_
 
 // ↓入力"*++--+-++==---#+++b==+-=b+-+--+-+-+-+b+==-+-==b==" "++--+-++==---#+++b==+-=b+-+--+-"
 //最後に[-]を追加
@@ -34,7 +36,7 @@ private:
 	static constexpr unsigned int STATE_IS_NOT_FINAL = 	0;
 	static constexpr unsigned int STATE_IS_FINAL 	= 1;
 
-	static constexpr char alphabet[] = "#+-,=b";
+	static constexpr char alphabet[] = "#+-=b";
 	/* 状態は 数字，英大文字を含む空白 (0x20) から _ (0x5f) までの一文字 */
 	/* に対応させる正の整数 {0,...,63} の要素に限定. */
 	/* 文字は ASCII 文字, char 型の {0,...,127} の要素に限定. */
@@ -42,15 +44,23 @@ private:
 	bset64  initials; 								/* 初期状態 */
 	bset64 finals;			 					/* 最終状態 */
 	unsigned int size;
+	string pattern;
 	bset64 current;                           /* 現在の状態の集合　*/
 
 public:
 	/* パターン文字列から nfa を初期化 */
-	MyNFA(string melody) {
+	MyNFA(const string & melody) {
+		pattern = "";
 		size = 0;
 		for(const char & c : melody) {
-			if ( c != '*' )
+			if ( c != '*' ) {
+				pattern += c;
 				++size;
+			} else {
+				if ( pattern.length() == 0 or pattern.back() != '*' ) {
+					pattern += '*';
+				}
+			}
 		}
 		//std::cout << endl << "statesize = " << statesize << endl;
 
@@ -64,8 +74,8 @@ public:
 		finals.set(size);
 
 		unsigned int pos = 0;
-		for(unsigned int i = 0; i < melody.length(); i++){
-			char c = melody[i];
+		for(unsigned int i = 0; i < pattern.length(); i++){
+			char c = pattern[i];
 
 			if(c == '+'){
 				delta[pos][(int)'+'] |= bit64(pos+1);
@@ -113,7 +123,7 @@ public:
 				}
 			}
 		}
-		out << "nfa(" << endl;
+		out << "nfa(" << m.pattern << ", " << endl;
 		out << "states = " << states.str() << endl;
 		out << "alphabet = {";
 		int count = 0;
@@ -139,7 +149,7 @@ public:
 		}
 		out << "------------+------" << endl;
 		out << "initial state = " << m.initials.str() << endl;
-		out << "accepting states = " << m.finals.str() << endl;
+		out << "final states = " << m.finals.str() << endl;
 		out << ")" << endl;
 		return out;
 	}
@@ -176,15 +186,15 @@ public:
 	}
 
 	long int run(const char * inputstr) {
-		const char * ptr = inputstr;
+		bool interrupt = pattern.back() == '*';
 		long long pos = 0;
 
 		reset();
 		//std::cout << current.str() ;
-		for ( ; *ptr; ++ptr) {
+		for (const char * ptr = inputstr; *ptr; ++ptr) {
 			transfer(*ptr);
 			//std::cout << "-" << char(*ptr) << "["<< pos << "]" << "-> "<< current.str() ;
-			//if ( (finals & current) != 0 ) break;
+			if ( interrupt and accepting() ) break;
 			pos++;
 		}
 		//std::cout << endl;
@@ -197,3 +207,5 @@ public:
 	}
 
 };
+
+#endif

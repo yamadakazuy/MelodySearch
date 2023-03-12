@@ -22,10 +22,11 @@ using namespace std;
 #include "bset64.h"
 #include "MyNFA.h"
 #include "ShiftNFA.h"
+#include "MyNaive.h"
 
 int main(int argc, char **argv) {
 
-	string path = "", melody;
+	string path = "", melody = "", text;
 
 	enum {
 		MODE_SILENT = 0,
@@ -39,9 +40,11 @@ int main(int argc, char **argv) {
 		PM_SHIFTNFA = 1,
 	} pm = PM_MYNFA; // 2 で印字出力多め
 
+	bool test_mode = false;
 	bool show_pm = false;
 	if (argc >= 3) {
-		for (int i = 1; i < argc; ++i) {
+		int i = 1;
+		while (i < argc) {
 			//cout << argv[i] << endl;
 			if ( string(argv[i]).starts_with('-') ) {
 				if (string("-v") == string(argv[i]) ) {
@@ -55,14 +58,17 @@ int main(int argc, char **argv) {
 				} else if (string("-show") == string(argv[i]) ) {
 					show_pm = true;
 				} else if (string("-test") == string(argv[i]) ) {
-					verbose_mode = MODE_TEST;
+					test_mode = true;
 				}
 			} else {
 				if (path.length() == 0)
 					path = argv[i];
-				else
+				else if ( melody.length() == 0 )
 					melody = argv[i];
+				else
+					text = argv[i];
 			}
+		++i;
 		}
 	}
 
@@ -73,6 +79,7 @@ int main(int argc, char **argv) {
 
 	MyNFA mmy(melody);
 	ShiftNFA mshift(melody);
+	NaiveSearcher naive(melody);
 
 	if ( show_pm ) {
 		cout << "search " << melody << " for .cont in " << path << "." << endl;
@@ -82,10 +89,10 @@ int main(int argc, char **argv) {
 			cout << "ShiftNFA = " << mshift << endl;
 	}
 
-	if ( verbose_mode == MODE_TEST ) {
-		string s = "12,-=b#+=-b=#+=+-==b==#=+-++==-+--++-+-+==-+-+===-+-b+b+b++=#b--b";
-		long testpos = mmy.run(s.c_str());
-		cout << (mmy.accepting() ? "accept " : "reject ") << testpos << endl;
+	if ( test_mode ) {
+		cout << naive << endl;
+		cout << text << endl;
+		cout << naive.search(text.c_str()) << endl;
 		exit(0);
 	}
 
