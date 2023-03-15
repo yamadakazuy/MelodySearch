@@ -41,39 +41,92 @@ public:
 			pattern.clear();
 			return;
 		}
-		unsigned int i = 0;
-		while (melody[i] != 0) {
-			const char c = melody[i];
-			if ( c == '*' ) {
-				if ( pattern.empty() or ! pattern.back().empty() ) {
-					pattern.push_back("");
-					++size;
-				}
-			} else {
+		stringstream ss(melody);
+		string item;
+		while ( std::getline(ss,item,'*') ) {
+			cout << item << ", ";
+			if ( item.length() == 0 ) {
 				if ( pattern.empty() ) {
-					pattern.push_back("");
+					// empty prefix
+					pattern.push_back(item);
 				}
-				pattern.back() += c;
-				++size;
-			}
-			++i;
+			} else
+				pattern.push_back(item);
 		}
+		if ( melody.back() == '*' and ! pattern.back().empty())
+			pattern.push_back("");
+		cout << endl;
+		for(const auto & s : pattern) {
+			cout << s << ", ";
+		}
+		cout << endl;
 	}
 
 	friend ostream & operator<<(ostream & out, const NaiveSearcher & m) {
 		out << "[";
-		for(unsigned int i = 0; i < m.pattern.size(); ++i) {
-			if ( i != 0 )
-				out << ", ";
-			out << m.pattern[i];
+		if (m.pattern.front().size() == 0 ) {
+			out << "*";
+		} else {
+			out << m.pattern.front();
+		}
+		for(unsigned int i = 1; i < m.pattern.size() - 1; ++i) {
+			out << m.pattern[i] << "*";
+		}
+		if ( m.pattern.back().size() != 0 ) {
+			out << m.pattern.back();
 		}
 		out << "] ";
 		return out;
 	}
 
 
-	long search(const char * text) {
-		return -1;
+	static bool char_match(const char a, const char b) {
+		return a == b;
+	}
+
+	long run(const char * text) {
+		unsigned long pos = 0;
+		unsigned int subid;
+		long match_starts = -1;
+		if ( !pattern.front().empty() ) {
+			if ( std::basic_string_view(text).starts_with(pattern.front()) ) {
+				pos += pattern.front().length();
+				match_starts = 0;
+			} else {
+				//cout << "failed at the non-empty prefix" << endl;
+				//cout << pos << " " << pattern.front() << endl;
+				return -1;
+			}
+		}
+		for( subid = 1; subid < pattern.size() - 1 ; ++subid ) {
+			const string & substr = pattern[subid];
+			for( ; pos < strlen(text); ++pos) {
+				unsigned long shift;
+				bool failed = false;
+				for( shift = 0; shift < substr.length() ; ++shift) {
+					if ( ! char_match(text[pos+shift], substr[shift]) ) {
+						failed = true;
+						break;
+					}
+				}
+				if ( !failed ) {
+					// substr match found.
+					//cout << "(" << pos << ", " << pos+shift << ") ";
+					pos += shift;
+					break;
+				}
+			}
+			if ( ! (pos < strlen(text)) )
+				return -1;
+		}
+		if ( !pattern.back().empty() ) {
+			if ( std::basic_string_view(text + pos).ends_with(pattern.back()) ) {
+				pos += pattern.back().length();
+			}
+			//cout << "failed at the non-empty suffix" << endl;
+			return -1;
+		}
+		return pos;
 	}
 };
 

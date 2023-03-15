@@ -36,9 +36,10 @@ int main(int argc, char **argv) {
 	} verbose_mode = MODE_MODERATE; // 2 で印字出力多め
 
 	enum {
-		PM_MYNFA = 0,
-		PM_SHIFTNFA = 1,
-	} pm = PM_MYNFA; // 2 で印字出力多め
+		PM_NAIVE = 1,
+		PM_MYNFA = 2,
+		PM_SHIFTNFA = 4,
+	} pm = PM_MYNFA;
 
 	bool test_mode = false;
 	bool show_pm = false;
@@ -51,6 +52,8 @@ int main(int argc, char **argv) {
 					verbose_mode = MODE_VERBOSE;
 				} else if (string("-s") == string(argv[i]) ) {
 					verbose_mode = MODE_SILENT;
+				} else if (string("-naive") == string(argv[i]) ) {
+					pm = PM_MYNFA;
 				} else if (string("-my") == string(argv[i]) ) {
 					pm = PM_MYNFA;
 				} else if (string("-shift") == string(argv[i]) ) {
@@ -83,6 +86,8 @@ int main(int argc, char **argv) {
 
 	if ( show_pm ) {
 		cout << "search " << melody << " for .cont in " << path << "." << endl;
+		if ( pm == PM_NAIVE )
+			cout << "Naive = " << naive << endl;
 		if ( pm == PM_MYNFA )
 			cout << "NFA = " << mmy << endl;
 		if ( pm == PM_SHIFTNFA )
@@ -92,7 +97,7 @@ int main(int argc, char **argv) {
 	if ( test_mode ) {
 		cout << naive << endl;
 		cout << text << endl;
-		cout << naive.search(text.c_str()) << endl;
+		cout << naive.run(text.c_str()) << endl;
 		exit(0);
 	}
 
@@ -115,9 +120,11 @@ int main(int argc, char **argv) {
 			while(std::getline(ifs, chnum, ',') ) {
 				std::getline(ifs, track);
 				bytecounter += track.length();
-				if ( pm == PM_MYNFA ) {
+				if ( pm == PM_NAIVE ) {
+					pos = naive.run(track.c_str());
+				} else if ( pm == PM_MYNFA ) {
 					pos = mmy.run(track.c_str());
-				} else { //if ( pm == PM_SHIFTNFA ) {
+				} else if ( pm == PM_SHIFTNFA ) {
 					pos = mshift.run(track.c_str());
 				}
 				if ( pos >= 0 ){
