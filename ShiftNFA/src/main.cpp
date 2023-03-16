@@ -26,7 +26,8 @@ using namespace std;
 
 int main(int argc, char **argv) {
 
-	string path = "", melody = "", text;
+	string path = "", melody = "", text = "default";
+	int argstrc = 0;
 
 	enum {
 		MODE_SILENT = 0,
@@ -64,14 +65,18 @@ int main(int argc, char **argv) {
 					test_mode = true;
 				}
 			} else {
-				if (path.length() == 0)
+				//cout << argstrc << ": " << argv[i] << endl;
+				if ( argstrc == 0 ) {
 					path = argv[i];
-				else if ( melody.length() == 0 )
+				} else if ( argstrc == 1 ) {
 					melody = argv[i];
-				else
+				} else if (argstrc == 2 ) {
+					cout << "text" << endl;
 					text = argv[i];
+				}
+				++argstrc;
 			}
-		++i;
+			++i;
 		}
 	}
 
@@ -95,7 +100,7 @@ int main(int argc, char **argv) {
 	}
 
 	if ( test_mode ) {
-		cout << text << endl;
+		cout << "text = " << text << endl;
 		if ( pm == PM_NAIVE )
 			cout << "Naive " << naive.run(text.c_str()) << endl;
 		if ( pm == PM_MYNFA )

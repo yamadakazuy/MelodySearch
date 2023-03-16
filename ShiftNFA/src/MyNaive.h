@@ -55,6 +55,26 @@ private:
 		return false;
 	}
 
+	static long find(const char * text, const char * str, const long & startpos) {
+		long pos = startpos;
+		for( ; text[pos] != 0 ; ++pos ) {
+			long offset;
+			bool failed = false;
+			for(offset = 0; str[offset] != 0 ; ++offset) {
+				if ( char_match(text[pos+offset], str[offset]) )
+					continue;
+				failed = true;
+				break;
+			}
+			if ( failed ) {
+				// failed.
+				continue;
+			}
+			return pos;
+		}
+		return -1;
+	}
+
 public:
 	NaiveSearcher(const string & melody) {
 		size = 0;
@@ -103,46 +123,33 @@ public:
 	}
 
 	long run(const char * text) {
-		unsigned long pos = 0;
+		long pos = 0;
 		unsigned int subid;
 		//long match_starts = -1;
 		if ( !pattern.front().empty() ) {
 			if ( std::basic_string_view(text).starts_with(pattern.front()) ) {
 				pos += pattern.front().length();
-				match_starts = 0;
+				//match_starts = 0;
 			} else {
-				//cout << "failed at the non-empty prefix" << endl;
+				cout << "failed at the non-empty prefix" << endl;
 				//cout << pos << " " << pattern.front() << endl;
 				return -1;
 			}
 		}
 		for( subid = 1; subid < pattern.size() - 1 ; ++subid ) {
 			const string & substr = pattern[subid];
-			for( ; pos < strlen(text); ++pos) {
-				unsigned long shift;
-				bool failed = false;
-				for( shift = 0; shift < substr.length() ; ++shift) {
-					if ( ! char_match(text[pos+shift], substr[shift]) ) {
-						failed = true;
-						break;
-					}
-				}
-				if ( !failed ) {
-					// substr match found.
-					//cout << "(" << pos << ", " << pos+shift << ") ";
-					pos += shift;
-					break;
-				}
-			}
-			if ( ! (pos < strlen(text)) )
+			pos = find(text, substr.c_str(), pos);
+			if ( pos == -1 )
 				return -1;
+			pos += substr.length();
 		}
 		if ( !pattern.back().empty() ) {
 			if ( std::basic_string_view(text + pos).ends_with(pattern.back()) ) {
 				pos += pattern.back().length();
+			} else {
+				cout << "failed at the non-empty suffix" << endl;
+				return -1;
 			}
-			//cout << "failed at the non-empty suffix" << endl;
-			return -1;
 		}
 		return pos-1;
 	}
