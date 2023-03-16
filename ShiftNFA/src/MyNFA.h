@@ -44,13 +44,13 @@ private:
 	bset64  initials; 								/* 初期状態 */
 	bset64 finals;			 					/* 最終状態 */
 	unsigned int size;
-	string pattern;
 	bset64 current;                           /* 現在の状態の集合　*/
+	bool suffix_dontcare;
 
 public:
 	/* パターン文字列から nfa を初期化 */
 	MyNFA(const string & melody) {
-		pattern = "";
+		string pattern = "";
 		size = 0;
 		for(const char & c : melody) {
 			if ( c != '*' ) {
@@ -105,6 +105,7 @@ public:
 				++pos;
 			}
 		}
+		suffix_dontcare = (( pattern.back() == '*' ) ? true : false);
 	}
 
 	friend std::ostream & operator<<(std::ostream & out, const MyNFA & m) {
@@ -123,8 +124,7 @@ public:
 				}
 			}
 		}
-		out << "nfa(" << m.pattern << ", " << endl;
-		out << "states = " << states.str() << endl;
+		out << "nfa(" << "states = " << states.str() << endl;
 		out << "alphabet = {";
 		int count = 0;
 		for(unsigned int i = 0; i < ALPHABET_LIMIT; ++i) {
@@ -186,15 +186,14 @@ public:
 	}
 
 	long int run(const char * inputstr) {
-		bool interrupt = pattern.back() == '*';
-		long long pos = 0;
+		long pos = 0;
 
 		reset();
 		//std::cout << current.str() ;
 		for (const char * ptr = inputstr; *ptr; ++ptr) {
 			transfer(*ptr);
 			//std::cout << "-" << char(*ptr) << "["<< pos << "]" << "-> "<< current.str() ;
-			if ( interrupt and accepting() ) break;
+			if ( suffix_dontcare and accepting() ) break;
 			pos++;
 		}
 		//std::cout << endl;

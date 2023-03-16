@@ -34,6 +34,27 @@ private:
 	vector<string> pattern; // the first and last strings are prefix and suffix.
 	unsigned int size;
 
+	static constexpr char alphabet[] = "#+-=b";
+	static bool char_match(const char a, const char b) {
+		if ( a == b )
+			return true;
+		if ( a == '^' ) {
+			if ( b == '+' or b == '#')
+				return true;
+		} else if ( a == '_' ) {
+			if ( b == '-' or b == 'b')
+				return true;
+		}
+		if ( b == '^' ) {
+			if ( a == '+' or a == '#')
+				return true;
+		} else if ( b == '_' ) {
+			if ( a == '-' or a == 'b')
+				return true;
+		}
+		return false;
+	}
+
 public:
 	NaiveSearcher(const string & melody) {
 		size = 0;
@@ -44,7 +65,7 @@ public:
 		stringstream ss(melody);
 		string item;
 		while ( std::getline(ss,item,'*') ) {
-			cout << item << ", ";
+			//cout << item << ", ";
 			if ( item.length() == 0 ) {
 				if ( pattern.empty() ) {
 					// empty prefix
@@ -55,11 +76,13 @@ public:
 		}
 		if ( melody.back() == '*' and ! pattern.back().empty())
 			pattern.push_back("");
-		cout << endl;
+		//cout << endl;
+		/*
 		for(const auto & s : pattern) {
 			cout << s << ", ";
 		}
 		cout << endl;
+		*/
 	}
 
 	friend ostream & operator<<(ostream & out, const NaiveSearcher & m) {
@@ -79,15 +102,10 @@ public:
 		return out;
 	}
 
-
-	static bool char_match(const char a, const char b) {
-		return a == b;
-	}
-
 	long run(const char * text) {
 		unsigned long pos = 0;
 		unsigned int subid;
-		long match_starts = -1;
+		//long match_starts = -1;
 		if ( !pattern.front().empty() ) {
 			if ( std::basic_string_view(text).starts_with(pattern.front()) ) {
 				pos += pattern.front().length();
@@ -126,7 +144,7 @@ public:
 			//cout << "failed at the non-empty suffix" << endl;
 			return -1;
 		}
-		return pos;
+		return pos-1;
 	}
 };
 

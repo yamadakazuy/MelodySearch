@@ -28,7 +28,7 @@ private:
 	static constexpr unsigned int STATE_LIMIT = 64;
 	/* =,+,-,#,b のアスキーコードを含む範囲 */
 	static constexpr unsigned int ALPHABET_LIMIT = 128;
-	static constexpr char alphabet[] = "#+-,=b";
+	static constexpr char alphabet[] = "#+-=b";
 
 	/* 定数 */
 	/* 状態は 数字，英大文字を含む空白 (0x20) から _ (0x5f) までの一文字 */
@@ -47,11 +47,12 @@ private:
 	bset64 initials;
 	bset64 finals;			 					/* 最終状態 */
 	int size;
-	string pattern;
 	bset64 current;                           /* 現在の状態の集合　*/
+	bool suffix_dontcare;
 
 public:
 	ShiftNFA(const string & melody) : initials(0), finals(0), current(0) {
+		string pattern = "";
 		initials.set(0);
 		size = 0;
 		for(const char & c : melody) {
@@ -65,12 +66,13 @@ public:
 			}
 		}
 		finals.set(size);
-		define();
+		define(pattern);
+		suffix_dontcare = (( pattern.back() == '*' ) ? true : false);
 	}
 
 
 	/* 文字列から nfa を初期化 */
-	void define() {
+	void define(const string & pattern) {
 		/* データ構造の初期化 */
 
 		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
@@ -109,7 +111,7 @@ public:
 		for(unsigned int ascii = 0; ascii < ALPHABET_LIMIT; ++ascii) {
 			allstates |= m.advancebits[ascii];
 		}
-		out << "ShiftNFA(" << m.pattern << ", states = " << allstates.str() << ", " << endl;
+		out << "ShiftNFA(" << "states = " << allstates.str() << ", " << endl;
 		cout << "delta = " << endl;
 		out << "state symbol| next" << endl;
 		out << "------------+------" << endl;
@@ -158,12 +160,11 @@ public:
 	}
 
 	long run(const char * inputstr) {
-		bool interrupt = pattern.back() == '*';
-		long long pos = 0;
+		long pos = 0;
 		reset();
 		for (const char * ptr = inputstr ; *ptr; ++ptr) {
 			transfer(*ptr);
-			if ( interrupt and accepting() )
+			if ( suffix_dontcare and accepting() )
 				break;
 			++pos;
 		}

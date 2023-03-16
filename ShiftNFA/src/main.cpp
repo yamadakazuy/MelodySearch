@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
 				} else if (string("-s") == string(argv[i]) ) {
 					verbose_mode = MODE_SILENT;
 				} else if (string("-naive") == string(argv[i]) ) {
-					pm = PM_MYNFA;
+					pm = PM_NAIVE;
 				} else if (string("-my") == string(argv[i]) ) {
 					pm = PM_MYNFA;
 				} else if (string("-shift") == string(argv[i]) ) {
@@ -95,9 +95,13 @@ int main(int argc, char **argv) {
 	}
 
 	if ( test_mode ) {
-		cout << naive << endl;
 		cout << text << endl;
-		cout << naive.run(text.c_str()) << endl;
+		if ( pm == PM_NAIVE )
+			cout << "Naive " << naive.run(text.c_str()) << endl;
+		if ( pm == PM_MYNFA )
+			cout << "MyNFA " << mmy.run(text.c_str()) << endl;
+		if ( pm == PM_SHIFTNFA )
+			cout << "ShiftNFA " << mshift.run(text.c_str()) << endl;
 		exit(0);
 	}
 
