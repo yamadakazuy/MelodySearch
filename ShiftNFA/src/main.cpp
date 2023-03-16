@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
 			filecounter ++;
 			ifstream ifs(entry.path().string());
 			auto start_search = chrono::system_clock::now(); // 計測開始時刻
-			long pos;
+			long pos = -1;
 			string chnum, track;
 			while(std::getline(ifs, chnum, ',') ) {
 				std::getline(ifs, track);
