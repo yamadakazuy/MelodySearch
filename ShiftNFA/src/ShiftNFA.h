@@ -159,11 +159,11 @@ public:
 		return (finals & current) != 0;
 	}
 
-	long run(const char * inputstr) {
+	long run(const string & inputstr) {
 		long pos = 0;
 		reset();
-		for (const char * ptr = inputstr ; *ptr; ++ptr) {
-			transfer(*ptr);
+		for (auto itr = inputstr.begin() ; itr != inputstr.end(); ++itr) {
+			transfer(*itr);
 			if ( suffix_dontcare and accepting() )
 				break;
 			++pos;

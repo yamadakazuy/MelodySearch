@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <cstring>
 #include <vector>
 
@@ -31,10 +32,11 @@ using std::string;
 
 struct NaiveSearcher {
 private:
-	vector<string> pattern; // the first and last strings are prefix and suffix.
+	vector<string> pattern; // store the pattern in normalized form. the first one is prefix, the last one is suffix.
 	unsigned int size;
 
 	static constexpr char alphabet[] = "#+-=b";
+
 	static bool char_match(const char a, const char b) {
 		if ( a == b )
 			return true;
@@ -55,22 +57,36 @@ private:
 		return false;
 	}
 
-	static long find(const char * text, const char * str, const long & startpos) {
-		long pos = startpos;
-		for( ; text[pos] != 0 ; ++pos ) {
-			long offset;
-			bool failed = false;
-			for(offset = 0; str[offset] != 0 ; ++offset) {
-				if ( char_match(text[pos+offset], str[offset]) )
-					continue;
-				failed = true;
-				break;
+	static long prefix_match(const string & a, const string & b) {
+		unsigned long pos;
+		for(pos = 0; pos < a.length() and pos < b.length(); ++pos) {
+			if ( ! char_match(a[pos], b[pos]) )
+				return -1;
+		}
+		return pos;
+	}
+
+	static long suffix_match(const string & a, const string & b) {
+		unsigned long pos, ia, ib;
+		for(pos = 0, ia = a.length() - 1, ib = b.length() - 1; pos < a.length() and pos < b.length();
+				++pos, --ia, --ib) {
+			if ( ! char_match(a[ia], b[ib]) )
+				return -1;
+		}
+		return pos;
+	}
+
+	static long find_substr(const string & t, const string & s, const long & start, const long & end) {
+		unsigned long pos, count;
+		if ( start >= t.length() - s.length() + 1)
+			return -1;
+		for(pos = start; pos < end - s.length() + 1; ++pos) {
+			for(count = 0; count < s.length(); ++count) {
+				if ( ! char_match(t[pos+count], s[count]) )
+					break;
 			}
-			if ( failed ) {
-				// failed.
-				continue;
-			}
-			return pos;
+			if ( count == s.length() )
+				return pos;
 		}
 		return -1;
 	}
@@ -78,80 +94,88 @@ private:
 public:
 	NaiveSearcher(const string & melody) {
 		size = 0;
-		if ( melody.length() == 0 ) {
-			pattern.clear();
+
+		if ( melody.length() == 0 )
 			return;
-		}
-		stringstream ss(melody);
-		string item;
-		while ( std::getline(ss,item,'*') ) {
-			//cout << item << ", ";
-			if ( item.length() == 0 ) {
-				if ( pattern.empty() ) {
-					// empty prefix
-					pattern.push_back(item);
-				}
-			} else
-				pattern.push_back(item);
-		}
-		if ( melody.back() == '*' and ! pattern.back().empty())
+
+		if ( melody.front() == '*' )
 			pattern.push_back("");
-		//cout << endl;
-		/*
-		for(const auto & s : pattern) {
-			cout << s << ", ";
+		ostringstream ss;
+		for(const auto & ch : melody) {
+			if ( ch == '*' and ss.str().length() > 0 ) {
+				pattern.push_back(ss.str()); // new substring segment
+				ss.str("");
+				ss.clear();
+			} else if ( ch != '*' ) {
+				ss <<  ch;
+			}
 		}
-		cout << endl;
-		*/
+		pattern.push_back(ss.str());
 	}
 
 	friend ostream & operator<<(ostream & out, const NaiveSearcher & m) {
 		out << "[";
-		if (m.pattern.front().size() == 0 ) {
-			out << "*";
-		} else {
-			out << m.pattern.front();
-		}
-		for(unsigned int i = 1; i < m.pattern.size() - 1; ++i) {
+		if ( m.pattern.front().length() > 0 )
+			out <<  m.pattern.front();
+		out << "*";
+		for (unsigned int i = 1; i < m.pattern.size() - 1 ; ++i) {
 			out << m.pattern[i] << "*";
 		}
-		if ( m.pattern.back().size() != 0 ) {
-			out << m.pattern.back();
-		}
+		if ( m.pattern.back().length() > 0 )
+			out <<  m.pattern.back();
 		out << "] ";
 		return out;
 	}
 
-	long run(const char * text) {
-		long pos = 0;
-		unsigned int subid;
-		//long match_starts = -1;
-		if ( !pattern.front().empty() ) {
-			if ( std::basic_string_view(text).starts_with(pattern.front()) ) {
-				pos += pattern.front().length();
-				//match_starts = 0;
+
+	long run(const string & text) const { return search(text); }
+
+	long search(const string & text) const {
+		unsigned long textpos = 0;
+		unsigned long textend = text.length();
+
+		if ( text.empty() )
+			return -1;
+		if ( pattern.empty() )
+			return textpos;
+		//cout << "non empty" << endl;
+
+		// process prefix
+		if ( pattern.front().length() > 0 ) {
+			if ( prefix_match(text, pattern.front()) == -1 )
+				return -1;
+			textpos += pattern.front().length();
+		}
+
+		// process suffix
+		if ( pattern.back().length() > 0 ) {
+			if ( ! suffix_match(text, pattern.back()) )
+				return -1;
+			textend -= pattern.back().length();
+		}
+
+		//cout << "text end " << text_end << " patt_end " << patt_end << endl;
+		unsigned int segid;
+		for(segid = 1; segid < pattern.size() - 1; ++segid) {
+			cout << segid << " " << pattern[segid] << " text = " << text << endl;
+			long pos = find_substr(text, pattern[segid], textpos, textend);
+			if ( pos != -1 ) {
+				textpos = pos + pattern[segid].length();
+				cout << " pos = " << pos << endl;
+				continue;
 			} else {
-				cout << "failed at the non-empty prefix" << endl;
-				//cout << pos << " " << pattern.front() << endl;
-				return -1;
+				cout << " npos = " << pos << endl;
+				break;
 			}
+
 		}
-		for( subid = 1; subid < pattern.size() - 1 ; ++subid ) {
-			const string & substr = pattern[subid];
-			pos = find(text, substr.c_str(), pos);
-			if ( pos == -1 )
-				return -1;
-			pos += substr.length();
-		}
-		if ( !pattern.back().empty() ) {
-			if ( std::basic_string_view(text + pos).ends_with(pattern.back()) ) {
-				pos += pattern.back().length();
-			} else {
-				cout << "failed at the non-empty suffix" << endl;
-				return -1;
-			}
-		}
-		return pos-1;
+		cout << " segid " << segid << endl;
+
+		if ( segid != pattern.size() - 1 )
+			return -1;
+		if (pattern.back().length() > 0 )
+			return text.length() - 1;
+		return textpos - 1;
 	}
 };
 

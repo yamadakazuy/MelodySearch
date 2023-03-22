@@ -185,13 +185,13 @@ public:
 		return (finals & current) != 0;
 	}
 
-	long int run(const char * inputstr) {
+	long int run(const string & inputstr) {
 		long pos = 0;
 
 		reset();
 		//std::cout << current.str() ;
-		for (const char * ptr = inputstr; *ptr; ++ptr) {
-			transfer(*ptr);
+		for (auto itr = inputstr.begin(); itr != inputstr.end(); ++itr) {
+			transfer(*itr);
 			//std::cout << "-" << char(*ptr) << "["<< pos << "]" << "-> "<< current.str() ;
 			if ( suffix_dontcare and accepting() ) break;
 			pos++;

@@ -45,38 +45,42 @@ int main(int argc, char **argv) {
 	bool test_mode = false;
 	bool show_pm = false;
 	if (argc >= 3) {
-		int i = 1;
-		while (i < argc) {
+		for (int i = 1 ; i < argc; ++i) {
 			//cout << argv[i] << endl;
 			if ( string(argv[i]).starts_with('-') ) {
 				if (string("-v") == string(argv[i]) ) {
 					verbose_mode = MODE_VERBOSE;
+					continue;
 				} else if (string("-s") == string(argv[i]) ) {
 					verbose_mode = MODE_SILENT;
+					continue;
 				} else if (string("-naive") == string(argv[i]) ) {
 					pm = PM_NAIVE;
+					continue;
 				} else if (string("-my") == string(argv[i]) ) {
 					pm = PM_MYNFA;
+					continue;
 				} else if (string("-shift") == string(argv[i]) ) {
 					pm = PM_SHIFTNFA;
+					continue;
 				} else if (string("-show") == string(argv[i]) ) {
 					show_pm = true;
+					continue;
 				} else if (string("-test") == string(argv[i]) ) {
 					test_mode = true;
+					continue;
 				}
-			} else {
-				//cout << argstrc << ": " << argv[i] << endl;
-				if ( argstrc == 0 ) {
-					path = argv[i];
-				} else if ( argstrc == 1 ) {
-					melody = argv[i];
-				} else if (argstrc == 2 ) {
-					cout << "text" << endl;
-					text = argv[i];
-				}
-				++argstrc;
 			}
-			++i;
+			//cout << argstrc << ": " << argv[i] << endl;
+			if ( argstrc == 0 ) {
+				path = argv[i];
+			} else if ( argstrc == 1 ) {
+				melody = argv[i];
+			} else if (argstrc == 2 ) {
+				cout << "text" << endl;
+				text = argv[i];
+			}
+			++argstrc;
 		}
 	}
 
@@ -128,13 +132,14 @@ int main(int argc, char **argv) {
 			string chnum, track;
 			while(std::getline(ifs, chnum, ',') ) {
 				std::getline(ifs, track);
+				cout << " track length = " << track.length() << endl;
 				bytecounter += track.length();
 				if ( pm == PM_NAIVE ) {
-					pos = naive.run(track.c_str());
+					pos = naive.run(track);
 				} else if ( pm == PM_MYNFA ) {
-					pos = mmy.run(track.c_str());
+					pos = mmy.run(track);
 				} else if ( pm == PM_SHIFTNFA ) {
-					pos = mshift.run(track.c_str());
+					pos = mshift.run(track);
 				}
 				if ( pos >= 0 ){
 					if ( verbose_mode != MODE_SILENT ) {
