@@ -157,19 +157,19 @@ public:
 		//cout << "text end " << text_end << " patt_end " << patt_end << endl;
 		unsigned int segid;
 		for(segid = 1; segid < pattern.size() - 1; ++segid) {
-			cout << segid << " " << pattern[segid] << " text = " << text << endl;
+			//cout << segid << " " << pattern[segid] << " text = " << text << endl;
 			long pos = find_substr(text, pattern[segid], textpos, textend);
 			if ( pos != -1 ) {
 				textpos = pos + pattern[segid].length();
-				cout << " pos = " << pos << endl;
+				//cout << " pos = " << pos << endl;
 				continue;
 			} else {
-				cout << " npos = " << pos << endl;
+				//cout << " npos = " << pos << endl;
 				break;
 			}
 
 		}
-		cout << " segid " << segid << endl;
+		//cout << " segid " << segid << endl;
 
 		if ( segid != pattern.size() - 1 )
 			return -1;

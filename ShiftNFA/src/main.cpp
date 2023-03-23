@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
 			string chnum, track;
 			while(std::getline(ifs, chnum, ',') ) {
 				std::getline(ifs, track);
-				cout << " track length = " << track.length() << endl;
+				//cout << " track length = " << track.length() << endl;
 				bytecounter += track.length();
 				if ( pm == PM_NAIVE ) {
 					pos = naive.run(track);
