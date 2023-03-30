@@ -57,30 +57,28 @@ private:
 		return false;
 	}
 
-	static long prefix_match(const string & a, const string & b) {
-		unsigned long len;
-		for(len = 0; len < a.length() and len < b.length(); ++len) {
-			if ( ! char_match(a[len], b[len]) )
-				return -1;
-		}
-		return len;
-	}
-
-	static long suffix_match(const string & a, const string & b) {
-		unsigned long len, ia = a.length(), ib = b.length();
-		for(len = 0; len < a.length() and len < b.length(); ++len) {
+	static long suffix_match(const string & txt, const string & suff) {
+		unsigned long len, ia = txt.length(), ib = suff.length();
+		if ( ia < ib )
+			return -1;
+		for(len = 0; len < suff.length(); ++len) {
 			--ia, --ib;
-			if ( ! char_match(a[ia], b[ib]) )
+			if ( ! char_match(txt[ia], suff[ib]) )
 				return -1;
 		}
 		return (long) len;
 	}
 
-	static long find_substr(const string & txt, const string & sub, const unsigned long & start, const unsigned long & end) {
+	static long substr_match(const string & txt, const unsigned long & start, const unsigned long & end, const string & sub) {
 		unsigned long pos, len;
 		for(pos = start; pos < end; ++pos) {
 			for(len = 0; len < sub.length(); ++len) {
-				if ( !(pos + len < end) or ! char_match(txt[pos+len], sub[len]) )
+				// test sub[0, len+1)
+				if ( !(pos + len < end) ) {
+					// abandon if txt[pos,end) is already shorter than sub.length()
+					return -1;
+				}
+				if ( ! char_match(txt[pos+len], sub[len]) )
 					break;
 			}
 			if ( len == sub.length() )
@@ -140,7 +138,7 @@ public:
 
 		// process prefix
 		if ( pattern.front().length() > 0 ) {
-			if ( prefix_match(text, pattern.front()) == -1 )
+			if ( substr_match(text, 0, pattern.front().length(), pattern.front()) == -1 )
 				return -1;
 			textpos += pattern.front().length();
 		}
@@ -156,7 +154,7 @@ public:
 		unsigned int segid;
 		for(segid = 1; segid < pattern.size() - 1; ++segid) {
 			//cout << segid << " " << pattern[segid] << " text = " << text << endl;
-			long pos = find_substr(text, pattern[segid], textpos, textend);
+			long pos = substr_match(text, textpos, textend, pattern[segid]);
 			if ( pos != -1 ) {
 				textpos = pos + pattern[segid].length();
 				//cout << " pos = " << pos << endl;
