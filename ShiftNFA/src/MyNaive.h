@@ -58,34 +58,32 @@ private:
 	}
 
 	static long prefix_match(const string & a, const string & b) {
-		unsigned long pos;
-		for(pos = 0; pos < a.length() and pos < b.length(); ++pos) {
-			if ( ! char_match(a[pos], b[pos]) )
+		unsigned long len;
+		for(len = 0; len < a.length() and len < b.length(); ++len) {
+			if ( ! char_match(a[len], b[len]) )
 				return -1;
 		}
-		return pos;
+		return len;
 	}
 
 	static long suffix_match(const string & a, const string & b) {
-		unsigned long pos, ia, ib;
-		for(pos = 0, ia = a.length() - 1, ib = b.length() - 1; pos < a.length() and pos < b.length();
-				++pos, --ia, --ib) {
+		unsigned long len, ia = a.length(), ib = b.length();
+		for(len = 0; len < a.length() and len < b.length(); ++len) {
+			--ia, --ib;
 			if ( ! char_match(a[ia], b[ib]) )
 				return -1;
 		}
-		return pos;
+		return (long) len;
 	}
 
-	static long find_substr(const string & t, const string & s, const long & start, const long & end) {
-		unsigned long pos, count;
-		if ( start >= t.length() - s.length() + 1)
-			return -1;
-		for(pos = start; pos < end - s.length() + 1; ++pos) {
-			for(count = 0; count < s.length(); ++count) {
-				if ( ! char_match(t[pos+count], s[count]) )
+	static long find_substr(const string & txt, const string & sub, const unsigned long & start, const unsigned long & end) {
+		unsigned long pos, len;
+		for(pos = start; pos < end; ++pos) {
+			for(len = 0; len < sub.length(); ++len) {
+				if ( !(pos + len < end) or ! char_match(txt[pos+len], sub[len]) )
 					break;
 			}
-			if ( count == s.length() )
+			if ( len == sub.length() )
 				return pos;
 		}
 		return -1;
