@@ -57,18 +57,28 @@ private:
 		return false;
 	}
 
+	// return the start position of suff in txt
+	// returns -1 if otherwise
 	static long suffix_match(const string & txt, const string & suff) {
+		//cout << txt << " == " << suff << " ?" << endl;
 		unsigned long len, ia = txt.length(), ib = suff.length();
 		if ( ia < ib )
 			return -1;
 		for(len = 0; len < suff.length(); ++len) {
 			--ia, --ib;
-			if ( ! char_match(txt[ia], suff[ib]) )
+			if ( ! char_match(txt[ia], suff[ib]) ) {
+				//cout << " failed " << endl;
 				return -1;
+			}
 		}
-		return (long) len;
+		//cout <<  len <<endl;
+		if ( len == suff.length() )
+			return (long) ia;
+		return -1;
 	}
 
+	// find the start position of sub in txt from start to end - 1
+	// returns -1 if there is no such poisition
 	static long substr_match(const string & txt, const unsigned long & start, const unsigned long & end, const string & sub) {
 		unsigned long pos, len;
 		for(pos = start; pos < end; ++pos) {
@@ -127,8 +137,8 @@ public:
 	long run(const string & text) const { return search(text); }
 
 	long search(const string & text) const {
-		unsigned long textpos = 0;
-		unsigned long textend = text.length();
+		long textpos = 0;
+		long textend = text.length();
 
 		if ( text.empty() )
 			return -1;
@@ -138,16 +148,17 @@ public:
 
 		// process prefix
 		if ( pattern.front().length() > 0 ) {
-			if ( substr_match(text, 0, pattern.front().length(), pattern.front()) == -1 )
+			long pos = substr_match(text, 0, pattern.front().length(), pattern.front());
+			if ( pos != 0 )
 				return -1;
-			textpos += pattern.front().length();
+			textpos = pattern.front().length();
 		}
 
 		// process suffix
 		if ( pattern.back().length() > 0 ) {
-			if ( ! suffix_match(text, pattern.back()) )
+			textend = suffix_match(text, pattern.back());
+			if ( textend == -1 )
 				return -1;
-			textend -= pattern.back().length();
 		}
 
 		//cout << "text end " << text_end << " patt_end " << patt_end << endl;
@@ -170,7 +181,7 @@ public:
 		if ( segid != pattern.size() - 1 )
 			return -1;
 		if (pattern.back().length() > 0 )
-			return text.length() - 1;
+			return text.length();
 		return textpos - 1;
 	}
 };
