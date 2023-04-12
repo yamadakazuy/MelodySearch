@@ -24,12 +24,11 @@ for prog, exe in programs.items():
         print(pat, end='\t')
         hist = []
         for i in range(10):
-            #cmd = ["C:/Users/ayane/Documents/MelodySearch/MyNFA2/Debug/MyNFA2.exe", folder , pat]
-            #cmd = ["C:/Users/ayane/Documents/MelodySearch/MyFirst2/Debug/MyFirst2.exe", folder , pat]
             cmd = [exe,folder, pat]
+            #print(cmd)
             result = subprocess.run(cmd, stdout=subprocess.PIPE , stderr=subprocess.PIPE ,encoding="utf-8")
     
-            # print(result.stdout.split('\n'))
+            #print(result.stdout.split('\n'))
             if i == 0:
                 print(result.stdout.split('\n')[-3].split(' ')[2] + '\t', end='')
             hist.append(int(result.stdout.split('\n')[-2].split(' ')[2]))
