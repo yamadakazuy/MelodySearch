@@ -213,7 +213,7 @@ class score {
 	std::vector<std::vector<smf::event>> tracks;
 
 public:
-	score() :  smfformat(0), ntracks(0), division(0), tracks(0) {}
+	score() :  smfformat(0), ntracks(0), division(0), tracks() {}
 	score(std::istream & smffile);
 	/*
 	score(std::istream & smffile) {
@@ -251,10 +251,16 @@ public:
 	}
 	*/
 
-	bool empty(void) const {
-		if ( ntracks != 0 )
-			return true;
-		return false;
+	void clear() {
+		for(unsigned int i = 0; i < tracks.size(); ++i) {
+			tracks[i].clear();
+		}
+		tracks.clear();
+		smfformat = 0, ntracks = 0, division = 0;
+	}
+
+	bool is_empty(void) const {
+		return  ntracks == 0;
 	}
 
 	uint16_t format() const {
@@ -290,6 +296,7 @@ public:
 	friend std::ostream & operator<<(std::ostream & out, const score & midi) {
 		out << "smf";
 		out << "(header: format = " << std::dec << midi.format() << ", ntracks = " << midi.noftracks() << ", resolution = " << midi.resolution() << ") ";
+		/*
 		for(uint16_t i = 0; i < midi.noftracks() ; ++i) {
 			out << std::endl << "track " << std::dec << i << ": ";
 			for(auto e = midi.tracks[i].cbegin(); e != midi.tracks[i].end() ; ++e) {
@@ -297,6 +304,7 @@ public:
 			}
 
 		}
+		*/
 		out << std::endl;
 		return out;
 	}

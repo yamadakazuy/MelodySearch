@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <iomanip>
 #include <vector>
 
 //C++17
@@ -18,30 +19,32 @@ using std::endl;
 using std::cerr;
 using std::vector;
 
-char contour(const int & noteprev, const int & notenum) {
-	if ( noteprev == -1 ) {
-		return '0';
-	} else if ( notenum == noteprev ) {
+char contour(const int & diff) {
+	switch(diff) {
+	case 0:
 		return '=';
-	} else if ( notenum == noteprev + 1 ) {
+	case 1:
 		return '#';
-	} else if ( notenum + 1 == noteprev ) {
+	case -1:
 		return 'b';
-	} else if ( notenum > noteprev ) {
-		return '+';
-	} else if ( notenum < noteprev ) {
-		return '-';
-	} else {
-		return '?';
 	}
+	if ( diff > 1 ) {
+		return '+';
+	} else if ( diff < -1 ) {
+		return '-';
+	}
+	return '0'; //　This should never happen.
 }
 
-bool fileout_contour(const smf::score & midi, const string & filename) {
+bool fileout_score(const smf::score & midi, const string & filename) {
+	// read smf::score as noteseq
+	//cerr << endl << "fileout_score " << filename << endl;
 	vector<smf::note> noteseq[16];
 	for(int i = 0; i < 16; ++i) {
 		noteseq[i].clear();
 	}
 
+	cout << " converting.." << std::flush;
 	for(const auto & a_note : midi.notes() ) {
 		int nn = int(a_note.number);
 		int ch = int(a_note.channel);
@@ -56,30 +59,26 @@ bool fileout_contour(const smf::score & midi, const string & filename) {
 		}
 	}
 
-	std::ostringstream filenamess;
+	cout << ". " << std::flush;
+	// fileout noteseq
+	std::ofstream out(filename, std::ios::out);
+	if ( ! out ) {
+		cerr << filename << " オープン失敗!!!" << endl;
+		return false;
+	}
 	for(int ch = 0; ch < 16; ++ch) {
 		if ( ch == 9 or noteseq[ch].empty() ) {
-			// skip the rhythm box channel and an empty channel.
+			// skip the rhythm box channel and empty channels.
 			continue;
 		}
-		filenamess.str("");
-		filenamess.clear();
-		filenamess << filename << "_" << std::setw(2) << std::setfill('0') << std::dec << (ch+1) << ".cont";
-		//cout << outfilenamess.str() << endl;
-		std::ofstream out(filenamess.str(), std::ios::out);
-		if ( ! out ) {
-			cerr << filenamess.str() << " オープン失敗!!!" << endl;
-			return false;
+		out << int(ch) << ",";
+		for(unsigned int i = 1; i < noteseq[ch].size(); ++i) {
+			out << contour(noteseq[ch][i].number - noteseq[ch][i-1].number);
 		}
-		for(unsigned int i = 0; i < noteseq[ch].size(); ++i) {
-			if ( i == 0 ) {
-				out << "0";
-			} else {
-				out << contour(noteseq[ch][i-1].number, noteseq[ch][i].number);
-			}
-		}
-		out.close();
+		out << endl;
 	}
+	out.close();
+
 	return true;
 }
 
@@ -120,14 +119,15 @@ int main(int argc, char **argv) {
 
 			smf::score midi(input);
 			input.close();
-			if ( ! midi.empty() ) {
+			if ( midi.is_empty() ) {
 				std::cerr << "Reading SMF failed. Skip." << std::endl;
 				continue;
 			}
+			cout << midi << endl;
 			std::filesystem::path outpath(entry.path());
-			outpath.replace_extension("");
-			cout << " melodic contour written to " << outpath.filename() << ".xx.cont";
-			if ( fileout_contour(midi, outpath.string() ) ) {
+			outpath.replace_extension(".cont");
+			cout << " writing melodic contour into " << outpath.string();
+			if ( fileout_score(midi, outpath.string()) ) {
 				cout << ", done." << endl;
 			} else {
 				cout << " conversion failed." << endl;
