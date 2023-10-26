@@ -1,5 +1,6 @@
 #PROJECT_ROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-CXX = g++ -std=c++17 -Wall 
+CXX = /usr/bin/g++ -std=c++17 -Wall 
+CC = /usr/bin/gcc
 
 CFLAGS += -O0
 CXXFLAGS +=  -I./
