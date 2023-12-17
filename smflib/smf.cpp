@@ -506,6 +506,7 @@ std::vector<smf::note> smf::score::notes() const {
 			} else if ( evt.isNoteOff() ) {
 				if ( emu[evt.channel()].key[evt.notenumber()].noteon ) {
 					const uint64_t & idx = emu[evt.channel()].key[evt.notenumber()].index;
+					std::cout << (globaltime - noteseq[idx].time) << " ";
 					noteseq[idx].duration = globaltime - noteseq[idx].time;
 					emu[evt.channel()].key[evt.notenumber()].noteon = false;
 				}

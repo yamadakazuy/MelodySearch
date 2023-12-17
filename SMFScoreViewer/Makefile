@@ -8,7 +8,7 @@ OBJS = main.o smf.o
 
 CFLAGS += -g
 
-EXECUTABLE = smfviewer.exe
+EXECUTABLE = smfscoreviewer.exe
 
 all:	$(EXECUTABLE)
 
