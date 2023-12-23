@@ -477,26 +477,32 @@ std::ostream & smf::score::header_info(std::ostream & out) const {
 
 std::vector<smf::note> smf::score::notes() const {
 	std::vector<smf::note> noteseq;
+
 	struct trkinfo {
 		std::vector<smf::event>::const_iterator cursor;
 		uint32_t to_go;
-	} trk[tracks.size()];
+	} trk[noftracks()];
+	for(int i = 0; i < noftracks(); ++i) {
+		trk[i].cursor = tracks[i].cbegin();
+	}
 	struct {
 		struct {
 			bool noteon;
 			uint64_t index;
 		} key[128];
 	} emu[16];
-
-	for(int i = 0; i < noftracks(); ++i) {
-		trk[i].cursor = tracks[i].cbegin();
+	for(int ch = 0; ch < 18; ++ch){
+		for(int n = 0; n < 128; ++n) {
+			emu[ch].key[n].noteon = false;
+		}
 	}
+
 	uint64_t globaltime = 0;
-	// zero global time events
+	// process zero global time events
 	for(uint32_t i = 0; i < noftracks(); ++i) {
 		trk[i].to_go = 0;
 		while ( trk[i].cursor->deltaTime() == 0 && ! trk[i].cursor->isEoT() ) {
-			// issue events
+			// evaluate events
 			const smf::event & evt = *trk[i].cursor;
 			//std::cout << i << ": " << evt << " ";
 			if ( evt.isNoteOn() ) {
@@ -517,10 +523,9 @@ std::vector<smf::note> smf::score::notes() const {
 		if ( trk[i].cursor->isEoT() )
 			continue;
 		trk[i].to_go = trk[i].cursor->deltaTime();
-
 	}
-	uint64_t min_to_go;
 
+	uint64_t min_to_go;
 	while (true) {
 		min_to_go = 0;
 		for(uint32_t i = 0; i < noftracks(); ++i) {

@@ -480,23 +480,55 @@ std::ostream & smf::score::header_info(std::ostream & out) const {
 // に解釈し，smf::note の開始時刻順の列として返す．
 std::vector<smf::note> smf::score::notes() const {
 	std::vector<smf::note> noteseq;
-	std::vector<smf::event>::const_iterator tcursor[tracks.size()];
-	uint32_t to_go[tracks.size()];
+	struct {
+		std::vector<smf::event>::const_iterator iter;
+		uint64_t elapsed;
+	} track[noftracks()];
+	for(int i = 0; i < noftracks(); ++i) {
+		track[i] = {tracks[i].cbegin(), 0};
+	}
+
 	struct {
 		struct {
-			bool noteon;
+			bool on;
 			uint64_t index;
-		} key[128];
-	} module[16];
+		} note[128];
+	} midi[16];
 
-	for(int i = 0; i < noftracks(); ++i) {
-		tcursor[i].cursor = tracks[i].cbegin();
-	}
 	uint64_t globaltime = 0;
+	uint64_t next_globaltime;
+	while (true) {
+		next_globaltime = UINT64_MAX;
+		for(int i = 0; i < noftracks(); ++i) {
+			while ( (! track[i].iter->isEoT()) && (track[i].elapsed + track[i].iter->deltaTime() <= globaltime) ) {
+				const smf::event & evt = *(track[i].iter);
+				if ( evt.isNoteOn() ) {
+					midi[evt.channel()].note[evt.notenumber()].on = true;
+					noteseq.push_back(note(globaltime, evt));
+					midi[evt.channel()].note[evt.notenumber()].index = noteseq.size() - 1;
+				} else if ( evt.isNoteOff() ) {
+					midi[evt.channel()].note[evt.notenumber()].on = false;
+					const int & idx = midi[evt.channel()].note[evt.notenumber()].index;
+					noteseq[idx].duration = globaltime - noteseq[idx].time;
+				}
+				++track[i].iter;
+			}
+			if ( track[i].iter->isEoT() )
+				continue;
+			// next elasped time
+			track[i].elapsed += track[i].iter->deltaTime();
+			if (track[i].elapsed < next_globaltime)
+				next_globaltime = track[i].elapsed;
+			std::cout << "next " << next_globaltime << std::endl;
+		}
+		break;
+	}
+
+	/*
 	// zero global time events
 	for(uint32_t i = 0; i < noftracks(); ++i) {
-		tcursor[i].to_go = 0;
-		while ( tcursor[i].cursor->deltaTime() == 0 && ! tcursor[i].cursor->isEoT() ) {
+		track[i].elasped = 0;
+		while ( track[i].cursor->deltaTime() == 0 && ! track[i].cursor->isEoT() ) {
 			// issue events
 			const smf::event & evt = *tcursor[i].cursor;
 			//std::cout << i << ": " << evt << " ";
@@ -564,6 +596,6 @@ std::vector<smf::note> smf::score::notes() const {
 
 		}
 	}
-
+	 */
 	return noteseq;
 }

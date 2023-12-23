@@ -192,7 +192,7 @@ struct event {
 
 
 struct note {
-	uint32_t time;
+	uint64_t time;
 	uint8_t channel;
 	uint8_t number;
 	uint32_t duration;
