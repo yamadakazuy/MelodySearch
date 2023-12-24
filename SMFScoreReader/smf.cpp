@@ -401,20 +401,20 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 smf::score::score(std::istream & smffile) {
 	std::istreambuf_iterator<char> itr(smffile);
 	std::istreambuf_iterator<char> end_itr;
-
+	uint32_t ntracks;
 	uint32_t tracksig;
 	tracksig = get_uint32BE(itr);
 	if ( tracksig == INT_MThd ) {
 		get_uint32BE(itr);
 		// The header length is always 6.
-		smfformat = get_uint16BE(itr);
+		_format = get_uint16BE(itr);
 		ntracks = get_uint16BE(itr);
-		division = get_uint16BE(itr);
+		_division = get_uint16BE(itr);
 	} else {
-		smfformat = 0;
+		_format = 0;
 		ntracks = 0;
-		division = 0;
-		tracks.clear();
+		_division = 0;
+		_tracks.clear();
 		return;
 	}
 
@@ -424,7 +424,7 @@ smf::score::score(std::istream & smffile) {
 			//uint32_t len =
 			get_uint32BE(itr);  // skip the track length
 			//std::cerr << len << std::endl;
-			tracks.push_back(std::vector<event>());
+			_tracks.push_back(std::vector<event>());
 			uint8_t laststatus = 0;
 			event ev;
 			//long counter = 0;
@@ -435,7 +435,7 @@ smf::score::score(std::istream & smffile) {
 				if ( ev.isMIDI() ) {
 					laststatus = ev.status;
 				}
-				tracks.back().push_back(ev);
+				_tracks.back().push_back(ev);
 			} while ( !ev.isEoT() and itr != end_itr /* tracks.back().back().isEoT() */ );
 
 		} else if ( tracksig == INT_XFIH) {
@@ -469,9 +469,9 @@ smf::score::score(std::istream & smffile) {
 }
 
 std::ostream & smf::score::header_info(std::ostream & out) const {
-	out << "Format = " << std::dec << smfformat;
-	out << ", num. of Tracks = " << ntracks;
-	out << ", division = " << division;
+	out << "Format = " << std::dec << _format;
+	out << ", num. of Tracks = " << _tracks.size();
+	out << ", division = " << _division;
 	return out;
 }
 
@@ -483,9 +483,9 @@ std::vector<smf::note> smf::score::notes() const {
 	struct {
 		std::vector<smf::event>::const_iterator iter; // iterator
 		uint64_t elapsed;    // time elapsed from the start to just before delta time of *iter
-	} track[noftracks()];
-	for(int i = 0; i < noftracks(); ++i) {
-		track[i] = {tracks[i].cbegin(), 0};
+	} track[tracks().size()];
+	for(uint32_t i = 0; i < tracks().size(); ++i) {
+		track[i] = { _tracks[i].cbegin(), 0 };
 	}
 
 	struct {
@@ -495,118 +495,48 @@ std::vector<smf::note> smf::score::notes() const {
 		} note[128];
 	} midi[16];
 
-	uint64_t globaltime = 0, next_global, tracks_next;
+	uint64_t globaltime = 0, nextglobal[tracks().size()];
 	int cnt = 0;
 	while (true) {
-		next_global = UINT64_MAX;
-		for(int i = 0; i < noftracks(); ++i) {
+		for(uint32_t i = 0; i < tracks().size(); ++i) {
+			nextglobal[i] = 0;
 			while ( (! track[i].iter->isEoT())
 					&& (track[i].elapsed + track[i].iter->deltaTime() <= globaltime) ) {
 				const smf::event & evt = *(track[i].iter);
-				std::cout << evt << std::endl;
-				if ( evt.isNoteOn() ) {
-					midi[evt.channel()].note[evt.notenumber()].on = true;
-					noteseq.push_back(note(globaltime, evt));
-					midi[evt.channel()].note[evt.notenumber()].index = noteseq.size() - 1;
-				} else if ( evt.isNoteOff() ) {
-					midi[evt.channel()].note[evt.notenumber()].on = false;
-					const int & idx = midi[evt.channel()].note[evt.notenumber()].index;
-					noteseq[idx].duration = globaltime - noteseq[idx].time;
+				//std::cout << i << " " <<track[i].elapsed + track[i].iter->deltaTime() << " " << evt << std::endl;
+				if ( evt.isNote() ) {
+					if ( evt.isNoteOn() && evt.velocity() > 0 ) {
+						midi[evt.channel()].note[evt.notenumber()].on = true;
+						noteseq.push_back(note(globaltime, evt));
+						midi[evt.channel()].note[evt.notenumber()].index = noteseq.size() - 1;
+					} else {
+						midi[evt.channel()].note[evt.notenumber()].on = false;
+						const int & idx = midi[evt.channel()].note[evt.notenumber()].index;
+						noteseq[idx].duration = globaltime - noteseq[idx].time;
+					}
 				} else {
 					//std::cout << globaltime << evt << ", ";
 				}
 				// go iterator forward
 				track[i].elapsed += track[i].iter->deltaTime();
-				std::cout << track[i].elapsed << "; ";
+				//std::cout << track[i].elapsed << "; ";
 				++track[i].iter;
-				tracks_next = globaltime + track[i].iter->deltaTime();
-				// update elapsed time
+				nextglobal[i] = globaltime + track[i].iter->deltaTime();
 			}
-			if (tracks_next < next_global) {
-				next_global = tracks_next;
-				std::cout << "next " << next_global << std::endl;
-			}
-			std::cout << std::endl;
 			if ( track[i].iter->isEoT() )
 				continue;
 		}
-		globaltime = next_global;
-		if ( ++cnt > 100 )
+		uint64_t next = UINT64_MAX;
+		for(unsigned int i = 0; i < tracks().size(); ++i) {
+			if ( nextglobal[i] != 0 ) {
+				next = nextglobal[i] < next ? nextglobal[i] : next ;
+			}
+		}
+		//std::cout << "next " << next << std::endl;
+		if ( next == UINT64_MAX )
 			break;
+		globaltime = next;
 	}
 
-	/*
-	// zero global time events
-	for(uint32_t i = 0; i < noftracks(); ++i) {
-		track[i].elasped = 0;
-		while ( track[i].cursor->deltaTime() == 0 && ! track[i].cursor->isEoT() ) {
-			// issue events
-			const smf::event & evt = *tcursor[i].cursor;
-			//std::cout << i << ": " << evt << " ";
-			if ( evt.isNoteOn() ) {
-				noteseq.push_back(note(globaltime, evt));
-				emu[evt.channel()].key[evt.notenumber()].noteon = true;
-				emu[evt.channel()].key[evt.notenumber()].index = noteseq.size() - 1;
-			} else if ( evt.isNoteOff() ) {
-				if ( emu[evt.channel()].key[evt.notenumber()].noteon ) {
-					const uint64_t & idx = emu[evt.channel()].key[evt.notenumber()].index;
-					noteseq[idx].duration = globaltime - noteseq[idx].time;
-					emu[evt.channel()].key[evt.notenumber()].noteon = false;
-				}
-			}
-			++tcursor[i].cursor;
-		}
-		//std::cout << std::endl;
-		if ( trk[i].cursor->isEoT() )
-			continue;
-		tcursor[i].to_go = tcursor[i].cursor->deltaTime();
-
-	}
-	uint64_t min_to_go;
-
-	while (true) {
-		min_to_go = 0;
-		for(uint32_t i = 0; i < noftracks(); ++i) {
-			if ( tcursor[i].cursor->isEoT() )
-				continue;
-			if ( min_to_go == 0 or tcursor[i].to_go < min_to_go ) {
-				min_to_go = tcursor[i].to_go;
-			}
-		}
-		//std::cout << "min_to_go = " << min_to_go << std::endl;
-		globaltime += min_to_go;
-		//std::cout << "global = " << globaltime << std::endl;
-		if (min_to_go == 0)
-			break;
-		for(uint32_t i = 0; i < noftracks(); ++i) {
-			if ( tcursor[i].cursor->isEoT() )
-				continue;
-			tcursor[i].to_go -= min_to_go;
-
-			if ( tcursor[i].to_go == 0 ) {
-				do {
-					const smf::event & evt = *tcursor[i].cursor;
-					// events occur
-
-					if ( evt.isNoteOn() ) {
-						noteseq.push_back(note(globaltime, evt));
-						emu[evt.channel()].key[evt.notenumber()].noteon = true;
-						emu[evt.channel()].key[evt.notenumber()].index = noteseq.size() - 1;
-					} else if ( evt.isNoteOff() ) {
-						if ( emu[evt.channel()].key[evt.notenumber()].noteon ) {
-							const uint64_t & idx = emu[evt.channel()].key[evt.notenumber()].index;
-							noteseq[idx].duration = globaltime - noteseq[idx].time;
-							emu[evt.channel()].key[evt.notenumber()].noteon = false;
-						}
-					}
-					++tcursor[i].cursor;
-				} while ( tcursor[i].cursor->deltaTime() == 0 && ! tcursor[i].cursor->isEoT() );
-				//std::cout << std::endl;
-				trk[i].to_go = tcursor[i].cursor->deltaTime();
-			}
-
-		}
-	}
-	 */
 	return noteseq;
 }

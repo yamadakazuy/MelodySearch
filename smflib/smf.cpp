@@ -407,14 +407,14 @@ smf::score::score(std::istream & smffile) {
 	if ( tracksig == INT_MThd ) {
 		get_uint32BE(itr);
 		// The header length is always 6.
-		smfformat = get_uint16BE(itr);
+		_format = get_uint16BE(itr);
 		ntracks = get_uint16BE(itr);
-		division = get_uint16BE(itr);
+		_division = get_uint16BE(itr);
 	} else {
-		smfformat = 0;
+		_format = 0;
 		ntracks = 0;
-		division = 0;
-		tracks.clear();
+		_division = 0;
+		_tracks.clear();
 		return;
 	}
 
@@ -424,7 +424,7 @@ smf::score::score(std::istream & smffile) {
 			//uint32_t len =
 			get_uint32BE(itr);  // skip the track length
 			//std::cerr << len << std::endl;
-			tracks.push_back(std::vector<event>());
+			_tracks.push_back(std::vector<event>());
 			uint8_t laststatus = 0;
 			event ev;
 			//long counter = 0;
@@ -435,7 +435,7 @@ smf::score::score(std::istream & smffile) {
 				if ( ev.isMIDI() ) {
 					laststatus = ev.status;
 				}
-				tracks.back().push_back(ev);
+				_tracks.back().push_back(ev);
 			} while ( !ev.isEoT() and itr != end_itr /* tracks.back().back().isEoT() */ );
 
 		} else if ( tracksig == INT_XFIH) {
@@ -469,9 +469,9 @@ smf::score::score(std::istream & smffile) {
 }
 
 std::ostream & smf::score::header_info(std::ostream & out) const {
-	out << "Format = " << std::dec << smfformat;
+	out << "Format = " << std::dec << _format;
 	out << ", num. of Tracks = " << ntracks;
-	out << ", division = " << division;
+	out << ", division = " << _division;
 	return out;
 }
 
@@ -483,7 +483,7 @@ std::vector<smf::note> smf::score::notes() const {
 		uint32_t to_go;
 	} trk[noftracks()];
 	for(int i = 0; i < noftracks(); ++i) {
-		trk[i].cursor = tracks[i].cbegin();
+		trk[i].cursor = _tracks[i].cbegin();
 	}
 	struct {
 		struct {

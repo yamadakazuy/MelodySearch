@@ -209,11 +209,11 @@ struct note {
 };
 
 class score {
-	uint16_t smfformat, ntracks, division;
-	std::vector<std::vector<smf::event>> tracks;
+	uint16_t _format, ntracks, _division;
+	std::vector<std::vector<smf::event>> _tracks;
 
 public:
-	score() :  smfformat(0), ntracks(0), division(0), tracks() {}
+	score() :  _format(0), ntracks(0), _division(0), _tracks() {}
 	score(std::istream & smffile);
 	/*
 	score(std::istream & smffile) {
@@ -252,11 +252,11 @@ public:
 	*/
 
 	void clear() {
-		for(unsigned int i = 0; i < tracks.size(); ++i) {
-			tracks[i].clear();
+		for(unsigned int i = 0; i < _tracks.size(); ++i) {
+			_tracks[i].clear();
 		}
-		tracks.clear();
-		smfformat = 0, ntracks = 0, division = 0;
+		_tracks.clear();
+		_format = 0, ntracks = 0, _division = 0;
 	}
 
 	bool is_empty(void) const {
@@ -264,19 +264,19 @@ public:
 	}
 
 	uint16_t format() const {
-		return smfformat;
+		return _format;
 	}
 
 	bool isSMPTE() const {
-		return (division & (uint16_t(1)<<15)) != 0;
+		return (_division & (uint16_t(1)<<15)) != 0;
 	}
 
 	uint16_t resolution() const {
 		if ( ! isSMPTE() ) {
-			return division;
+			return _division;
 		} else {
-			uint16_t smpte = -char(division>>8);
-			uint16_t tpf = division & 0xff;
+			uint16_t smpte = -char(_division>>8);
+			uint16_t tpf = _division & 0xff;
 			return smpte * tpf;
 		}
 	}
@@ -286,7 +286,7 @@ public:
 	}
 
 	const std::vector<smf::event> & track(int i) const {
-		return tracks[i];
+		return _tracks[i];
 	}
 
 	std::vector<smf::note> notes() const;

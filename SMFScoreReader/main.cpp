@@ -49,6 +49,11 @@ int main(int argc, char **argv) {
 	//std::cout << midi << std::endl;
 
 	if (func == SHOW_NOTES) {
+		std::cout << "SMPTE " << midi.isSMPTE() << " resolution = " << midi.resolution() << " format = " << midi.format() << std::endl;
+		for(const auto & t : midi.tracks()) {
+			std::cout << t.size() << " ";
+		}
+		std::cout << std::endl;
 		std::vector<smf::note> notes = midi.notes();
 		std::cout << "notes size = " << notes.size() << std::endl << std::endl;
 		for(auto i = notes.begin(); i != notes.end(); ++i) {
@@ -58,7 +63,6 @@ int main(int argc, char **argv) {
 			}
 		}
 		std::cout << std::endl;
-		std::cout << "SMPTE " << midi.isSMPTE() << " resolution = " << midi.resolution() << " format = " << midi.format() << std::endl;
 	} else if (func == OUTPUT_MELODIC_CONTOUR) {
 		std::ofstream outputfile;
 	    filename += ".contour";
@@ -73,7 +77,7 @@ int main(int argc, char **argv) {
 
 		int64_t globaltime, last_noteon;
 		int notenum, notenum_1, notenum_2, note_count;
-		for(int i = 0; i < midi.noftracks(); ++i ) {
+		for(int i = 0; i < midi.tracks().size(); ++i ) {
 			globaltime = 0, last_noteon = -1;
 			notenum = -1;
 			note_count = 0;
