@@ -140,7 +140,7 @@ struct event {
 
 	bool isNoteOn() const {
 		if ( (status & 0xf0) == smf::MIDI_NOTEON ) {
-			return data[1] > 0;
+			return true;
 		}
 		return false;
 	}
@@ -156,6 +156,12 @@ struct event {
 	int octave() const {
 		if ( isNote() )
 			return smf::event::octave(data[0]);
+		return -2;
+	}
+
+	int velocity() const {
+		if ( isNote() )
+			return data[0];
 		return -2;
 	}
 

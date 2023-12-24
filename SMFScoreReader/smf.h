@@ -146,11 +146,18 @@ struct event {
 	}
 
 	bool isNoteOff() const {
-		return (status & 0xf0) == smf::MIDI_NOTEOFF;
+		return (status & 0xf0) == smf::MIDI_NOTEOFF
+				or ((status & 0xf0) == smf::MIDI_NOTEON && data[1] == 0) ;
 	}
 
 	int channel(void) const {
 		return 0x0f & status;
+	}
+
+	int velocity() const {
+		if ( isNote() )
+			return data[1];
+		return -2;
 	}
 
 	int octave() const {

@@ -481,8 +481,8 @@ std::ostream & smf::score::header_info(std::ostream & out) const {
 std::vector<smf::note> smf::score::notes() const {
 	std::vector<smf::note> noteseq;
 	struct {
-		std::vector<smf::event>::const_iterator iter;
-		uint64_t elapsed;
+		std::vector<smf::event>::const_iterator iter; // iterator
+		uint64_t elapsed;    // time elapsed from the start to just before delta time of *iter
 	} track[noftracks()];
 	for(int i = 0; i < noftracks(); ++i) {
 		track[i] = {tracks[i].cbegin(), 0};
@@ -495,13 +495,15 @@ std::vector<smf::note> smf::score::notes() const {
 		} note[128];
 	} midi[16];
 
-	uint64_t globaltime = 0;
-	uint64_t next_globaltime;
+	uint64_t globaltime = 0, next_global, tracks_next;
+	int cnt = 0;
 	while (true) {
-		next_globaltime = UINT64_MAX;
+		next_global = UINT64_MAX;
 		for(int i = 0; i < noftracks(); ++i) {
-			while ( (! track[i].iter->isEoT()) && (track[i].elapsed + track[i].iter->deltaTime() <= globaltime) ) {
+			while ( (! track[i].iter->isEoT())
+					&& (track[i].elapsed + track[i].iter->deltaTime() <= globaltime) ) {
 				const smf::event & evt = *(track[i].iter);
+				std::cout << evt << std::endl;
 				if ( evt.isNoteOn() ) {
 					midi[evt.channel()].note[evt.notenumber()].on = true;
 					noteseq.push_back(note(globaltime, evt));
@@ -510,18 +512,27 @@ std::vector<smf::note> smf::score::notes() const {
 					midi[evt.channel()].note[evt.notenumber()].on = false;
 					const int & idx = midi[evt.channel()].note[evt.notenumber()].index;
 					noteseq[idx].duration = globaltime - noteseq[idx].time;
+				} else {
+					//std::cout << globaltime << evt << ", ";
 				}
+				// go iterator forward
+				track[i].elapsed += track[i].iter->deltaTime();
+				std::cout << track[i].elapsed << "; ";
 				++track[i].iter;
+				tracks_next = globaltime + track[i].iter->deltaTime();
+				// update elapsed time
 			}
+			if (tracks_next < next_global) {
+				next_global = tracks_next;
+				std::cout << "next " << next_global << std::endl;
+			}
+			std::cout << std::endl;
 			if ( track[i].iter->isEoT() )
 				continue;
-			// next elasped time
-			track[i].elapsed += track[i].iter->deltaTime();
-			if (track[i].elapsed < next_globaltime)
-				next_globaltime = track[i].elapsed;
-			std::cout << "next " << next_globaltime << std::endl;
 		}
-		break;
+		globaltime = next_global;
+		if ( ++cnt > 100 )
+			break;
 	}
 
 	/*
