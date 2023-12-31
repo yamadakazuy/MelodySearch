@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "smf.h"
 
@@ -55,8 +56,10 @@ int main(int argc, char **argv) {
 		}
 		std::cout << std::endl;
 		std::vector<smf::note> notes = midi.notes();
+		std::sort(notes.begin(), notes.end());
 		std::cout << "notes size = " << notes.size() << std::endl << std::endl;
 		for(auto i = notes.begin(); i != notes.end(); ++i) {
+
 			std::cout << *i ;
 			if ( i->time < (i+1)->time ) {
 				std::cout << std::endl;
@@ -77,7 +80,7 @@ int main(int argc, char **argv) {
 
 		int64_t globaltime, last_noteon;
 		int notenum, notenum_1, notenum_2, note_count;
-		for(int i = 0; i < midi.tracks().size(); ++i ) {
+		for(unsigned int i = 0; i < midi.tracks().size(); ++i ) {
 			globaltime = 0, last_noteon = -1;
 			notenum = -1;
 			note_count = 0;

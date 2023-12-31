@@ -131,6 +131,13 @@ struct event {
 		return (msb4 >= 8) and (msb4 <= 14);
 	}
 
+	bool isProgChange() const {
+		if ( (status & 0xf0) == smf::MIDI_PROGRAMCHANGE) {
+			return true;
+		}
+		return false;
+	}
+
 	bool isNote() const {
 		if ( (status & 0xe0) == 0x80 ) {
 			return true;
@@ -181,6 +188,12 @@ struct event {
 		return int(data[0]);
 	}
 
+	int prognumber() const {
+		if ( !isProgChange() )
+			return 0;
+		return int(data[0]);
+	}
+
 	std::ostream & printOn(std::ostream & out) const;
 
 	std::ostream & printData(std::ostream & out, uint32_t offset = 1) const {
@@ -204,6 +217,30 @@ struct note {
 	uint32_t duration;
 
 	note(uint32_t t, const smf::event & e, uint32_t d = 0) : time(t), channel(e.channel()), number(e.notenumber()), duration(d) { }
+
+	bool operator==(const note & rgt) const {
+		return (time == rgt.time) && (channel == rgt.channel)
+				&& (number == rgt.number) && (duration == rgt.duration);
+	}
+
+	bool operator<(const note & rgt) const {
+		if (time < rgt.time) {
+			return true;
+		} else if (time > rgt.time)
+			return false;
+		if (channel < rgt.channel) {
+			return true;
+		} else if (channel > rgt.channel)
+			return false;
+		if (number < rgt.number) {
+			return true;
+		} else if (number > rgt.number)
+			return false;
+		if (duration < rgt.duration) {
+			return true;
+		}
+		return false;
+	}
 
 	friend std::ostream & operator<<(std::ostream & out, const note & n) {
 		out << "[";

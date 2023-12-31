@@ -480,7 +480,7 @@ std::ostream & smf::score::header_info(std::ostream & out) const {
 // に解釈し，smf::note の開始時刻順の列として返す．
 std::vector<smf::note> smf::score::notes() const {
 	std::vector<smf::note> noteseq;
-	struct {
+	struct track_info {
 		std::vector<smf::event>::const_iterator iter; // iterator
 		uint64_t elapsed;    // time elapsed from the start to just before delta time of *iter
 	} track[tracks().size()];
@@ -488,15 +488,18 @@ std::vector<smf::note> smf::score::notes() const {
 		track[i] = { _tracks[i].cbegin(), 0 };
 	}
 
-	struct {
+	struct sound_mod {
 		struct {
 			bool on;
 			uint64_t index;
 		} note[128];
+		int program;
+
+		sound_mod() : program(0) {}
 	} midi[16];
 
 	uint64_t globaltime = 0, nextglobal[tracks().size()];
-	int cnt = 0;
+	//int cnt = 0;
 	while (true) {
 		for(uint32_t i = 0; i < tracks().size(); ++i) {
 			nextglobal[i] = 0;
@@ -514,8 +517,9 @@ std::vector<smf::note> smf::score::notes() const {
 						const int & idx = midi[evt.channel()].note[evt.notenumber()].index;
 						noteseq[idx].duration = globaltime - noteseq[idx].time;
 					}
-				} else {
-					//std::cout << globaltime << evt << ", ";
+				} else if (evt.isProgChange() ) {
+					midi[evt.channel()].program = evt.prognumber();
+					//std::cout << globaltime << " " << evt << std::endl;
 				}
 				// go iterator forward
 				track[i].elapsed += track[i].iter->deltaTime();
