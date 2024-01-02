@@ -298,6 +298,7 @@ public:
 	}
 
 	std::vector<smf::note> notes() const;
+	std::vector<smf::note> notes(const std::vector<int> & channels, const std::vector<int> & progs) const;
 
 	std::ostream & header_info(std::ostream & out) const;
 

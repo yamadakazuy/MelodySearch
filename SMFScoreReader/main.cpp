@@ -49,13 +49,28 @@ int main(int argc, char **argv) {
 	}
 	//std::cout << midi << std::endl;
 
+	std::vector<int> channels = {};
+	std::vector<int> programs = {25, 26, 27, 28, 29, 30, 31, 32};
+
+	std::cout << "channels ";
+	for(auto & i : channels) {
+		std::cout << i << " ";
+	}
+	std::cout << std::endl;
+
+	std::cout << "programs ";
+	for(auto & i : programs) {
+		std::cout << i << " ";
+	}
+	std::cout << std::endl;
+
 	if (func == SHOW_NOTES) {
 		std::cout << "SMPTE " << midi.isSMPTE() << " resolution = " << midi.resolution() << " format = " << midi.format() << std::endl;
 		for(const auto & t : midi.tracks()) {
 			std::cout << t.size() << " ";
 		}
 		std::cout << std::endl;
-		std::vector<smf::note> notes = midi.notes();
+		std::vector<smf::note> notes = midi.notes(channels, programs);
 		std::sort(notes.begin(), notes.end());
 		std::cout << "notes size = " << notes.size() << std::endl << std::endl;
 		for(auto i = notes.begin(); i != notes.end(); ++i) {

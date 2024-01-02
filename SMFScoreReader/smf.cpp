@@ -10,7 +10,8 @@
 #include <iostream>
 #include <iomanip>
 #include <deque>
-
+#include <vector>
+#include <algorithm>
 #include "smf.h"
 
 // read 4 bytes to get a 32 bit value in the big endian byte order
@@ -479,6 +480,12 @@ std::ostream & smf::score::header_info(std::ostream & out) const {
 // note-on と note-off イベントの組を音符 smf::note として開始時刻，音程，長さの組
 // に解釈し，smf::note の開始時刻順の列として返す．
 std::vector<smf::note> smf::score::notes() const {
+	const std::vector<int> chs = std::vector<int>() ;
+	const std::vector<int> prgs = std::vector<int>();
+	return smf::score::notes(chs, prgs);
+}
+
+std::vector<smf::note> smf::score::notes(const std::vector<int> & channels, const std::vector<int> & progs) const {
 	std::vector<smf::note> noteseq;
 	struct track_info {
 		std::vector<smf::event>::const_iterator iter; // iterator
@@ -488,15 +495,16 @@ std::vector<smf::note> smf::score::notes() const {
 		track[i] = { _tracks[i].cbegin(), 0 };
 	}
 
-	struct sound_mod {
-		struct {
+	struct sound {
+		struct onoff {
 			bool on;
 			uint64_t index;
-		} note[128];
-		int program;
 
-		sound_mod() : program(0) {}
+			onoff() : on(false), index(0) {}
+		} note[128];
 	} midi[16];
+
+	int program[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
 
 	uint64_t globaltime = 0, nextglobal[tracks().size()];
 	//int cnt = 0;
@@ -506,20 +514,29 @@ std::vector<smf::note> smf::score::notes() const {
 			while ( (! track[i].iter->isEoT())
 					&& (track[i].elapsed + track[i].iter->deltaTime() <= globaltime) ) {
 				const smf::event & evt = *(track[i].iter);
+				const int evt_chan = evt.channel();
+				const int evt_prog = program[evt_chan];
 				//std::cout << i << " " <<track[i].elapsed + track[i].iter->deltaTime() << " " << evt << std::endl;
 				if ( evt.isNote() ) {
+					const int chs = std::count(channels.begin(), channels.end(), evt_chan);
+					const bool is_target_channel = channels.empty() || (std::count(channels.begin(), channels.end(), evt_chan) > 0);
+					const bool is_target_prog = progs.empty() || (std::count(progs.begin(), progs.end(), program[evt_chan]) > 0);
 					if ( evt.isNoteOn() && evt.velocity() > 0 ) {
 						midi[evt.channel()].note[evt.notenumber()].on = true;
-						noteseq.push_back(note(globaltime, evt));
-						midi[evt.channel()].note[evt.notenumber()].index = noteseq.size() - 1;
+						if ( is_target_channel && is_target_prog ) {
+							noteseq.push_back(note(globaltime, evt));
+							midi[evt.channel()].note[evt.notenumber()].index = noteseq.size() - 1;
+						}
 					} else {
 						midi[evt.channel()].note[evt.notenumber()].on = false;
-						const int & idx = midi[evt.channel()].note[evt.notenumber()].index;
-						noteseq[idx].duration = globaltime - noteseq[idx].time;
+						if ( is_target_channel && is_target_prog ) {
+							const int & idx = midi[evt.channel()].note[evt.notenumber()].index;
+							noteseq[idx].duration = globaltime - noteseq[idx].time;
+						}
 					}
 				} else if (evt.isProgChange() ) {
-					midi[evt.channel()].program = evt.prognumber();
-					//std::cout << globaltime << " " << evt << std::endl;
+					program[evt_chan] = evt.prognumber();
+					std::cout << globaltime << " " << evt_chan << " " << program[evt_chan] << std::endl;
 				}
 				// go iterator forward
 				track[i].elapsed += track[i].iter->deltaTime();
