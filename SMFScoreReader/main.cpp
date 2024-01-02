@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <algorithm>
 
@@ -11,6 +12,18 @@ using std::cout;
 using std::endl;
 using std::cerr;
 using std::vector;
+
+// 文字列を文字 delimiter で区切って文字列の配列 vector<string> にして
+// 返す関数．コンマやタブ区切り形式のテキスト一行を処理するのに使用する．
+vector<string> split(const string & input, char delim) {
+    std::istringstream stream(input);
+    string field;
+    vector<string> result;
+    while (std::getline(stream, field, delim)) {
+        result.push_back(field);
+    }
+    return result;
+}
 
 enum FUNCTION {
 	SHOW_NOTES = 0,
@@ -23,15 +36,20 @@ int main(int argc, char **argv) {
 	std::ifstream input;
 
 	if ( !(argc > 1) ) {
-		cerr << "[-contour] ファイル名" << endl;
+		cerr << "[-channnel \"0,1,5\"] [-program \"29, 30\"] [-contour] ファイル名" << endl;
 		return EXIT_FAILURE;
 	}
 
-	for(int i = 1; i < argc; ++i) {
+	int i = 1;
+	while( i < argc) {
 		if ( string(argv[i]) == "-contour" ) {
 			func = OUTPUT_MELODIC_CONTOUR;
-		} else {
+			++i;
 			filename = argv[i];
+			++i;
+			continue;
+		} else if (string(argv[i]).starts_with("-channel")) {
+			++i;
 		}
 	}
 	cout << "file: " << filename << endl;
@@ -155,10 +173,6 @@ int main(int argc, char **argv) {
 						outputfile << "-";
 					}
 				}
-				//std::cout << last_noteon << "\t";
-				//outputfile << ((notenum_2 == -1) ? "*" : (notenum_1 == notenum_2 ? "=" : (notenum_1 > notenum_2 ? "+" : "-")));
-				//std::cout << notenum_1 << " <- " << notenum_2 ;
-				//std::cout << std::endl;
 				break;
 			}
 		}
