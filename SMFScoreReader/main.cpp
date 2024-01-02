@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <stdexcept>
 
 #include "smf.h"
 
@@ -25,6 +26,18 @@ vector<string> split(const string & input, char delim) {
     return result;
 }
 
+int strtonni(const string & arg) {
+	int i;
+	try {
+		i = std::stoi(arg);
+	} catch(const std::invalid_argument & ex) {
+		return -1;
+	} catch(const std::out_of_range & ex) {
+		return -2;
+	}
+	return i;
+}
+
 enum FUNCTION {
 	SHOW_NOTES = 0,
 	OUTPUT_MELODIC_CONTOUR,
@@ -32,34 +45,51 @@ enum FUNCTION {
 
 int main(int argc, char **argv) {
 	FUNCTION func = SHOW_NOTES;
-	string filename;
+	string filename = "";
 	std::ifstream input;
 
+	vector<string> argstr;
+	vector<int> channels;
+	vector<int> programs;
+
 	if ( !(argc > 1) ) {
-		cerr << "[-channnel \"0,1,5\"] [-program \"29, 30\"] [-contour] ファイル名" << endl;
+		cerr << "[-channnel \"0:1:5\"] [-program \"29:30\"] [-contour] SMFファイル名" << endl;
 		return EXIT_FAILURE;
 	}
 
 	int i = 1;
+	int v;
 	while( i < argc) {
-		if ( string(argv[i]) == "-contour" ) {
+		if ( string(argv[i]).starts_with("-contour") ) {
 			func = OUTPUT_MELODIC_CONTOUR;
-			++i;
-			filename = argv[i];
-			++i;
-			continue;
-		} else if (string(argv[i]).starts_with("-channel")) {
-			++i;
+		} else if (string(argv[i]).starts_with("-channel=") ) {
+			argstr = split(string(argv[i]), '=');
+			for(auto & s : split(argstr[1], ':') ) {
+				v = strtonni(s);
+				if (v >= 0)
+					channels.push_back(v);
+			}
+		} else if (string(argv[i]).starts_with("-program=")) {
+			argstr = split(string(argv[i]), '=');
+			for(auto & s : split(argstr[1], ':') ) {
+				v = strtonni(s);
+				if (v >= 0)
+					programs.push_back(v);
+			}
+		} else {
+			filename = string(argv[i]);
 		}
+		++i;
 	}
-	cout << "file: " << filename << endl;
+
+	cout << "SMF \"" << filename << "\"" << endl;
 	input.open(filename, (std::ios::in | std::ios::binary) );
 	if ( !input ) {
 		cerr << "オープン失敗" << endl;
 		return EXIT_FAILURE;
 	}
+
 	smf::score midi(input);
-	cout << "midi" << endl;
 	input.close();
 	if ( midi.is_empty() ) {
 		std::cerr << "SMF読み込み失敗" << std::endl;
@@ -67,20 +97,17 @@ int main(int argc, char **argv) {
 	}
 	//std::cout << midi << std::endl;
 
-	std::vector<int> channels = {};
-	std::vector<int> programs = {25, 26, 27, 28, 29, 30, 31, 32};
-
-	std::cout << "channels ";
+	std::cout << "Extract from channels ";
 	for(auto & i : channels) {
 		std::cout << i << " ";
 	}
-	std::cout << std::endl;
+	std::cout << ", " << std::endl;
 
-	std::cout << "programs ";
+	std::cout << "Extract programs ";
 	for(auto & i : programs) {
 		std::cout << i << " ";
 	}
-	std::cout << std::endl;
+	std::cout << "." << std::endl;
 
 	if (func == SHOW_NOTES) {
 		std::cout << "SMPTE " << midi.isSMPTE() << " resolution = " << midi.resolution() << " format = " << midi.format() << std::endl;
