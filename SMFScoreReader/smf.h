@@ -251,13 +251,13 @@ struct note {
 	}
 };
 
-class score {
+class MIDI {
 	uint16_t _format, _division;
 	std::vector<std::vector<smf::event>> _tracks;
 
 public:
-	score() :  _format(0), _division(0), _tracks() {}
-	score(std::istream & smffile);
+	MIDI() :  _format(0), _division(0), _tracks() {}
+	MIDI(std::istream & smffile);
 
 	void clear() {
 		for(unsigned int i = 0; i < _tracks.size(); ++i) {
@@ -297,12 +297,12 @@ public:
 		return _tracks[i];
 	}
 
-	std::vector<smf::note> notes() const;
-	std::vector<smf::note> notes(const std::vector<int> & channels, const std::vector<int> & progs) const;
+	std::vector<smf::note> score() const;
+	std::vector<smf::note> score(const std::vector<int> & channels, const std::vector<int> & progs) const;
 
 	std::ostream & header_info(std::ostream & out) const;
 
-	friend std::ostream & operator<<(std::ostream & out, const score & midi) {
+	friend std::ostream & operator<<(std::ostream & out, const MIDI & midi) {
 		out << "smf";
 		out << "(header: format = " << std::dec << midi.format() << ", the number of tracks = " << midi.tracks().size() << ", resolution = " << midi.resolution() << ") ";
 		for(uint16_t i = 0; i < midi.tracks().size() ; ++i) {

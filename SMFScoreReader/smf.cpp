@@ -399,7 +399,7 @@ std::ostream & smf::event::printOn(std::ostream & out) const {
 	return out;
 }
 
-smf::score::score(std::istream & smffile) {
+smf::MIDI::MIDI(std::istream & smffile) {
 	std::istreambuf_iterator<char> itr(smffile);
 	std::istreambuf_iterator<char> end_itr;
 	uint32_t ntracks;
@@ -469,7 +469,7 @@ smf::score::score(std::istream & smffile) {
 	return;
 }
 
-std::ostream & smf::score::header_info(std::ostream & out) const {
+std::ostream & smf::MIDI::header_info(std::ostream & out) const {
 	out << "Format = " << std::dec << _format;
 	out << ", num. of Tracks = " << _tracks.size();
 	out << ", division = " << _division;
@@ -479,13 +479,13 @@ std::ostream & smf::score::header_info(std::ostream & out) const {
 // smf::score の tracks に含まれるトラックをスキャンし，
 // note-on と note-off イベントの組を音符 smf::note として開始時刻，音程，長さの組
 // に解釈し，smf::note の開始時刻順の列として返す．
-std::vector<smf::note> smf::score::notes() const {
+std::vector<smf::note> smf::MIDI::score() const {
 	const std::vector<int> chs = std::vector<int>() ;
 	const std::vector<int> prgs = std::vector<int>();
-	return smf::score::notes(chs, prgs);
+	return smf::MIDI::score(chs, prgs);
 }
 
-std::vector<smf::note> smf::score::notes(const std::vector<int> & channels, const std::vector<int> & progs) const {
+std::vector<smf::note> smf::MIDI::score(const std::vector<int> & channels, const std::vector<int> & progs) const {
 	std::vector<smf::note> noteseq;
 	struct track_info {
 		std::vector<smf::event>::const_iterator iter; // iterator
@@ -515,10 +515,10 @@ std::vector<smf::note> smf::score::notes(const std::vector<int> & channels, cons
 					&& (track[i].elapsed + track[i].iter->deltaTime() <= globaltime) ) {
 				const smf::event & evt = *(track[i].iter);
 				const int evt_chan = evt.channel();
-				const int evt_prog = program[evt_chan];
+				//const int evt_prog = program[evt_chan];
 				//std::cout << i << " " <<track[i].elapsed + track[i].iter->deltaTime() << " " << evt << std::endl;
 				if ( evt.isNote() ) {
-					const int chs = std::count(channels.begin(), channels.end(), evt_chan);
+					//const int chs = std::count(channels.begin(), channels.end(), evt_chan);
 					const bool is_target_channel = channels.empty() || (std::count(channels.begin(), channels.end(), evt_chan) > 0);
 					const bool is_target_prog = progs.empty() || (std::count(progs.begin(), progs.end(), program[evt_chan]) > 0);
 					if ( evt.isNoteOn() && evt.velocity() > 0 ) {

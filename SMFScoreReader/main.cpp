@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 
-	smf::score midi(input);
+	smf::MIDI midi(input);
 	input.close();
 	if ( midi.is_empty() ) {
 		std::cerr << "SMF読み込み失敗" << std::endl;
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
 			std::cout << t.size() << " ";
 		}
 		std::cout << std::endl;
-		std::vector<smf::note> notes = midi.notes(channels, programs);
+		std::vector<smf::note> notes = midi.score(channels, programs);
 		std::sort(notes.begin(), notes.end());
 		std::cout << "notes size = " << notes.size() << std::endl << std::endl;
 		for(auto i = notes.begin(); i != notes.end(); ++i) {
