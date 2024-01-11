@@ -305,12 +305,19 @@ public:
 	friend std::ostream & operator<<(std::ostream & out, const MIDI & midi) {
 		out << "smf";
 		out << "(header: format = " << std::dec << midi.format() << ", the number of tracks = " << midi.tracks().size() << ", resolution = " << midi.resolution() << ") ";
-		for(uint16_t i = 0; i < midi.tracks().size() ; ++i) {
-			out << std::endl << "track " << std::dec << i << ": ";
-			for(auto e = midi._tracks[i].cbegin(); e != midi._tracks[i].end() ; ++e) {
-				out << *e;
-			}
+		if ( midi._tracks.size() > 0 ) {
+			out << std::endl << "track size: ";
+			out << midi.track(0).size();
+			for(uint16_t i = 1; i < midi.tracks().size() ; ++i) {
+				out << ", ";
+				out << midi.track(i).size();
+				/*
+				for(auto e = midi._tracks[i].cbegin(); e != midi._tracks[i].end() ; ++e) {
+					out << *e;
+				}
+				*/
 
+			}
 		}
 		out << std::endl;
 		return out;
