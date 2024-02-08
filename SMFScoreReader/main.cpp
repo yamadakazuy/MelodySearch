@@ -45,7 +45,7 @@ enum FUNCTION {
 
 int main(int argc, char **argv) {
 	FUNCTION func = SHOW_NOTES;
-	string filename = "";
+	string filename = "Starman.mid";
 	std::ifstream input;
 
 	vector<string> argstr;
