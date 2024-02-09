@@ -61,7 +61,7 @@ bool smf::check_str(const std::string & str, std::istreambuf_iterator<char> & it
 //	return std::equal(str.begin(), str.end(), itr);
 }
 
-
+/*
 smf::event::event(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
 	delta = get_uint32VLQ(itr);
 	status = laststatus;
@@ -105,22 +105,10 @@ smf::event::event(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
 		// error.
 	}
 }
+*/
 
-
-void smf::event::read(std::istreambuf_iterator<char> & itr, uint8_t laststatus) {
+void smf::event::read_databytes(std::istreambuf_iterator<char> & itr) {
 	std::istreambuf_iterator<char> end_itr;
-	delta = get_uint32VLQ(itr);
-	status = laststatus;
-	bool not_running_status = false;
-	if (((*itr) & 0x80) != 0) {
-		not_running_status = true;
-		status = *itr;
-		++itr;
-	} /*
-	else {
-		std::cout << "running status" << std::endl;
-	}
-	*/
 	uint32_t len;
 	uint8_t type = status & 0xf0;
 	if ( (smf::MIDI_NOTEOFF <= type && type <= smf::MIDI_CONTROLCHANGE) || (type == smf::MIDI_PITCHBEND) ) {
@@ -178,11 +166,6 @@ void smf::event::read(std::istreambuf_iterator<char> & itr, uint8_t laststatus) 
 			//std::cerr << "system common: tune request" << std::endl;
 		} else {
 			std::cerr << "smf::event::read unknown system event!";
-			if ( not_running_status ) {
-				std::cerr << " status = " << std::hex << int(status);
-			} else {
-				std::cerr << " running status = " << std::hex << (unsigned int) laststatus;
-			}
 			std::cerr << ", type = " << std::hex << int(type) << std::endl;
 			// error.
 		}
@@ -423,19 +406,34 @@ smf::MIDI::MIDI(std::istream & smffile) {
 		uint32_t tracksig = get_uint32BE(itr);
 		if ( tracksig == INT_MTrk ) {
 			//uint32_t len =
-			get_uint32BE(itr);  // skip the track length
+			get_uint32BE(itr);  // read to skip the track length
 			//std::cerr << len << std::endl;
 			_tracks.push_back(std::vector<event>());
-			uint8_t laststatus = 0;
+			uint8_t status_buffer = 0;
 			event ev;
 			//long counter = 0;
 			do {
+				// clear status byte and data bytes
 				ev.clear();
-				ev.read(itr, laststatus);
-				//std::cout << "laststatus = " << std::hex << (int) laststatus << " " << ev << std::endl;
-				if ( ev.isMIDI() ) {
-					laststatus = ev.status;
+				// read delta
+				ev.delta = get_uint32VLQ(itr);
+				// check status byte or data byte
+				ev.status = *itr;
+				// set buffer 'status' if status byte
+				if ( smf::event::check_isStatusByte(ev.status) ) {
+					++itr; // advance to the head of data bytes
+					if ( ev.isMIDI() ) {
+						status_buffer = ev.status;
+					} else if ( ev.isSystem() ) {
+						status_buffer = 0;
+					} // else ev is Real Time event, do nothing
+				} else {
+					// in running status
+					ev.status = status_buffer;
 				}
+				// read data byte(s)
+				ev.read_databytes(itr);
+				//std::cout << "laststatus = " << std::hex << (int) laststatus << " " << ev << std::endl;
 				_tracks.back().push_back(ev);
 			} while ( !ev.isEoT() and itr != end_itr /* tracks.back().back().isEoT() */ );
 

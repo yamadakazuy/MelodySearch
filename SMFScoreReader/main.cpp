@@ -14,6 +14,8 @@ using std::endl;
 using std::cerr;
 using std::vector;
 
+// command -program="29:30:31" filename.mid
+
 // 文字列を文字 delimiter で区切って文字列の配列 vector<string> にして
 // 返す関数．コンマやタブ区切り形式のテキスト一行を処理するのに使用する．
 vector<string> split(const string & input, char delim) {
@@ -95,7 +97,7 @@ int main(int argc, char **argv) {
 		std::cerr << "SMF読み込み失敗" << std::endl;
 		return EXIT_FAILURE;
 	}
-	//std::cout << midi << std::endl;
+	std::cout << midi << std::endl;
 
 	std::cout << "Extract from channels ";
 	for(auto & i : channels) {

@@ -86,11 +86,15 @@ struct event {
 		return smf::namesofnote[notenum % 12];
 	}
 
+	static const bool check_isStatusByte(uint8_t b) {
+		return (b & 0x80) != 0 ;
+	}
+
 	event(void) : delta(0), status(0), data() {}
 
-	event(std::istreambuf_iterator<char> & itr, uint8_t laststatus);
+//	event(std::istreambuf_iterator<char> & itr, uint8_t laststatus);
 
-	void read(std::istreambuf_iterator<char> & itr, uint8_t laststatus = 0);
+	void read_databytes(std::istreambuf_iterator<char> & itr);
 
 	void clear() {
 		delta = 0;
@@ -129,6 +133,14 @@ struct event {
 	bool isMIDI() const {
 		uint8_t msb4 = (status & 0xf0)>>4;
 		return (msb4 >= 8) and (msb4 <= 14);
+	}
+
+	bool isSystem() const {
+		return (0xf0 <= status) && (status <= 0xf7);
+	}
+
+	bool isRealTime() const {
+		return (0xf8 <= status) && (status <= 0xff);
 	}
 
 	bool isProgChange() const {
@@ -305,12 +317,19 @@ public:
 	friend std::ostream & operator<<(std::ostream & out, const MIDI & midi) {
 		out << "smf";
 		out << "(header: format = " << std::dec << midi.format() << ", the number of tracks = " << midi.tracks().size() << ", resolution = " << midi.resolution() << ") ";
-		for(uint16_t i = 0; i < midi.tracks().size() ; ++i) {
-			out << std::endl << "track " << std::dec << i << ": ";
-			for(auto e = midi._tracks[i].cbegin(); e != midi._tracks[i].end() ; ++e) {
-				out << *e;
-			}
+		if ( midi._tracks.size() > 0 ) {
+			out << std::endl << "track size: ";
+			out << midi.track(0).size();
+			for(uint16_t i = 1; i < midi.tracks().size() ; ++i) {
+				out << ", ";
+				out << midi.track(i).size();
+				/*
+				for(auto e = midi._tracks[i].cbegin(); e != midi._tracks[i].end() ; ++e) {
+					out << *e;
+				}
+				*/
 
+			}
 		}
 		out << std::endl;
 		return out;
